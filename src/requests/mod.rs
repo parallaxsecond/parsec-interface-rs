@@ -12,6 +12,10 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//! # `Request`s and `Response`s
+//!
+//! A `Request` is what is sent to the service to execute one operation. A `Response` is what the
+//! service returns.
 use num_derive::FromPrimitive;
 
 mod response_status;
@@ -32,7 +36,9 @@ const MAGIC_NUMBER: u32 = 0x5EC0_A710;
 #[derive(FromPrimitive, PartialEq, Eq, Hash, Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum ProviderID {
+    /// Provider to use for core PARSEC operations.
     CoreProvider = 0,
+    /// Provider using Mbed Crypto software library.
     MbedProvider = 1,
 }
 
@@ -59,28 +65,35 @@ impl TryFrom<u8> for ProviderID {
 #[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[repr(u8)]
 pub enum BodyType {
+    /// Protobuf format for operations.
     Protobuf = 0,
 }
 
 /// Listing of available operations and their associated opcode.
 ///
-/// Passed in headers as `opcode`.
+/// Passed in headers as `opcode`. The values of the enumeration constants come from the operations
+/// documentation available
+/// [here](https://github.com/docker/parsec/blob/master/docs/operation_directory.proto).
 #[derive(FromPrimitive, Copy, Clone, PartialEq, Debug, Hash, Eq)]
 #[repr(u16)]
 pub enum Opcode {
-    Ping = 0,
-    CreateKey = 1,
-    DestroyKey = 2,
-    AsymSign = 3,
-    AsymVerify = 4,
-    ImportKey = 5,
-    ExportPublicKey = 6,
-    ListProviders = 7,
-    ListOpcodes = 8,
+    Ping = 1,
+    CreateKey = 2,
+    DestroyKey = 3,
+    AsymSign = 4,
+    AsymVerify = 5,
+    ImportKey = 6,
+    ExportPublicKey = 7,
+    ListProviders = 8,
+    ListOpcodes = 9,
 }
 
+/// Listing of available authentication methods.
+///
+/// Passed in headers as `auth_type`.
 #[derive(FromPrimitive, PartialEq, Eq, Hash, Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum AuthType {
+    /// Simple, dummy, authentication.
     Simple = 0,
 }

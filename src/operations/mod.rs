@@ -12,6 +12,10 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//! # Rust representation of operations
+//!
+//! `NativeOperation` and `NativeResult`: Rust native representation of the language neutral operations
+//! described in [`parsec-operations`](https://github.com/docker/parsec-operations).
 mod ping;
 pub mod key_attributes;
 mod create_key;
