@@ -13,13 +13,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 use crate::requests::ProviderID;
+use uuid::Uuid;
 
 /// Structure holding the basic information that defines the providers in
 /// the service for client discovery.
 #[derive(Debug, Clone)]
 pub struct ProviderInfo {
-    pub id: ProviderID,
+    pub uuid: Uuid,
     pub description: String,
+    pub vendor: String,
+    pub version_maj: u32,
+    pub version_min: u32,
+    pub version_rev: u32,
+    pub id: ProviderID,
 }
 
 /// Native object for provider listing operation.

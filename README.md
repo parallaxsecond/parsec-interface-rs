@@ -33,6 +33,7 @@ This project uses the following third party crates:
 * prost (Apache-2.0)
 * bytes (MIT)
 * num (MIT and Apache-2.0)
+* uuid (Apache-2.0)
 
 # Contributing
 

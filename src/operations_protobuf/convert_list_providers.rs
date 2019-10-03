@@ -19,6 +19,7 @@ use crate::operations::{OpListProviders, ProviderInfo, ResultListProviders};
 use crate::requests::{ProviderID, ResponseStatus};
 use num::FromPrimitive;
 use std::convert::{TryFrom, TryInto};
+use uuid::Uuid;
 
 impl TryFrom<OpListProvidersProto> for OpListProviders {
     type Error = ResponseStatus;
@@ -40,14 +41,25 @@ impl TryFrom<ProviderInfoProto> for ProviderInfo {
     type Error = ResponseStatus;
 
     fn try_from(proto_info: ProviderInfoProto) -> Result<Self, Self::Error> {
+        // UUIDs are strings of 36 ASCII characters (bytes) containing 32 lowercase hexadecimal
+        // digits and 4 hyphens.
+        let provider_uuid = match Uuid::parse_str(&proto_info.uuid) {
+            Ok(provider_uuid) => provider_uuid,
+            Err(_) => return Err(ResponseStatus::WrongProviderUuid),
+        };
         let id: ProviderID = match FromPrimitive::from_u32(proto_info.id) {
             Some(id) => id,
             None => return Err(ResponseStatus::ProviderDoesNotExist),
         };
 
         Ok(ProviderInfo {
-            id,
+            uuid: provider_uuid,
             description: proto_info.description,
+            vendor: proto_info.vendor,
+            version_maj: proto_info.version_maj,
+            version_min: proto_info.version_min,
+            version_rev: proto_info.version_rev,
+            id,
         })
     }
 }
@@ -57,8 +69,13 @@ impl TryFrom<ProviderInfo> for ProviderInfoProto {
 
     fn try_from(info: ProviderInfo) -> Result<Self, Self::Error> {
         Ok(ProviderInfoProto {
-            id: info.id as u32,
+            uuid: info.uuid.to_string(),
             description: info.description,
+            vendor: info.vendor,
+            version_maj: info.version_maj,
+            version_min: info.version_min,
+            version_rev: info.version_rev,
+            id: info.id as u32,
         })
     }
 }
@@ -101,6 +118,7 @@ mod test {
     };
     use crate::requests::{request::RequestBody, response::ResponseBody, Opcode, ProviderID};
     use std::convert::TryInto;
+    use uuid::Uuid;
 
     static CONVERTER: ProtobufConverter = ProtobufConverter {};
 
@@ -108,14 +126,27 @@ mod test {
     fn proto_to_resp() {
         let mut proto: ResultListProvidersProto = Default::default();
         let mut provider_info = ProviderInfoProto::default();
-        provider_info.id = 1;
+        provider_info.uuid = String::from("9840cd61-9367-4010-bc24-f5b98a6174d1");
         provider_info.description = String::from("provider description");
+        provider_info.vendor = String::from("Arm");
+        provider_info.version_maj = 0;
+        provider_info.version_min = 1;
+        provider_info.version_rev = 0;
+        provider_info.id = 1;
         proto.providers.push(provider_info);
         let resp: ResultListProviders = proto.try_into().unwrap();
 
         assert_eq!(resp.providers.len(), 1);
-        assert_eq!(resp.providers[0].id, ProviderID::MbedProvider);
+        assert_eq!(
+            resp.providers[0].uuid,
+            Uuid::parse_str("9840CD6193674010BC24F5B98A6174D1").unwrap()
+        );
         assert_eq!(resp.providers[0].description, "provider description");
+        assert_eq!(resp.providers[0].vendor, "Arm");
+        assert_eq!(resp.providers[0].version_maj, 0);
+        assert_eq!(resp.providers[0].version_min, 1);
+        assert_eq!(resp.providers[0].version_rev, 0);
+        assert_eq!(resp.providers[0].id, ProviderID::MbedProvider);
     }
 
     #[test]
@@ -124,15 +155,28 @@ mod test {
             providers: Vec::new(),
         };
         let provider_info = ProviderInfo {
-            id: ProviderID::MbedProvider,
+            uuid: Uuid::parse_str("9840CD6193674010BC24F5B98A6174D1").unwrap(),
             description: String::from("provider description"),
+            vendor: String::from("Arm"),
+            version_maj: 0,
+            version_min: 1,
+            version_rev: 0,
+            id: ProviderID::MbedProvider,
         };
         resp.providers.push(provider_info);
 
         let proto: ResultListProvidersProto = resp.try_into().unwrap();
         assert_eq!(proto.providers.len(), 1);
-        assert_eq!(proto.providers[0].id, 1);
+        assert_eq!(
+            proto.providers[0].uuid,
+            "9840cd61-9367-4010-bc24-f5b98a6174d1"
+        );
         assert_eq!(proto.providers[0].description, "provider description");
+        assert_eq!(proto.providers[0].vendor, "Arm");
+        assert_eq!(proto.providers[0].version_maj, 0);
+        assert_eq!(proto.providers[0].version_min, 1);
+        assert_eq!(proto.providers[0].version_rev, 0);
+        assert_eq!(proto.providers[0].id, 1);
     }
 
     #[test]
@@ -188,8 +232,13 @@ mod test {
             providers: Vec::new(),
         };
         let provider_info = ProviderInfo {
-            id: ProviderID::MbedProvider,
+            uuid: Uuid::parse_str("9840cd61-9367-4010-bc24-f5b98a6174d1").unwrap(),
             description: String::from("provider description"),
+            vendor: String::from("Arm"),
+            version_maj: 0,
+            version_min: 1,
+            version_rev: 0,
+            id: ProviderID::MbedProvider,
         };
         list_providers.providers.push(provider_info);
 
@@ -205,8 +254,13 @@ mod test {
             providers: Vec::new(),
         };
         let provider_info = ProviderInfo {
-            id: ProviderID::MbedProvider,
+            uuid: Uuid::parse_str("9840cd61-9367-4010-bc24-f5b98a6174d1").unwrap(),
             description: String::from("provider description"),
+            vendor: String::from("Arm"),
+            version_maj: 0,
+            version_min: 1,
+            version_rev: 0,
+            id: ProviderID::MbedProvider,
         };
         list_providers.providers.push(provider_info);
 

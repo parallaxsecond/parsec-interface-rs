@@ -80,7 +80,7 @@ mod test {
     #[test]
     fn proto_to_resp() {
         let mut proto: ResultListOpcodesProto = Default::default();
-        proto.opcodes.push(0);
+        proto.opcodes.push(1);
         let resp: ResultListOpcodes = proto.try_into().unwrap();
 
         assert_eq!(resp.opcodes.len(), 1);
@@ -96,7 +96,7 @@ mod test {
 
         let proto: ResultListOpcodesProto = resp.try_into().unwrap();
         assert_eq!(proto.opcodes.len(), 1);
-        assert_eq!(proto.opcodes[0], 0);
+        assert_eq!(proto.opcodes[0], 1);
     }
 
     #[test]

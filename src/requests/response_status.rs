@@ -42,6 +42,7 @@ pub enum ResponseStatus {
     InvalidEncoding = 19,
     InvalidHeader = 20,
     InvalidResponseStatus = 21,
+    WrongProviderUuid = 22,
     PsaErrorGenericError = 1132,
     PsaErrorNotPermitted = 1133,
     PsaErrorNotSupported = 1134,
@@ -133,6 +134,9 @@ impl fmt::Display for ResponseStatus {
             }
             ResponseStatus::InvalidResponseStatus => {
                 write!(f, "received response status is invalid")
+            }
+            ResponseStatus::WrongProviderUuid => {
+                write!(f, "the UUID vector needs to only contain 16 bytes")
             }
             ResponseStatus::PsaErrorGenericError => {
                 write!(f, "an error occurred that does not correspond to any defined failure cause")
