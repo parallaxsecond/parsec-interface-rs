@@ -94,6 +94,8 @@ pub enum Opcode {
 #[derive(FromPrimitive, PartialEq, Eq, Hash, Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum AuthType {
+    /// No authentication
+    NoAuth = 0,
     /// Simple, dummy, authentication.
-    Simple = 0,
+    Simple = 1,
 }
