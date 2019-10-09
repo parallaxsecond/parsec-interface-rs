@@ -19,6 +19,7 @@ use std::process::{Command, Output};
 
 const PROTO_FOLDER: &str = "target/parsec-operations/protobuf";
 const PROTO_OUT_DIR: &str = "src/operations_protobuf/generated_ops";
+const PARSEC_OPERATIONS_VERSION: &str = "0.1.0";
 
 // TODO: handle OsStrings more carefully, as .into_string() might fail
 
@@ -66,11 +67,13 @@ fn generate_proto_sources() -> Result<()> {
 }
 
 fn get_protobuf_files() -> Result<Output> {
-    // TODO: using tagging and releases, this could maybe be faster: downloading a .zip release file
-    // and decompressing it.
+    // TODO: Downloading a release file and decompressing it might be faster here.
+    // TODO: Use semantic versioning to get the newest versions.
     Command::new("git")
         .arg("clone")
         .arg("https://github.com/parallaxsecond/parsec-operations.git")
+        .arg("-b")
+        .arg(PARSEC_OPERATIONS_VERSION)
         .arg("target/parsec-operations")
         .output()
 }
