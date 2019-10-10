@@ -1,0 +1,32 @@
+name: Continuous Integration
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - run: cargo build --verbose
+
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - run: cargo test --verbose
+
+  linting:
+    name: Execute clippy
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - run: cargo clippy
+
+  formatting:
+    name: Check code formatting
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - run: cargo fmt --all -- --check
