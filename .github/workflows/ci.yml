@@ -4,11 +4,17 @@ on: [push, pull_request]
 
 jobs:
   build:
-    name: Build
+    name: Build and check formatting
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - run: cargo build --verbose
+    - name: Build
+      run: cargo build --verbose
+      # rustfmt will check if the code build before checking the formatting.
+      # Because the build script generated a new module in the code,
+      # building the code before checking it is needed.
+    - name: Check formatting
+      run: cargo fmt --all -- --check
 
   test:
     name: Run tests
@@ -24,9 +30,3 @@ jobs:
     - uses: actions/checkout@v1
     - run: cargo clippy
 
-  formatting:
-    name: Check code formatting
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - run: cargo fmt --all -- --check
