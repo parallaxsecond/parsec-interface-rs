@@ -17,6 +17,8 @@
 ![PARSEC logo](PARSEC.png)
 # PARSEC Rust Interface
 
+![](https://github.com/parallaxsecond/parsec-interface-rs/workflows/Continuous%20Integration/badge.svg)
+
 This repository contains an interface library to be used both by the PARSEC service and a Rust Client library.
 The library contains methods to communicate using the [wire protocol](https://github.com/parallaxsecond/parsec/blob/master/docs/wire_protocol.md).
 
