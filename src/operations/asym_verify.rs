@@ -12,11 +12,10 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use super::key_attributes::KeyLifetime;
 
 /// Native object for asymmetric verification of signatures.
 ///
-/// `key_name` and `key_lifetime` specify the key to be used for verification.
+/// `key_name` specifies the key to be used for verification.
 /// The `hash` contains a short message or hash value as described for the
 /// asymmetric signing operation.
 /// `signature` contains the bytes of the signature which requires validation and must
@@ -24,7 +23,6 @@ use super::key_attributes::KeyLifetime;
 #[derive(Debug)]
 pub struct OpAsymVerify {
     pub key_name: String,
-    pub key_lifetime: KeyLifetime,
     pub hash: Vec<u8>,
     pub signature: Vec<u8>,
 }

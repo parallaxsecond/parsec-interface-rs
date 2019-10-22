@@ -15,7 +15,6 @@
 use super::generated_ops::destroy_key::{OpDestroyKeyProto, ResultDestroyKeyProto};
 use crate::operations::{OpDestroyKey, ResultDestroyKey};
 use crate::requests::ResponseStatus;
-use num::FromPrimitive;
 use std::convert::TryFrom;
 
 impl TryFrom<OpDestroyKeyProto> for OpDestroyKey {
@@ -24,8 +23,6 @@ impl TryFrom<OpDestroyKeyProto> for OpDestroyKey {
     fn try_from(proto_op: OpDestroyKeyProto) -> Result<Self, Self::Error> {
         Ok(OpDestroyKey {
             key_name: proto_op.key_name,
-            key_lifetime: FromPrimitive::from_i32(proto_op.key_lifetime)
-                .expect("Failed to convert key lifetime"),
         })
     }
 }
@@ -36,7 +33,6 @@ impl TryFrom<OpDestroyKey> for OpDestroyKeyProto {
     fn try_from(op: OpDestroyKey) -> Result<Self, Self::Error> {
         Ok(OpDestroyKeyProto {
             key_name: op.key_name,
-            key_lifetime: op.key_lifetime as i32,
         })
     }
 }
@@ -61,7 +57,7 @@ impl TryFrom<ResultDestroyKey> for ResultDestroyKeyProto {
 mod test {
     use super::super::generated_ops::destroy_key::{OpDestroyKeyProto, ResultDestroyKeyProto};
     use super::super::{Convert, ProtobufConverter};
-    use crate::operations::{key_attributes, NativeOperation, OpDestroyKey, ResultDestroyKey};
+    use crate::operations::{NativeOperation, OpDestroyKey, ResultDestroyKey};
     use crate::requests::{request::RequestBody, response::ResponseBody, Opcode};
     use std::convert::TryInto;
 
@@ -71,12 +67,10 @@ mod test {
     fn destroy_key_proto_to_op() {
         let mut proto: OpDestroyKeyProto = Default::default();
         let key_name = "test name".to_string();
-        proto.key_lifetime = key_attributes::KeyLifetime::Persistent as i32;
         proto.key_name = key_name.clone();
 
         let op: OpDestroyKey = proto.try_into().expect("Failed to convert");
 
-        assert_eq!(op.key_lifetime, key_attributes::KeyLifetime::Persistent);
         assert_eq!(op.key_name, key_name);
     }
 
@@ -84,16 +78,11 @@ mod test {
     fn destroy_key_op_to_proto() {
         let key_name = "test name".to_string();
         let op = OpDestroyKey {
-            key_lifetime: key_attributes::KeyLifetime::Persistent,
             key_name: key_name.clone(),
         };
 
         let proto: OpDestroyKeyProto = op.try_into().expect("Failed to convert");
 
-        assert_eq!(
-            proto.key_lifetime,
-            key_attributes::KeyLifetime::Persistent as i32
-        );
         assert_eq!(proto.key_name, key_name);
     }
 
@@ -114,7 +103,6 @@ mod test {
     #[test]
     fn op_destroy_key_e2e() {
         let op = OpDestroyKey {
-            key_lifetime: key_attributes::KeyLifetime::Persistent,
             key_name: "test name".to_string(),
         };
         let body = CONVERTER

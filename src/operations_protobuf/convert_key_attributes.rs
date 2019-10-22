@@ -21,8 +21,6 @@ use num::FromPrimitive;
 
 impl From<KeyAttributesProto> for KeyAttributes {
     fn from(attrs: KeyAttributesProto) -> Self {
-        let key_lifetime =
-            FromPrimitive::from_i32(attrs.key_lifetime).expect("Failed to convert key lifetime");
         let key_type = FromPrimitive::from_i32(attrs.key_type).expect("Failed to convert key type");
         let ecc_curve = match attrs.ecc_curve() {
             EccCurve::NoEccCurve => None,
@@ -34,7 +32,6 @@ impl From<KeyAttributesProto> for KeyAttributes {
         let algorithm = attrs.algorithm_proto.expect("Algorithm was empty").into();
 
         KeyAttributes {
-            key_lifetime,
             key_type,
             ecc_curve,
             algorithm,
@@ -52,7 +49,6 @@ impl From<KeyAttributesProto> for KeyAttributes {
 impl From<KeyAttributes> for KeyAttributesProto {
     fn from(attrs: KeyAttributes) -> Self {
         KeyAttributesProto {
-            key_lifetime: attrs.key_lifetime as i32,
             key_type: attrs.key_type as i32,
             ecc_curve: match attrs.ecc_curve {
                 None => 0,
@@ -121,7 +117,6 @@ mod test {
             Some(key_attributes::HashAlgorithm::Sha1),
         );
         let key_attrs = KeyAttributes {
-            key_lifetime: key_attributes::KeyLifetime::Persistent,
             key_type: key_attributes::KeyType::RsaKeypair,
             ecc_curve: Some(key_attributes::EccCurve::Secp160k1),
             algorithm: algo,
@@ -136,10 +131,6 @@ mod test {
 
         let key_attrs_proto: KeyAttributesProto = key_attrs.into();
 
-        assert_eq!(
-            key_attrs_proto.key_lifetime,
-            key_attributes_proto::KeyLifetime::Persistent as i32
-        );
         assert_eq!(
             key_attrs_proto.key_type,
             key_attributes_proto::KeyType::RsaKeypair as i32
@@ -164,7 +155,6 @@ mod test {
             hash_algorithm: key_attributes_proto::HashAlgorithm::Sha1 as i32,
         }));
         let key_attrs_proto = KeyAttributesProto {
-            key_lifetime: key_attributes_proto::KeyLifetime::Persistent as i32,
             key_type: key_attributes_proto::KeyType::RsaKeypair as i32,
             ecc_curve: key_attributes_proto::EccCurve::Secp160k1 as i32,
             algorithm_proto: algo,
@@ -178,10 +168,6 @@ mod test {
         };
 
         let key_attrs: KeyAttributes = key_attrs_proto.into();
-        assert_eq!(
-            key_attrs.key_lifetime,
-            key_attributes::KeyLifetime::Persistent
-        );
         assert_eq!(key_attrs.key_type, key_attributes::KeyType::RsaKeypair);
         assert_eq!(
             key_attrs.ecc_curve,
