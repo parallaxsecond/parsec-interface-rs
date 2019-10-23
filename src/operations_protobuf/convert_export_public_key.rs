@@ -15,19 +15,14 @@
 use super::generated_ops::export_public_key::{OpExportPublicKeyProto, ResultExportPublicKeyProto};
 use crate::operations;
 use crate::requests::ResponseStatus;
-use num::FromPrimitive;
 use std::convert::TryFrom;
 
 impl TryFrom<OpExportPublicKeyProto> for operations::OpExportPublicKey {
     type Error = ResponseStatus;
 
     fn try_from(proto_op: OpExportPublicKeyProto) -> Result<Self, Self::Error> {
-        let key_lifetime =
-            FromPrimitive::from_i32(proto_op.key_lifetime).expect("Failed to convert key lifetime");
-
         Ok(operations::OpExportPublicKey {
             key_name: proto_op.key_name,
-            key_lifetime,
         })
     }
 }
@@ -38,7 +33,6 @@ impl TryFrom<operations::OpExportPublicKey> for OpExportPublicKeyProto {
     fn try_from(op: operations::OpExportPublicKey) -> Result<Self, Self::Error> {
         Ok(OpExportPublicKeyProto {
             key_name: op.key_name,
-            key_lifetime: op.key_lifetime as i32,
         })
     }
 }
@@ -70,7 +64,7 @@ mod test {
     };
     use super::super::{Convert, ProtobufConverter};
     use crate::operations::{
-        key_attributes, NativeOperation, NativeResult, OpExportPublicKey, ResultExportPublicKey,
+        NativeOperation, NativeResult, OpExportPublicKey, ResultExportPublicKey,
     };
     use crate::requests::{request::RequestBody, response::ResponseBody, Opcode};
     use std::convert::TryInto;
@@ -81,12 +75,10 @@ mod test {
     fn export_pk_proto_to_op() {
         let mut proto: OpExportPublicKeyProto = Default::default();
         let key_name = "test name".to_string();
-        proto.key_lifetime = key_attributes::KeyLifetime::Persistent as i32;
         proto.key_name = key_name.clone();
 
         let op: OpExportPublicKey = proto.try_into().expect("Failed to convert");
 
-        assert_eq!(op.key_lifetime, key_attributes::KeyLifetime::Persistent);
         assert_eq!(op.key_name, key_name);
     }
 
@@ -95,16 +87,11 @@ mod test {
         let key_name = "test name".to_string();
 
         let op = OpExportPublicKey {
-            key_lifetime: key_attributes::KeyLifetime::Persistent,
             key_name: key_name.clone(),
         };
 
         let proto: OpExportPublicKeyProto = op.try_into().expect("Failed to convert");
 
-        assert_eq!(
-            proto.key_lifetime,
-            key_attributes::KeyLifetime::Persistent as i32
-        );
         assert_eq!(proto.key_name, key_name);
     }
 
@@ -134,7 +121,6 @@ mod test {
     #[test]
     fn op_export_pk_e2e() {
         let op = OpExportPublicKey {
-            key_lifetime: key_attributes::KeyLifetime::Persistent,
             key_name: "test name".to_string(),
         };
         let body = CONVERTER

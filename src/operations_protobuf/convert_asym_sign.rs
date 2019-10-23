@@ -15,7 +15,6 @@
 use super::generated_ops::asym_sign::{OpAsymmetricSignProto, ResultAsymmetricSignProto};
 use crate::operations::{OpAsymSign, ResultAsymSign};
 use crate::requests::ResponseStatus;
-use num::FromPrimitive;
 use std::convert::TryFrom;
 
 impl TryFrom<OpAsymmetricSignProto> for OpAsymSign {
@@ -24,8 +23,6 @@ impl TryFrom<OpAsymmetricSignProto> for OpAsymSign {
     fn try_from(proto_op: OpAsymmetricSignProto) -> Result<Self, Self::Error> {
         Ok(OpAsymSign {
             key_name: proto_op.key_name,
-            key_lifetime: FromPrimitive::from_i32(proto_op.key_lifetime)
-                .expect("Failed to convert key lifetime"),
             hash: proto_op.hash,
         })
     }
@@ -37,7 +34,6 @@ impl TryFrom<OpAsymSign> for OpAsymmetricSignProto {
     fn try_from(op: OpAsymSign) -> Result<Self, Self::Error> {
         Ok(OpAsymmetricSignProto {
             key_name: op.key_name,
-            key_lifetime: op.key_lifetime as i32,
             hash: op.hash,
         })
     }
@@ -69,9 +65,7 @@ mod test {
         OpAsymmetricSignProto, ResultAsymmetricSignProto,
     };
     use super::super::{Convert, ProtobufConverter};
-    use crate::operations::{
-        key_attributes, NativeOperation, NativeResult, OpAsymSign, ResultAsymSign,
-    };
+    use crate::operations::{NativeOperation, NativeResult, OpAsymSign, ResultAsymSign};
     use crate::requests::{request::RequestBody, response::ResponseBody, Opcode};
     use std::convert::TryInto;
 
@@ -83,13 +77,11 @@ mod test {
         let hash = vec![0x11, 0x22, 0x33];
         let key_name = "test name".to_string();
         proto.hash = hash.clone();
-        proto.key_lifetime = key_attributes::KeyLifetime::Persistent as i32;
         proto.key_name = key_name.clone();
 
         let op: OpAsymSign = proto.try_into().expect("Failed to convert");
 
         assert_eq!(op.hash, hash);
-        assert_eq!(op.key_lifetime, key_attributes::KeyLifetime::Persistent);
         assert_eq!(op.key_name, key_name);
     }
 
@@ -100,17 +92,12 @@ mod test {
 
         let op = OpAsymSign {
             hash: hash.clone(),
-            key_lifetime: key_attributes::KeyLifetime::Persistent,
             key_name: key_name.clone(),
         };
 
         let proto: OpAsymmetricSignProto = op.try_into().expect("Failed to convert");
 
         assert_eq!(proto.hash, hash);
-        assert_eq!(
-            proto.key_lifetime,
-            key_attributes::KeyLifetime::Persistent as i32
-        );
         assert_eq!(proto.key_name, key_name);
     }
 
@@ -141,7 +128,6 @@ mod test {
     fn op_asym_sign_e2e() {
         let op = OpAsymSign {
             hash: vec![0x11, 0x22, 0x33],
-            key_lifetime: key_attributes::KeyLifetime::Persistent,
             key_name: "test name".to_string(),
         };
         let body = CONVERTER

@@ -12,15 +12,13 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use super::key_attributes::KeyLifetime;
 
 /// Native object for cryptographic key destruction.
 ///
-/// `key_name` and `key_lifetime` identify the key to be destroyed.
+/// `key_name` identifies the key to be destroyed.
 #[derive(Debug, Clone)]
 pub struct OpDestroyKey {
     pub key_name: String,
-    pub key_lifetime: KeyLifetime,
 }
 
 /// Native object for result of cryptographic key destruction.

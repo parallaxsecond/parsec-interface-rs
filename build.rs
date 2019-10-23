@@ -19,7 +19,7 @@ use std::process::{Command, Output};
 
 const PROTO_FOLDER: &str = "target/parsec-operations/protobuf";
 const PROTO_OUT_DIR: &str = "src/operations_protobuf/generated_ops";
-const PARSEC_OPERATIONS_VERSION: &str = "0.1.0";
+const PARSEC_OPERATIONS_VERSION: &str = "0.2.0";
 
 // TODO: handle OsStrings more carefully, as .into_string() might fail
 

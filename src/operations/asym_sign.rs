@@ -12,11 +12,10 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use super::key_attributes::KeyLifetime;
 
 /// Native object for asymmetric sign operations.
 ///
-/// `key_name` and `key_lifetime` define which key should be used for the signing operation.
+/// `key_name` defines which key should be used for the signing operation.
 /// The `hash` value must either be a short message (length dependend on the size of
 /// the key), or the result of a hashing operation. Thus, if a hash-and-sign is
 /// required, the hash must be computed before this operation is called. The length
@@ -27,7 +26,6 @@ use super::key_attributes::KeyLifetime;
 #[derive(Debug)]
 pub struct OpAsymSign {
     pub key_name: String,
-    pub key_lifetime: KeyLifetime,
     pub hash: Vec<u8>,
 }
 

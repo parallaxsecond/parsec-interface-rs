@@ -130,7 +130,6 @@ mod test {
 
     fn get_key_attrs() -> KeyAttributes {
         KeyAttributes {
-            key_lifetime: key_attributes::KeyLifetime::Persistent,
             key_type: key_attributes::KeyType::RsaKeypair,
             ecc_curve: Some(key_attributes::EccCurve::Secp160k1),
             algorithm: key_attributes::Algorithm::sign(
@@ -153,7 +152,6 @@ mod test {
             hash_algorithm: key_attributes_proto::HashAlgorithm::Sha1 as i32,
         }));
         KeyAttributesProto {
-            key_lifetime: key_attributes_proto::KeyLifetime::Persistent as i32,
             key_type: key_attributes_proto::KeyType::RsaKeypair as i32,
             ecc_curve: key_attributes_proto::EccCurve::Secp160k1 as i32,
             algorithm_proto: algo,

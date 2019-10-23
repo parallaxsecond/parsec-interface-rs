@@ -98,7 +98,6 @@ impl Algorithm {
 /// a cryptographic key.
 #[derive(Clone)]
 pub struct KeyAttributes {
-    pub key_lifetime: KeyLifetime,
     pub key_type: KeyType,
     pub ecc_curve: Option<EccCurve>,
     pub algorithm: Algorithm,
@@ -109,14 +108,6 @@ pub struct KeyAttributes {
     pub permit_sign: bool,
     pub permit_verify: bool,
     pub permit_derive: bool,
-}
-
-#[derive(FromPrimitive, Copy, Clone, Debug)]
-#[cfg_attr(test, derive(PartialEq))]
-#[repr(i32)]
-pub enum KeyLifetime {
-    Volatile = 0,
-    Persistent = 1,
 }
 
 /// Enumeration of key types supported.

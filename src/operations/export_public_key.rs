@@ -12,15 +12,13 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use super::key_attributes::KeyLifetime;
 
 /// Native object for public key exporting operation.
 ///
-/// `key_name` and `key_lifetime` identify the key for which the public
+/// `key_name` identifies the key for which the public
 /// part will be exported. The specified key must be an asymmetric keypair.
 pub struct OpExportPublicKey {
     pub key_name: String,
-    pub key_lifetime: KeyLifetime,
 }
 
 /// Native object for result of public key export operation.
