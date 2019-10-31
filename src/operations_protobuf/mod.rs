@@ -27,7 +27,28 @@ mod convert_list_providers;
 mod convert_list_opcodes;
 
 #[rustfmt::skip]
-mod generated_ops;
+mod generated_ops {
+    // Include the Rust generated file in its own module.
+    macro_rules! include_protobuf_as_module {
+        ($name:ident) => {
+            pub mod $name {
+                // The generated Rust file is in OUT_DIR, named $name.rs
+                include!(concat!(env!("OUT_DIR"), "/", stringify!($name), ".rs"));
+            }
+        };
+    }
+
+    include_protobuf_as_module!(asym_sign);
+    include_protobuf_as_module!(asym_verify);
+    include_protobuf_as_module!(create_key);
+    include_protobuf_as_module!(destroy_key);
+    include_protobuf_as_module!(export_public_key);
+    include_protobuf_as_module!(import_key);
+    include_protobuf_as_module!(list_opcodes);
+    include_protobuf_as_module!(list_providers);
+    include_protobuf_as_module!(ping);
+    include_protobuf_as_module!(key_attributes);
+}
 
 use crate::operations::{Convert, NativeOperation, NativeResult};
 use crate::requests::{
