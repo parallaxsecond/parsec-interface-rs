@@ -1,7 +1,8 @@
 [package]
 name = "parsec-interface"
-version = "0.2.1"
-authors = ["Ionut Mihalcea <ionut.mihalcea@arm.com>",
+version = "0.3.0"
+authors = ["Paul Howard <paul.howard@arm.com>",
+           "Ionut Mihalcea <ionut.mihalcea@arm.com>",
            "Hugues de Valon <hugues.devalon@arm.com>"]
 edition = "2018"
 

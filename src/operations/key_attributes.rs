@@ -20,8 +20,7 @@ use num_derive::FromPrimitive;
 /// Each variant of the enum contains a main algorithm type (which is required for
 /// that variant), as well as configuration fields as allowed by each algorithm in
 /// part.
-#[derive(Debug, Clone)]
-#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Clone, PartialEq)]
 pub enum AlgorithmInner {
     Cipher(CipherAlgorithm),
     AsymmetricEncryption(AsymmetricEncryptionAlgorithm, Option<HashAlgorithm>),
@@ -39,7 +38,7 @@ pub enum AlgorithmInner {
 
 /// Wrapper around `AlgorithmInner`, used to statically ensure that any algorithm used
 /// in `KeyAttributes` is a valid combination of algorithms and options.
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Algorithm(AlgorithmInner);
 
 impl Algorithm {
@@ -111,8 +110,7 @@ pub struct KeyAttributes {
 }
 
 /// Enumeration of key types supported.
-#[derive(FromPrimitive, Copy, Clone, Debug)]
-#[cfg_attr(test, derive(PartialEq))]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[repr(i32)]
 pub enum KeyType {
     HmacKey = 0,
@@ -133,8 +131,7 @@ pub enum KeyType {
 ///
 /// Should only be used for keys with `key_type` either `EccPublicKey`
 /// or `EccKeypair`.
-#[derive(FromPrimitive, Copy, Clone, Debug)]
-#[cfg_attr(test, derive(PartialEq))]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[repr(i32)]
 pub enum EccCurve {
     Sect163k1 = 1,
@@ -173,8 +170,7 @@ pub enum EccCurve {
 ///
 /// Includes both specific algorithms (ARC4) and modes of operation
 /// for algorithms defined through the key type (e.g. `AesKey`).
-#[derive(FromPrimitive, Copy, Clone, Debug)]
-#[cfg_attr(test, derive(PartialEq))]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[repr(i32)]
 pub enum CipherAlgorithm {
     Arc4 = 0,
@@ -187,8 +183,7 @@ pub enum CipherAlgorithm {
 }
 
 /// Enumeration of asymmetric encryption algorithms supported.
-#[derive(FromPrimitive, Copy, Clone, Debug)]
-#[cfg_attr(test, derive(PartialEq))]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[repr(i32)]
 pub enum AsymmetricEncryptionAlgorithm {
     RsaPkcs1v15Crypt = 0,
@@ -196,8 +191,7 @@ pub enum AsymmetricEncryptionAlgorithm {
 }
 
 /// Enumeration of message authentication code algorithms supported.
-#[derive(FromPrimitive, Copy, Clone, Debug)]
-#[cfg_attr(test, derive(PartialEq))]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[repr(i32)]
 pub enum MacAlgorithm {
     Hmac = 0,
@@ -208,8 +202,7 @@ pub enum MacAlgorithm {
 
 /// Enumeration of authenticated encryption with additional data algorithms
 /// supported.
-#[derive(FromPrimitive, Copy, Clone, Debug)]
-#[cfg_attr(test, derive(PartialEq))]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[repr(i32)]
 pub enum AeadAlgorithm {
     Ccm = 0,
@@ -217,8 +210,7 @@ pub enum AeadAlgorithm {
 }
 
 /// Enumeration of asymmetric signing algorithms supported.
-#[derive(FromPrimitive, Copy, Clone, Debug)]
-#[cfg_attr(test, derive(PartialEq))]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[repr(i32)]
 pub enum SignAlgorithm {
     RsaPkcs1v15Sign = 0,
@@ -230,8 +222,7 @@ pub enum SignAlgorithm {
 }
 
 /// Enumeration of key agreement algorithms supported.
-#[derive(FromPrimitive, Copy, Clone, Debug)]
-#[cfg_attr(test, derive(PartialEq))]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[repr(i32)]
 pub enum KeyAgreementAlgorithm {
     Ffdh = 0,
@@ -239,8 +230,7 @@ pub enum KeyAgreementAlgorithm {
 }
 
 /// Enumeration of hash algorithms supported.
-#[derive(FromPrimitive, Copy, Clone, Debug)]
-#[cfg_attr(test, derive(PartialEq))]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[repr(i32)]
 pub enum HashAlgorithm {
     Md2 = 1,
@@ -261,8 +251,7 @@ pub enum HashAlgorithm {
 }
 
 /// Enumeration of key derivation functions supported.
-#[derive(FromPrimitive, Copy, Clone, Debug)]
-#[cfg_attr(test, derive(PartialEq))]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[repr(i32)]
 pub enum KeyDerivationFunction {
     Hkdf = 0,

@@ -40,6 +40,8 @@ pub enum ProviderID {
     CoreProvider = 0,
     /// Provider using Mbed Crypto software library.
     MbedProvider = 1,
+    /// Provider using a PKCS 11 compatible library.
+    Pkcs11Provider = 2,
 }
 
 impl std::fmt::Display for ProviderID {
