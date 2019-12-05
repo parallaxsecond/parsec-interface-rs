@@ -42,6 +42,8 @@ pub enum ProviderID {
     MbedProvider = 1,
     /// Provider using a PKCS 11 compatible library.
     Pkcs11Provider = 2,
+    /// Provider using a TSS 2.0 Enhanced System API library.
+    TpmProvider = 3,
 }
 
 impl std::fmt::Display for ProviderID {
