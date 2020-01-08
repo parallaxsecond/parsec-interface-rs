@@ -29,6 +29,7 @@ pub struct ProviderInfo {
 }
 
 /// Native object for provider listing operation.
+#[derive(Copy, Clone, Debug)]
 pub struct OpListProviders;
 
 /// Native object for provider listing result.

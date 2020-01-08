@@ -123,7 +123,7 @@ mod test {
             .operation_to_body(NativeOperation::CreateKey(op))
             .expect("Failed to convert to body");
 
-        CONVERTER
+        let _ = CONVERTER
             .body_to_operation(body, Opcode::CreateKey)
             .expect("Failed to convert to operation");
     }

@@ -19,7 +19,7 @@ use super::key_attributes::KeyAttributes;
 /// `key_name` specifies a name by which the service will identify the key. Key
 /// name must be unique per application. `key_attributes` specifies the parameters
 /// to be associated with the key.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct OpCreateKey {
     pub key_name: String,
     pub key_attributes: KeyAttributes,
@@ -28,5 +28,5 @@ pub struct OpCreateKey {
 /// Native object for the result of creating a cryptographic key.
 ///
 /// The true result is returned in the `status` field of the response.
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct ResultCreateKey;

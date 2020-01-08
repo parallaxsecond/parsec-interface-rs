@@ -39,7 +39,7 @@ pub use request_header::RawRequestHeader as RawHeader;
 ///
 /// Auth field is stored as a `RequestAuth` object. A parser that can handle the `auth_type`
 /// specified in the header is needed to authenticate the request.
-#[cfg_attr(test, derive(PartialEq, Debug))]
+#[derive(PartialEq, Debug)]
 pub struct Request {
     pub header: RequestHeader,
     pub body: RequestBody,
@@ -156,7 +156,7 @@ mod tests {
     fn failed_read() {
         let mut fail_mock = test_utils::MockFailReadWrite;
 
-        Request::read_from_stream(&mut fail_mock).expect("Failed to read request");
+        let _ = Request::read_from_stream(&mut fail_mock).expect("Failed to read request");
     }
 
     #[test]

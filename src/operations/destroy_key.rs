@@ -24,5 +24,5 @@ pub struct OpDestroyKey {
 /// Native object for result of cryptographic key destruction.
 ///
 /// True result of operation is returned in the response `status`.
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct ResultDestroyKey;

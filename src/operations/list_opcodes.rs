@@ -16,6 +16,7 @@ use crate::requests::Opcode;
 use std::collections::HashSet;
 
 /// Native object for opcode listing operation.
+#[derive(Copy, Clone, Debug)]
 pub struct OpListOpcodes;
 
 /// Native object for opcode listing result.

@@ -14,12 +14,11 @@
   -- See the License for the specific language governing permissions and
   -- limitations under the License.
 --->
-![PARSEC logo](PARSEC.png)
-# PARSEC Rust Interface
+# Parsec Rust Interface
 
 ![](https://github.com/parallaxsecond/parsec-interface-rs/workflows/Continuous%20Integration/badge.svg)
 
-This repository contains an interface library to be used both by the PARSEC service and a Rust Client library.
+This repository contains an interface library to be used both by the Parsec service and a Rust Client library.
 The library contains methods to communicate using the [wire protocol](https://github.com/parallaxsecond/parsec/blob/master/docs/wire_protocol.md).
 
 # License

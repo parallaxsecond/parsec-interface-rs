@@ -21,7 +21,7 @@ use super::key_attributes::KeyAttributes;
 /// to be associated with the key. `key_data` contains the bytes for the key,
 /// formatted in accordance with the requirements of the provider for the key type
 /// specified in `key_attributes`.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct OpImportKey {
     pub key_name: String,
     pub key_attributes: KeyAttributes,
@@ -31,5 +31,5 @@ pub struct OpImportKey {
 /// Native object for the result of a cryptographic key import operation.
 ///
 /// The true result is sent in the `status` field of the response header.
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct ResultImportKey;

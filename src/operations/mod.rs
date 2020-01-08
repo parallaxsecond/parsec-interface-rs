@@ -40,16 +40,17 @@ pub use ping::{OpPing, ResultPing};
 
 /// Container type for operation conversion values, holding a native operation object
 /// to be passed in/out of a converter.
+#[derive(Debug)]
 pub enum NativeOperation {
     ListProviders(OpListProviders),
     ListOpcodes(OpListOpcodes),
-    Ping(ping::OpPing),
-    CreateKey(create_key::OpCreateKey),
-    ImportKey(import_key::OpImportKey),
-    ExportPublicKey(export_public_key::OpExportPublicKey),
-    DestroyKey(destroy_key::OpDestroyKey),
-    AsymSign(asym_sign::OpAsymSign),
-    AsymVerify(asym_verify::OpAsymVerify),
+    Ping(OpPing),
+    CreateKey(OpCreateKey),
+    ImportKey(OpImportKey),
+    ExportPublicKey(OpExportPublicKey),
+    DestroyKey(OpDestroyKey),
+    AsymSign(OpAsymSign),
+    AsymVerify(OpAsymVerify),
 }
 
 impl NativeOperation {
@@ -74,13 +75,13 @@ impl NativeOperation {
 pub enum NativeResult {
     ListProviders(ResultListProviders),
     ListOpcodes(ResultListOpcodes),
-    Ping(ping::ResultPing),
-    CreateKey(create_key::ResultCreateKey),
-    ImportKey(import_key::ResultImportKey),
-    ExportPublicKey(export_public_key::ResultExportPublicKey),
-    DestroyKey(destroy_key::ResultDestroyKey),
-    AsymSign(asym_sign::ResultAsymSign),
-    AsymVerify(asym_verify::ResultAsymVerify),
+    Ping(ResultPing),
+    CreateKey(ResultCreateKey),
+    ImportKey(ResultImportKey),
+    ExportPublicKey(ResultExportPublicKey),
+    DestroyKey(ResultDestroyKey),
+    AsymSign(ResultAsymSign),
+    AsymVerify(ResultAsymVerify),
 }
 
 impl NativeResult {
