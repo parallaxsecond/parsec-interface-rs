@@ -20,7 +20,7 @@ use num_derive::FromPrimitive;
 /// Each variant of the enum contains a main algorithm type (which is required for
 /// that variant), as well as configuration fields as allowed by each algorithm in
 /// part.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum AlgorithmInner {
     Cipher(CipherAlgorithm),
     AsymmetricEncryption(AsymmetricEncryptionAlgorithm, Option<HashAlgorithm>),
@@ -38,7 +38,7 @@ pub enum AlgorithmInner {
 
 /// Wrapper around `AlgorithmInner`, used to statically ensure that any algorithm used
 /// in `KeyAttributes` is a valid combination of algorithms and options.
-#[derive(Clone, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Algorithm(AlgorithmInner);
 
 impl Algorithm {
@@ -95,7 +95,7 @@ impl Algorithm {
 
 /// Native definition of the attributes needed to fully describe
 /// a cryptographic key.
-#[derive(Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct KeyAttributes {
     pub key_type: KeyType,
     pub ecc_curve: Option<EccCurve>,

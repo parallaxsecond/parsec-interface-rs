@@ -45,7 +45,7 @@ impl TryFrom<ResultListOpcodesProto> for ResultListOpcodes {
                 Some(code) => code,
                 None => return Err(ResponseStatus::OpcodeDoesNotExist),
             };
-            opcodes.insert(opcode);
+            let _ = opcodes.insert(opcode);
         }
 
         Ok(ResultListOpcodes { opcodes })
@@ -92,7 +92,7 @@ mod test {
         let mut resp: ResultListOpcodes = ResultListOpcodes {
             opcodes: HashSet::new(),
         };
-        resp.opcodes.insert(Opcode::Ping);
+        let _ = resp.opcodes.insert(Opcode::Ping);
 
         let proto: ResultListOpcodesProto = resp.try_into().unwrap();
         assert_eq!(proto.opcodes.len(), 1);
@@ -151,7 +151,7 @@ mod test {
         let mut list_opcodes = ResultListOpcodes {
             opcodes: HashSet::new(),
         };
-        list_opcodes.opcodes.insert(Opcode::Ping);
+        let _ = list_opcodes.opcodes.insert(Opcode::Ping);
 
         let body = CONVERTER
             .result_to_body(NativeResult::ListOpcodes(list_opcodes))
@@ -164,7 +164,7 @@ mod test {
         let mut list_opcodes = ResultListOpcodes {
             opcodes: HashSet::new(),
         };
-        list_opcodes.opcodes.insert(Opcode::Ping);
+        let _ = list_opcodes.opcodes.insert(Opcode::Ping);
 
         let body = CONVERTER
             .result_to_body(NativeResult::ListOpcodes(list_opcodes))

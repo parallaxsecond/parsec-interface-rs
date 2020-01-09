@@ -38,6 +38,7 @@ macro_rules! get_from_stream {
 pub mod test_utils {
     use std::io::{Error, ErrorKind, Read, Result, Write};
 
+    #[derive(Debug)]
     pub struct MockReadWrite {
         pub buffer: Vec<u8>,
     }
@@ -65,6 +66,7 @@ pub mod test_utils {
         }
     }
 
+    #[derive(Copy, Clone, Debug)]
     pub struct MockFailReadWrite;
 
     impl Read for MockFailReadWrite {

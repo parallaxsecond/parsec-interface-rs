@@ -30,5 +30,5 @@ pub struct OpAsymVerify {
 /// Native object for asymmetric verification of signatures.
 ///
 /// The true result of the operation is sent as a `status` code in the response.
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct ResultAsymVerify;

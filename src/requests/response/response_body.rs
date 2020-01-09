@@ -19,8 +19,7 @@ use std::io::{Read, Write};
 /// Wrapper around the body of a response.
 ///
 /// Hides the contents and keeps them immutable.
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct ResponseBody {
     bytes: Vec<u8>,
 }

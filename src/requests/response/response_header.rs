@@ -23,7 +23,7 @@ use std::io::{Read, Write};
 ///
 /// Serialisation and deserialisation are handled by `serde`, also in tune with the
 /// wire format (i.e. little-endian, native encoding).
-#[derive(Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct RawResponseHeader {
     pub version_maj: u8,
     pub version_min: u8,
@@ -97,8 +97,7 @@ impl RawResponseHeader {
 ///
 /// Fields that are not relevant for application development (e.g. magic number) are
 /// not copied across from the raw header.
-#[derive(Debug)]
-#[cfg_attr(test, derive(PartialEq))]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct ResponseHeader {
     pub version_maj: u8,
     pub version_min: u8,

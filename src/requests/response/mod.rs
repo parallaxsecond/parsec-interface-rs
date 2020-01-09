@@ -35,7 +35,7 @@ pub use response_header::RawResponseHeader as RawHeader;
 /// Response body consists of an opaque vector of bytes. Interpretation of said bytes
 /// is deferred to the a converter which can handle the `content_type` defined in the
 /// header.
-#[cfg_attr(test, derive(PartialEq, Debug))]
+#[derive(PartialEq, Debug)]
 pub struct Response {
     pub header: ResponseHeader,
     pub body: ResponseBody,
@@ -139,7 +139,7 @@ mod tests {
     fn failed_read() {
         let mut fail_mock = test_utils::MockFailReadWrite;
 
-        Response::read_from_stream(&mut fail_mock).expect("Failed to read response");
+        let _ = Response::read_from_stream(&mut fail_mock).expect("Failed to read response");
     }
 
     #[test]

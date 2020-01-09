@@ -17,6 +17,7 @@
 ///
 /// `key_name` identifies the key for which the public
 /// part will be exported. The specified key must be an asymmetric keypair.
+#[derive(Debug)]
 pub struct OpExportPublicKey {
     pub key_name: String,
 }

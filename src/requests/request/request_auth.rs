@@ -18,8 +18,7 @@ use std::io::{Read, Write};
 /// Wrapper around the body of a request.
 ///
 /// Hides the contents and keeps them immutable.
-#[derive(Debug, Clone, Default)]
-#[cfg_attr(test, derive(PartialEq))]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct RequestAuth {
     bytes: Vec<u8>,
 }

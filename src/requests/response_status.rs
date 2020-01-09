@@ -17,7 +17,7 @@ use std::error::Error as ErrorTrait;
 use std::fmt;
 
 /// C-like enum mapping response status options to their code.
-#[derive(Debug, PartialEq, FromPrimitive)]
+#[derive(Copy, Clone, Debug, PartialEq, FromPrimitive)]
 #[repr(u16)]
 pub enum ResponseStatus {
     Success = 0,
