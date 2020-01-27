@@ -12,7 +12,9 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+use log::error;
 use num_derive::FromPrimitive;
+use std::convert::TryFrom;
 use std::error::Error as ErrorTrait;
 use std::fmt;
 
@@ -44,6 +46,7 @@ pub enum ResponseStatus {
     InvalidResponseStatus = 21,
     WrongProviderUuid = 22,
     NotAuthenticated = 23,
+    UnsupportedParameters = 24,
     PsaErrorGenericError = 1132,
     PsaErrorNotPermitted = 1133,
     PsaErrorNotSupported = 1134,
@@ -65,10 +68,17 @@ pub enum ResponseStatus {
     PsaErrorTamperingDetected = 1151,
 }
 
-impl ResponseStatus {
-    pub fn from_u16(value: u16) -> Self {
-        num::FromPrimitive::from_u16(value)
-            .expect("Value does not correspond to a valid ResponseStatus")
+impl TryFrom<u16> for ResponseStatus {
+    type Error = ResponseStatus;
+
+    fn try_from(value: u16) -> Result<Self> {
+        num::FromPrimitive::from_u16(value).ok_or_else(|| {
+            error!(
+                "Value {} does not correspond to a valid ResponseStatus.",
+                value
+            );
+            ResponseStatus::InvalidResponseStatus
+        })
     }
 }
 
@@ -141,6 +151,9 @@ impl fmt::Display for ResponseStatus {
             }
             ResponseStatus::NotAuthenticated => {
                 write!(f, "request did not provide a required authentication")
+            }
+            ResponseStatus::UnsupportedParameters => {
+                write!(f, "requested parameters are not supported by the provider")
             }
             ResponseStatus::PsaErrorGenericError => {
                 write!(f, "an error occurred that does not correspond to any defined failure cause")

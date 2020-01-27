@@ -15,7 +15,7 @@
 use super::generated_ops::create_key::{OpCreateKeyProto, ResultCreateKeyProto};
 use crate::operations;
 use crate::requests::ResponseStatus;
-use std::convert::TryFrom;
+use std::convert::{TryFrom, TryInto};
 
 impl TryFrom<OpCreateKeyProto> for operations::OpCreateKey {
     type Error = ResponseStatus;
@@ -28,7 +28,7 @@ impl TryFrom<OpCreateKeyProto> for operations::OpCreateKey {
 
         Ok(operations::OpCreateKey {
             key_name: proto_op.key_name,
-            key_attributes: key_attributes.into(),
+            key_attributes: key_attributes.try_into()?,
         })
     }
 }
@@ -39,7 +39,7 @@ impl TryFrom<operations::OpCreateKey> for OpCreateKeyProto {
     fn try_from(op: operations::OpCreateKey) -> Result<Self, Self::Error> {
         let mut proto: OpCreateKeyProto = Default::default();
         proto.key_name = op.key_name;
-        proto.key_attributes = Some(op.key_attributes.into());
+        proto.key_attributes = Some(op.key_attributes.try_into()?);
 
         Ok(proto)
     }
