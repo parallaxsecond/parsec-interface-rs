@@ -15,7 +15,7 @@
 use super::generated_ops::import_key::{OpImportKeyProto, ResultImportKeyProto};
 use crate::operations;
 use crate::requests::ResponseStatus;
-use std::convert::TryFrom;
+use std::convert::{TryFrom, TryInto};
 
 impl TryFrom<OpImportKeyProto> for operations::OpImportKey {
     type Error = ResponseStatus;
@@ -28,7 +28,7 @@ impl TryFrom<OpImportKeyProto> for operations::OpImportKey {
 
         Ok(operations::OpImportKey {
             key_name: proto_op.key_name,
-            key_attributes: key_attributes.into(),
+            key_attributes: key_attributes.try_into()?,
             key_data: proto_op.key_data,
         })
     }
@@ -40,7 +40,7 @@ impl TryFrom<operations::OpImportKey> for OpImportKeyProto {
     fn try_from(op: operations::OpImportKey) -> Result<Self, Self::Error> {
         Ok(OpImportKeyProto {
             key_name: op.key_name,
-            key_attributes: Some(op.key_attributes.into()),
+            key_attributes: Some(op.key_attributes.try_into()?),
             key_data: op.key_data,
         })
     }

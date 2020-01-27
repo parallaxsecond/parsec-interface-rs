@@ -14,7 +14,7 @@
 // limitations under the License.
 use std::env;
 use std::fs::read_dir;
-use std::io::Result;
+use std::io::{Error, ErrorKind, Result};
 use std::path::Path;
 use std::process::Command;
 
@@ -27,24 +27,30 @@ fn generate_proto_sources() -> Result<()> {
         PARSEC_OPERATIONS_VERSION
     );
     let dir_entries = read_dir(Path::new(&path))?;
-    let files: Vec<String> = dir_entries
+    let files: Result<Vec<String>> = dir_entries
         .map(|protos_file| {
-            protos_file
-                .unwrap()
+            protos_file?
                 .path()
                 .into_os_string()
                 .into_string()
-                .unwrap()
+                .or_else(|_| {
+                    Err(Error::new(
+                        ErrorKind::InvalidData,
+                        "conversion from OsString to String failed",
+                    ))
+                })
         })
+        // Fail the entire operation if there was an error.
+        .collect();
+    let proto_files: Vec<String> = files?
+        .into_iter()
         .filter(|string| string.ends_with(".proto"))
         .collect();
-    let files_slices: Vec<&str> = files.iter().map(|file| &file[..]).collect();
-    prost_build::compile_protos(&files_slices, &[&path]).expect("failed to generate protos");
-
-    Ok(())
+    let files_slices: Vec<&str> = proto_files.iter().map(|file| &file[..]).collect();
+    prost_build::compile_protos(&files_slices, &[&path])
 }
 
-fn get_protobuf_files() {
+fn get_protobuf_files() -> Result<()> {
     // TODO: Use semantic versioning to get the newest versions.
     if !Command::new("wget")
         .arg(format!(
@@ -55,11 +61,10 @@ fn get_protobuf_files() {
             "--directory-prefix={}",
             env::var("OUT_DIR").unwrap()
         ))
-        .status()
-        .expect("wget command failed.")
+        .status()?
         .success()
     {
-        panic!("wget command returned an error status.");
+        return Err(Error::new(ErrorKind::Other, "wget command failed"));
     }
 
     // Gets extracted as parsec-operations-PARSEC_OPERATIONS_VERSION directory.
@@ -72,15 +77,16 @@ fn get_protobuf_files() {
         ))
         .arg("--directory")
         .arg(env::var("OUT_DIR").unwrap())
-        .status()
-        .expect("tar command failed.")
+        .status()?
         .success()
     {
-        panic!("tar command returned an error status.");
+        return Err(Error::new(ErrorKind::Other, "wget command failed"));
     }
+
+    Ok(())
 }
 
-fn main() {
-    get_protobuf_files();
-    generate_proto_sources().expect("Failed to generate protobuf source code from proto files.");
+fn main() -> Result<()> {
+    get_protobuf_files()?;
+    generate_proto_sources()
 }

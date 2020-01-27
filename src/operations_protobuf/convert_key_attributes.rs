@@ -17,21 +17,36 @@ use super::generated_ops::key_attributes::{
     KeyAttributesProto,
 };
 use crate::operations::key_attributes::{Algorithm, AlgorithmInner, KeyAttributes};
+use crate::requests::{ResponseStatus, Result};
+use log::error;
 use num::FromPrimitive;
+use std::convert::{TryFrom, TryInto};
 
-impl From<KeyAttributesProto> for KeyAttributes {
-    fn from(attrs: KeyAttributesProto) -> Self {
-        let key_type = FromPrimitive::from_i32(attrs.key_type).expect("Failed to convert key type");
+impl TryFrom<KeyAttributesProto> for KeyAttributes {
+    type Error = ResponseStatus;
+
+    fn try_from(attrs: KeyAttributesProto) -> Result<Self> {
+        let key_type = FromPrimitive::from_i32(attrs.key_type).ok_or_else(|| {
+            error!("Failed to convert key type");
+            ResponseStatus::InvalidEncoding
+        })?;
         let ecc_curve = match attrs.ecc_curve() {
             EccCurve::NoEccCurve => None,
-            _ => {
-                Some(FromPrimitive::from_i32(attrs.ecc_curve).expect("Failed to convert ecc curve"))
-            }
+            _ => Some(FromPrimitive::from_i32(attrs.ecc_curve).ok_or_else(|| {
+                error!("Failed to convert ecc curve");
+                ResponseStatus::InvalidEncoding
+            })?),
         };
 
-        let algorithm = attrs.algorithm_proto.expect("Algorithm was empty").into();
+        let algorithm = attrs
+            .algorithm_proto
+            .ok_or_else(|| {
+                error!("Algorithm was empty");
+                ResponseStatus::InvalidEncoding
+            })?
+            .try_into()?;
 
-        KeyAttributes {
+        Ok(KeyAttributes {
             key_type,
             ecc_curve,
             algorithm,
@@ -42,19 +57,21 @@ impl From<KeyAttributesProto> for KeyAttributes {
             permit_sign: attrs.permit_sign,
             permit_verify: attrs.permit_verify,
             permit_derive: attrs.permit_derive,
-        }
+        })
     }
 }
 
-impl From<KeyAttributes> for KeyAttributesProto {
-    fn from(attrs: KeyAttributes) -> Self {
-        KeyAttributesProto {
+impl TryFrom<KeyAttributes> for KeyAttributesProto {
+    type Error = ResponseStatus;
+
+    fn try_from(attrs: KeyAttributes) -> Result<Self> {
+        Ok(KeyAttributesProto {
             key_type: attrs.key_type as i32,
             ecc_curve: match attrs.ecc_curve {
                 None => 0,
                 Some(curve) => curve as i32,
             },
-            algorithm_proto: Some(attrs.algorithm.into()),
+            algorithm_proto: Some(attrs.algorithm.try_into()?),
             key_size: attrs.key_size,
             permit_export: attrs.permit_export,
             permit_encrypt: attrs.permit_encrypt,
@@ -62,43 +79,46 @@ impl From<KeyAttributes> for KeyAttributesProto {
             permit_sign: attrs.permit_sign,
             permit_verify: attrs.permit_verify,
             permit_derive: attrs.permit_derive,
-        }
+        })
     }
 }
 
-impl From<AlgorithmProto> for Algorithm {
-    fn from(alg: AlgorithmProto) -> Self {
+impl TryFrom<AlgorithmProto> for Algorithm {
+    type Error = ResponseStatus;
+
+    fn try_from(alg: AlgorithmProto) -> Result<Self> {
         match alg {
-            AlgorithmProto::Sign(sign) => Algorithm::sign(
-                FromPrimitive::from_i32(sign.sign_algorithm).expect("Failed to convert algorithm"),
+            AlgorithmProto::Sign(sign) => Ok(Algorithm::sign(
+                FromPrimitive::from_i32(sign.sign_algorithm).ok_or_else(|| {
+                    error!("Failed to convert algorithm");
+                    ResponseStatus::InvalidEncoding
+                })?,
                 match sign.hash_algorithm() {
                     HashAlgorithmProto::NoHashAlgorithm => None,
-                    _ => Some(
-                        FromPrimitive::from_i32(sign.hash_algorithm)
-                            .expect("Failed to convert hash algorithm"),
-                    ),
+                    _ => Some(FromPrimitive::from_i32(sign.hash_algorithm).ok_or_else(|| {
+                        error!("Failed to convert hash algorithm");
+                        ResponseStatus::InvalidEncoding
+                    })?),
                 },
-            ),
-            _ => {
-                unimplemented!();
-            }
+            )),
+            _ => Err(ResponseStatus::UnsupportedParameters),
         }
     }
 }
 
-impl From<Algorithm> for AlgorithmProto {
-    fn from(alg: Algorithm) -> Self {
+impl TryFrom<Algorithm> for AlgorithmProto {
+    type Error = ResponseStatus;
+
+    fn try_from(alg: Algorithm) -> Result<Self> {
         match alg.inner() {
-            AlgorithmInner::Sign(sign, hash) => AlgorithmProto::Sign(key_attributes::Sign {
+            AlgorithmInner::Sign(sign, hash) => Ok(AlgorithmProto::Sign(key_attributes::Sign {
                 sign_algorithm: *sign as i32,
                 hash_algorithm: match hash {
                     None => 0,
                     Some(hash) => *hash as i32,
                 },
-            }),
-            _ => {
-                unimplemented!();
-            }
+            })),
+            _ => Err(ResponseStatus::UnsupportedParameters),
         }
     }
 }
@@ -109,6 +129,7 @@ mod test {
         self as key_attributes_proto, key_attributes_proto::AlgorithmProto, KeyAttributesProto,
     };
     use crate::operations::key_attributes::{self, Algorithm, AlgorithmInner, KeyAttributes};
+    use std::convert::TryInto;
 
     #[test]
     fn key_attrs_to_proto() {
@@ -129,7 +150,7 @@ mod test {
             permit_derive: true,
         };
 
-        let key_attrs_proto: KeyAttributesProto = key_attrs.into();
+        let key_attrs_proto: KeyAttributesProto = key_attrs.try_into().unwrap();
 
         assert_eq!(
             key_attrs_proto.key_type,
@@ -167,7 +188,7 @@ mod test {
             permit_derive: true,
         };
 
-        let key_attrs: KeyAttributes = key_attrs_proto.into();
+        let key_attrs: KeyAttributes = key_attrs_proto.try_into().unwrap();
         assert_eq!(key_attrs.key_type, key_attributes::KeyType::RsaKeypair);
         assert_eq!(
             key_attrs.ecc_curve,
@@ -189,7 +210,7 @@ mod test {
             hash_algorithm: key_attributes_proto::HashAlgorithm::Sha1 as i32,
         });
 
-        let sign: Algorithm = proto_sign.into();
+        let sign: Algorithm = proto_sign.try_into().unwrap();
 
         assert_eq!(
             *sign.inner(),
@@ -207,7 +228,7 @@ mod test {
             Some(key_attributes::HashAlgorithm::Sha1),
         );
 
-        let proto_sign: AlgorithmProto = sign.into();
+        let proto_sign: AlgorithmProto = sign.try_into().unwrap();
 
         assert_eq!(
             proto_sign,
