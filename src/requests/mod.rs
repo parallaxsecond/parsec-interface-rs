@@ -23,6 +23,8 @@ mod response_status;
 pub mod utils;
 pub mod request;
 pub mod response;
+#[cfg(feature = "fuzz")]
+use arbitrary::Arbitrary;
 pub use request::Request;
 pub use response::Response;
 pub use response_status::{ResponseStatus, Result};
@@ -33,6 +35,7 @@ const MAGIC_NUMBER: u32 = 0x5EC0_A710;
 /// Listing of provider types and their associated codes.
 ///
 /// Passed in headers as `provider`.
+#[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(FromPrimitive, PartialEq, Eq, Hash, Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum ProviderID {
@@ -66,6 +69,7 @@ impl TryFrom<u8> for ProviderID {
 /// Listing of body encoding types and their associated codes.
 ///
 /// Passed in headers as `content_type` and `accept_type`.
+#[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[repr(u8)]
 pub enum BodyType {
@@ -78,6 +82,7 @@ pub enum BodyType {
 /// Passed in headers as `opcode`. The values of the enumeration constants come from the operations
 /// documentation available
 /// [here](https://github.com/docker/parsec/blob/master/docs/operation_directory.proto).
+#[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(FromPrimitive, Copy, Clone, PartialEq, Debug, Hash, Eq)]
 #[repr(u16)]
 pub enum Opcode {
@@ -95,6 +100,7 @@ pub enum Opcode {
 /// Listing of available authentication methods.
 ///
 /// Passed in headers as `auth_type`.
+#[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(FromPrimitive, PartialEq, Eq, Hash, Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum AuthType {

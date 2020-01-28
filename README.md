@@ -36,6 +36,7 @@ This project uses the following third party crates:
 * num (MIT and Apache-2.0)
 * uuid (Apache-2.0)
 * log (MIT and Apache-2.0)
+* arbitrary (MIT and Apache-2.0)
 
 # Contributing
 
