@@ -13,11 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 use crate::requests::Result;
+#[cfg(feature = "fuzz")]
+use arbitrary::Arbitrary;
 use std::io::{Read, Write};
 
 /// Wrapper around the body of a request.
 ///
 /// Hides the contents and keeps them immutable.
+#[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct RequestAuth {
     bytes: Vec<u8>,

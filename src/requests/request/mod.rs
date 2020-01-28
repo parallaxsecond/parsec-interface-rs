@@ -14,6 +14,8 @@
 // limitations under the License.
 use super::response::ResponseHeader;
 use crate::requests::{ResponseStatus, Result};
+#[cfg(feature = "fuzz")]
+use arbitrary::Arbitrary;
 use request_header::RawRequestHeader;
 use std::convert::{TryFrom, TryInto};
 use std::io::{Read, Write};
@@ -39,6 +41,7 @@ pub use request_header::RawRequestHeader as RawHeader;
 ///
 /// Auth field is stored as a `RequestAuth` object. A parser that can handle the `auth_type`
 /// specified in the header is needed to authenticate the request.
+#[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(PartialEq, Debug)]
 pub struct Request {
     pub header: RequestHeader,

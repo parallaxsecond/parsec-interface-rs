@@ -16,6 +16,8 @@ use super::REQUEST_HDR_SIZE;
 use crate::requests::MAGIC_NUMBER;
 use crate::requests::{AuthType, BodyType, Opcode, ProviderID};
 use crate::requests::{ResponseStatus, Result};
+#[cfg(feature = "fuzz")]
+use arbitrary::Arbitrary;
 use num::FromPrimitive;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
@@ -25,6 +27,7 @@ use std::io::{Read, Write};
 ///
 /// Serialisation and deserialisation are handled by `serde`, also in tune with the
 /// wire format (i.e. little-endian, native encoding).
+#[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct RawRequestHeader {
     pub version_maj: u8,
@@ -101,6 +104,7 @@ impl RawRequestHeader {
 ///
 /// Fields that are not relevant for application development (e.g. magic number) are
 /// not copied across from the raw header.
+#[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct RequestHeader {
     pub version_maj: u8,
