@@ -69,9 +69,11 @@
 //!use parsec_interface::operations_protobuf::ProtobufConverter;
 //!use parsec_interface::operations::ResultCreateKey;
 //!
+//!const MAX_BODY_LENGTH: usize = 2048;
+//!
 //!let mut stream = UnixStream::connect("socket_path").unwrap();
 //!let converter = ProtobufConverter {};
-//!let request = Request::read_from_stream(&mut stream).unwrap();
+//!let request = Request::read_from_stream(&mut stream, MAX_BODY_LENGTH).unwrap();
 //!let operation = converter.body_to_operation(request.body, request.header.opcode).unwrap();
 //!
 //!// Deal with the operation to get a `NativeResult`
@@ -108,6 +110,8 @@
 //!use parsec_interface::operations_protobuf::ProtobufConverter;
 //!use parsec_interface::operations::OpPing;
 //!
+//!const MAX_BODY_LENGTH: usize = 2048;
+//!
 //!let mut stream = UnixStream::connect("socket_path").unwrap();
 //!let converter = ProtobufConverter {};
 //!let operation = NativeOperation::Ping(OpPing {});
@@ -128,7 +132,7 @@
 //!request.write_to_stream(&mut stream).unwrap();
 //!
 //!// Wait for the service to execute the operation
-//!let response = Response::read_from_stream(&mut stream).unwrap();
+//!let response = Response::read_from_stream(&mut stream, MAX_BODY_LENGTH).unwrap();
 //!let result = converter.body_to_result(response.body, response.header.opcode).unwrap();
 //!```
 
