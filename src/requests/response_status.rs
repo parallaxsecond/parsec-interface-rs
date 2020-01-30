@@ -47,6 +47,7 @@ pub enum ResponseStatus {
     WrongProviderUuid = 22,
     NotAuthenticated = 23,
     UnsupportedParameters = 24,
+    BodySizeExceedsLimit = 25,
     PsaErrorGenericError = 1132,
     PsaErrorNotPermitted = 1133,
     PsaErrorNotSupported = 1134,
@@ -154,6 +155,9 @@ impl fmt::Display for ResponseStatus {
             }
             ResponseStatus::UnsupportedParameters => {
                 write!(f, "requested parameters are not supported by the provider")
+            }
+            ResponseStatus::BodySizeExceedsLimit => {
+                write!(f, "request length specified in the header is above defined limit")
             }
             ResponseStatus::PsaErrorGenericError => {
                 write!(f, "an error occurred that does not correspond to any defined failure cause")

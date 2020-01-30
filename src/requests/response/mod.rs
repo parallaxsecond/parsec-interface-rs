@@ -15,6 +15,7 @@
 use super::request::RequestHeader;
 use super::ResponseStatus;
 use super::Result;
+use log::error;
 use response_header::RawResponseHeader;
 use std::convert::{TryFrom, TryInto};
 use std::io::{Read, Write};
@@ -91,12 +92,25 @@ impl Response {
 
     /// Deserialise response from given stream.
     ///
+    /// The `body_len_limit` parameter allows the interface client to reject requests that are
+    /// longer than a predefined limit. The length limit is in bytes.
+    ///
     /// # Errors
     /// - if reading any of the subfields (header or body) fails, the
     /// corresponding `ResponseStatus` will be returned.
-    pub fn read_from_stream(stream: &mut impl Read) -> Result<Response> {
+    /// - if the request body size specified in the header is larger than the limit passed as
+    /// a parameter, `RequestBodyExceedsLimit` will be returned.
+    pub fn read_from_stream(stream: &mut impl Read, body_len_limit: usize) -> Result<Response> {
         let raw_header = RawResponseHeader::read_from_stream(stream)?;
-        let body = ResponseBody::read_from_stream(stream, usize::try_from(raw_header.body_len)?)?;
+        let body_len = usize::try_from(raw_header.body_len)?;
+        if body_len > body_len_limit {
+            error!(
+                "Request body length ({}) bigger than the limit given ({}).",
+                body_len, body_len_limit
+            );
+            return Err(ResponseStatus::BodySizeExceedsLimit);
+        }
+        let body = ResponseBody::read_from_stream(stream, body_len)?;
 
         Ok(Response {
             header: raw_header.try_into()?,
@@ -129,7 +143,8 @@ mod tests {
             buffer: get_response_bytes(),
         };
 
-        let response = Response::read_from_stream(&mut mock).expect("Failed to read response");
+        let response =
+            Response::read_from_stream(&mut mock, 1000).expect("Failed to read response");
 
         assert_eq!(response, get_response());
     }
@@ -139,7 +154,17 @@ mod tests {
     fn failed_read() {
         let mut fail_mock = test_utils::MockFailReadWrite;
 
-        let _ = Response::read_from_stream(&mut fail_mock).expect("Failed to read response");
+        let _ = Response::read_from_stream(&mut fail_mock, 1000).expect("Failed to read response");
+    }
+
+    #[test]
+    #[should_panic(expected = "Response body too large")]
+    fn body_too_large() {
+        let mut mock = test_utils::MockReadWrite {
+            buffer: get_response_bytes(),
+        };
+
+        let _ = Response::read_from_stream(&mut mock, 0).expect("Response body too large");
     }
 
     #[test]
