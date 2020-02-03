@@ -85,9 +85,9 @@ mod test {
             supp_version_min: 1,
         };
 
-        let proto: ResultPing = resp.into();
-        assert!(proto.supp_version_maj == 1);
-        assert!(proto.supp_version_min == 1);
+        let proto: ResultPingProto = resp.try_into().unwrap();
+        assert!(proto.supported_version_maj == 1);
+        assert!(proto.supported_version_min == 1);
     }
 
     #[test]
@@ -102,7 +102,7 @@ mod test {
         let body = CONVERTER
             .operation_to_body(NativeOperation::Ping(ping))
             .expect("Failed to convert request");
-        assert!(body.len() == 0);
+        assert!(body.is_empty());
     }
 
     #[test]

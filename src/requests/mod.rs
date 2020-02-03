@@ -39,7 +39,7 @@ const MAGIC_NUMBER: u32 = 0x5EC0_A710;
 #[derive(FromPrimitive, PartialEq, Eq, Hash, Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum ProviderID {
-    /// Provider to use for core PARSEC operations.
+    /// Provider to use for core Parsec operations.
     CoreProvider = 0,
     /// Provider using Mbed Crypto software library.
     MbedProvider = 1,

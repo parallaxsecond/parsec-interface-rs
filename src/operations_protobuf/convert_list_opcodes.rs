@@ -113,7 +113,7 @@ mod test {
         let body = CONVERTER
             .operation_to_body(NativeOperation::ListOpcodes(list_opcodes))
             .expect("Failed to convert request");
-        assert!(body.len() == 0);
+        assert!(body.is_empty());
     }
 
     #[test]

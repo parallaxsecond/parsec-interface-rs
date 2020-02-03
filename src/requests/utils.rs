@@ -17,7 +17,7 @@ macro_rules! get_from_stream {
     ($stream:expr, $type:ty) => {
         match &mut $stream {
             stream => {
-                let mut read_bytes = [0u8; std::mem::size_of::<$type>()];
+                let mut read_bytes = [0_u8; std::mem::size_of::<$type>()];
                 stream.read_exact(&mut read_bytes)?;
                 <$type>::from_le_bytes(read_bytes)
             }

@@ -4,6 +4,12 @@ version = "0.6.0"
 authors = ["Paul Howard <paul.howard@arm.com>",
            "Ionut Mihalcea <ionut.mihalcea@arm.com>",
            "Hugues de Valon <hugues.devalon@arm.com>"]
+description = "Parsec interface library to communicate using the wire protocol"
+license = "Apache-2.0"
+repository = "https://github.com/parallaxsecond/parsec-interface-rs"
+readme = "README.md"
+keywords = ["parsec", "interface", "serialization"]
+categories = ["encoding"]
 edition = "2018"
 
 [build-dependencies]

@@ -43,14 +43,16 @@
     unused_results,
     missing_copy_implementations
 )]
-//! # PARSEC Rust Interface
+// This one is hard to avoid.
+#![allow(clippy::multiple_crate_versions)]
+//! # Parsec Rust Interface
 //!
-//! The PARSEC Rust Interface provides methods to communicate easily with the PARSEC service using
+//! The Parsec Rust Interface provides methods to communicate easily with the Parsec service using
 //! the [wire protocol](https://github.com/docker/parsec/blob/master/docs/wire_protocol.md).
 //!
-//! ## For the PARSEC service
+//! ## For the Parsec service
 //!
-//! This library is used by the PARSEC service to:
+//! This library is used by the Parsec service to:
 //! * read from a stream a `Request` sent to the service with the `read_from_stream` method
 //! * use the `body_to_operation` method of the `Convert` trait on a converter to parse the request
 //! body into a `NativeOperation`
@@ -86,18 +88,18 @@
 //!response.write_to_stream(&mut stream).unwrap();
 //!```
 //!
-//! ## For the PARSEC Rust clients
+//! ## For the Parsec Rust clients
 //!
-//! This library is used by the PARSEC Rust clients to:
+//! This library is used by the Parsec Rust clients to:
 //! * use the `operation_to_body` method to serialize the `NativeOperation` to be sent as body of a
 //! `Request`
 //! * write it to the stream with the `write_to_stream` method.
 //!
-//! and after the operation has been executed by the PARSEC service:
+//! and after the operation has been executed by the Parsec service:
 //! * read from a stream the `Response` from the service with the `read_from_stream` method
 //! * use the `body_to_result` method to parse the result body into a `NativeResult`
 //!
-//! See the [PARSEC Test client](https://github.com/docker/parsec-client-test) as an example of a
+//! See the [Parsec Test client](https://github.com/docker/parsec-client-test) as an example of a
 //! Rust client.
 //!
 //! ### Example
