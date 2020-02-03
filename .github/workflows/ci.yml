@@ -8,38 +8,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Build
-      run: cargo build --verbose
-      # rustfmt will check if the code build before checking the formatting.
-      # Because the build script generated a new module in the code,
-      # building the code before checking it is needed.
-    - name: Check formatting
-      run: cargo fmt --all -- --check
-
-  test:
-    name: Run tests
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - run: cargo test --verbose
-
-  linting:
-    name: Execute clippy
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - run: cargo clippy --all-targets --all-features -- -D clippy::all -D clippy::cargo
-
-  cross-testing-arm64-linux:
-    name: Cross testing for the aarch64-unknown-linux-gnu target
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - name: Install cross
-      run: cargo install cross
-    - name: Build the cross Dockerfile
-      run: docker build -t parsec-cross .
-    - name: Cross-compile with cross
-      run: cross build --target aarch64-unknown-linux-gnu --verbose
-    - name: Execute the unit tests with cross
-      run: cross test --target aarch64-unknown-linux-gnu --verbose
+    - name: Execute all tests
+      run: ./tests/ci.sh
