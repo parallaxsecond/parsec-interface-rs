@@ -115,7 +115,7 @@ mod test {
     fn create_key_op_e2e() {
         let name = "test name".to_string();
         let op = OpCreateKey {
-            key_name: name.clone(),
+            key_name: name,
             key_attributes: get_key_attrs(),
         };
 

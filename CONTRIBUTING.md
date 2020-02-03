@@ -16,7 +16,7 @@
 --->
 # Contributing to `parsec-interface-rs`
 
-Contributions to PARSEC need to follow the process below.
+Contributions to Parsec need to follow the process below.
 
 * Contributions are done through GitHub pull-requests.
 * Contributors need to apply `rustfmt` and `clippy` to their Rust code.

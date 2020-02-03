@@ -27,7 +27,7 @@ mod convert_list_providers;
 mod convert_list_opcodes;
 
 #[rustfmt::skip]
-#[allow(unused_qualifications, missing_copy_implementations)]
+#[allow(unused_qualifications, missing_copy_implementations, clippy::pedantic)]
 mod generated_ops {
     // Include the Rust generated file in its own module.
     macro_rules! include_protobuf_as_module {

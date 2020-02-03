@@ -122,7 +122,7 @@ mod test {
     fn import_key_op_e2e() {
         let name = "test name".to_string();
         let op = OpImportKey {
-            key_name: name.clone(),
+            key_name: name,
             key_attributes: get_key_attrs(),
             key_data: vec![0x11, 0x22, 0x33],
         };

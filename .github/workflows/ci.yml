@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - run: cargo clippy
+    - run: cargo clippy --all-targets --all-features -- -D clippy::all -D clippy::cargo
 
   cross-testing-arm64-linux:
     name: Cross testing for the aarch64-unknown-linux-gnu target

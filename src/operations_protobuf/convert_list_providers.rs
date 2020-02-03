@@ -193,7 +193,7 @@ mod test {
         let body = CONVERTER
             .operation_to_body(NativeOperation::ListProviders(list_providers))
             .expect("Failed to convert request");
-        assert!(body.len() == 0);
+        assert!(body.is_empty());
     }
 
     #[test]
