@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -12,11 +12,13 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+use curl::easy::Easy;
+use flate2::read::GzDecoder;
 use std::env;
-use std::fs::read_dir;
-use std::io::{Error, ErrorKind, Result};
+use std::fs::{read_dir, File};
+use std::io::{Error, ErrorKind, Result, Write};
 use std::path::Path;
-use std::process::Command;
+use tar::Archive;
 
 const PARSEC_OPERATIONS_VERSION: &str = "0.2.0";
 
@@ -52,36 +54,34 @@ fn generate_proto_sources() -> Result<()> {
 
 fn get_protobuf_files() -> Result<()> {
     // TODO: Use semantic versioning to get the newest versions.
-    if !Command::new("wget")
-        .arg(format!(
-            "https://github.com/parallaxsecond/parsec-operations/archive/{}.tar.gz",
-            PARSEC_OPERATIONS_VERSION
-        ))
-        .arg(format!(
-            "--directory-prefix={}",
-            env::var("OUT_DIR").unwrap()
-        ))
-        .status()?
-        .success()
+    let protobuf_archive_url = format!(
+        "https://codeload.github.com/parallaxsecond/parsec-operations/tar.gz/{}",
+        PARSEC_OPERATIONS_VERSION
+    );
+    let out_dir = env::var("OUT_DIR").unwrap();
+    let protobuf_archive_path = format!("{}/{}.tar.gz", out_dir, PARSEC_OPERATIONS_VERSION);
+    let mut protobuf_archive = File::create(&protobuf_archive_path)?;
+
+    let mut buf = Vec::new();
+    let mut handle = Easy::new();
+    handle.url(&protobuf_archive_url)?;
     {
-        return Err(Error::new(ErrorKind::Other, "wget command failed"));
+        let mut transfer = handle.transfer();
+        transfer.write_function(|data| {
+            buf.extend_from_slice(data);
+            Ok(data.len())
+        })?;
+        transfer.perform()?;
     }
 
-    // Gets extracted as parsec-operations-PARSEC_OPERATIONS_VERSION directory.
-    if !Command::new("tar")
-        .arg("xf")
-        .arg(format!(
-            "{}/{}.tar.gz",
-            env::var("OUT_DIR").unwrap(),
-            PARSEC_OPERATIONS_VERSION
-        ))
-        .arg("--directory")
-        .arg(env::var("OUT_DIR").unwrap())
-        .status()?
-        .success()
-    {
-        return Err(Error::new(ErrorKind::Other, "wget command failed"));
-    }
+    protobuf_archive.write_all(&buf)?;
+
+    // Drop and open the archive again so that GzDecoder sees it as a new file.
+    let protobuf_archive = File::open(&protobuf_archive_path)?;
+
+    let tar = GzDecoder::new(protobuf_archive);
+    let mut archive = Archive::new(tar);
+    archive.unpack(&out_dir)?;
 
     Ok(())
 }
