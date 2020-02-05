@@ -147,7 +147,7 @@ impl TryFrom<RawResponseHeader> for ResponseHeader {
 
         let status: ResponseStatus = match FromPrimitive::from_u16(header.status) {
             Some(status) => status,
-            None => return Err(ResponseStatus::InvalidResponseStatus),
+            None => return Err(ResponseStatus::InvalidEncoding),
         };
 
         Ok(ResponseHeader {

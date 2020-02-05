@@ -64,7 +64,6 @@ impl Response {
     }
 
     pub fn from_status(status: ResponseStatus) -> Response {
-        assert_ne!(status, ResponseStatus::Success); // TODO: need this?
         let mut response = Response::new();
         response.header.status = status;
 
