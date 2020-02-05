@@ -22,7 +22,16 @@
 This repository contains an interface library to be used both by the Parsec service and a Rust Client library.
 The library contains methods to communicate using the [wire protocol](https://github.com/parallaxsecond/parsec/blob/master/docs/wire_protocol.md).
 
-# License
+## Build
+
+The Parsec operations repository is included as a submodule. Make sure to update it first before
+trying to compile otherwise it will not work ("`No such file or directory`").
+
+```bash
+$ git submodule update --init
+```
+
+## License
 
 The software is provided under Apache-2.0. Contributions to this project are accepted under the same license.
 
@@ -38,11 +47,8 @@ This project uses the following third party crates:
 * uuid (Apache-2.0)
 * log (MIT and Apache-2.0)
 * arbitrary (MIT and Apache-2.0)
-* curl (MIT)
-* flate2 (MIT and Apache-2.0)
-* tar (MIT and Apache-2.0)
 
-# Contributing
+## Contributing
 
 Please check the [Contributing](CONTRIBUTING.md) to know more about the contribution process.
 

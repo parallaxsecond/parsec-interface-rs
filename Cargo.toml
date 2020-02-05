@@ -1,6 +1,6 @@
 [package]
 name = "parsec-interface"
-version = "0.7.0"
+version = "0.7.1"
 authors = ["Paul Howard <paul.howard@arm.com>",
            "Ionut Mihalcea <ionut.mihalcea@arm.com>",
            "Hugues de Valon <hugues.devalon@arm.com>"]
@@ -14,9 +14,6 @@ edition = "2018"
 
 [build-dependencies]
 prost-build = "0.5.0"
-curl = "0.4.25"
-flate2 = "1.0.13"
-tar = "0.4.26"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
