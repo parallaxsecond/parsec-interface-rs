@@ -101,7 +101,7 @@ impl TryFrom<AlgorithmProto> for Algorithm {
                     })?),
                 },
             )),
-            _ => Err(ResponseStatus::UnsupportedParameters),
+            _ => Err(ResponseStatus::PsaErrorNotSupported),
         }
     }
 }
@@ -118,7 +118,7 @@ impl TryFrom<Algorithm> for AlgorithmProto {
                     Some(hash) => *hash as i32,
                 },
             })),
-            _ => Err(ResponseStatus::UnsupportedParameters),
+            _ => Err(ResponseStatus::PsaErrorNotSupported),
         }
     }
 }

@@ -12,7 +12,7 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use log::error;
+use log::{error, warn};
 use num_derive::FromPrimitive;
 use std::convert::TryFrom;
 use std::error::Error as ErrorTrait;
@@ -33,21 +33,16 @@ pub enum ResponseStatus {
     SerializingBodyFailed = 8,
     OpcodeDoesNotExist = 9,
     ResponseTooLarge = 10,
-    UnsupportedOperation = 11,
-    AuthenticationError = 12,
-    AuthenticatorDoesNotExist = 13,
-    AuthenticatorNotRegistered = 14,
-    KeyDoesNotExist = 15,
-    KeyAlreadyExists = 16,
-    KeyIDManagerError = 17,
-    ConnectionError = 18,
-    InvalidEncoding = 19,
-    InvalidHeader = 20,
-    InvalidResponseStatus = 21,
-    WrongProviderUuid = 22,
-    NotAuthenticated = 23,
-    UnsupportedParameters = 24,
-    BodySizeExceedsLimit = 25,
+    AuthenticationError = 11,
+    AuthenticatorDoesNotExist = 12,
+    AuthenticatorNotRegistered = 13,
+    KeyIDManagerError = 14,
+    ConnectionError = 15,
+    InvalidEncoding = 16,
+    InvalidHeader = 17,
+    WrongProviderUuid = 18,
+    NotAuthenticated = 19,
+    BodySizeExceedsLimit = 20,
     PsaErrorGenericError = 1132,
     PsaErrorNotPermitted = 1133,
     PsaErrorNotSupported = 1134,
@@ -78,7 +73,7 @@ impl TryFrom<u16> for ResponseStatus {
                 "Value {} does not correspond to a valid ResponseStatus.",
                 value
             );
-            ResponseStatus::InvalidResponseStatus
+            ResponseStatus::InvalidEncoding
         })
     }
 }
@@ -114,9 +109,6 @@ impl fmt::Display for ResponseStatus {
             }
             ResponseStatus::OpcodeDoesNotExist => write!(f, "requested operation is not defined"),
             ResponseStatus::ResponseTooLarge => write!(f, "response size exceeds allowed limits"),
-            ResponseStatus::UnsupportedOperation => {
-                write!(f, "requested operation is not supported by the provider")
-            }
             ResponseStatus::AuthenticationError => {
                 write!(f, "authentication failed")
             }
@@ -126,35 +118,23 @@ impl fmt::Display for ResponseStatus {
             ResponseStatus::AuthenticatorNotRegistered => {
                 write!(f, "authenticator not supported")
             }
-            ResponseStatus::KeyDoesNotExist => {
-                write!(f, "key does not exist")
-            }
-            ResponseStatus::KeyAlreadyExists => {
-                write!(f, "key with requested name already exists in the specified provider")
-            }
             ResponseStatus::KeyIDManagerError => {
                 write!(f, "internal error in the Key ID Manager")
             }
             ResponseStatus::ConnectionError => {
-                write!(f, "operation on underlying IPC connection failed")
+                write!(f, "generic input/output error")
             }
             ResponseStatus::InvalidEncoding => {
-                write!(f, "wire encoding of header is invalid")
+                write!(f, "invalid value for this data type")
             }
             ResponseStatus::InvalidHeader => {
                 write!(f, "constant fields in header are invalid")
-            }
-            ResponseStatus::InvalidResponseStatus => {
-                write!(f, "received response status is invalid")
             }
             ResponseStatus::WrongProviderUuid => {
                 write!(f, "the UUID vector needs to only contain 16 bytes")
             }
             ResponseStatus::NotAuthenticated => {
                 write!(f, "request did not provide a required authentication")
-            }
-            ResponseStatus::UnsupportedParameters => {
-                write!(f, "requested parameters are not supported by the provider")
             }
             ResponseStatus::BodySizeExceedsLimit => {
                 write!(f, "request length specified in the header is above defined limit")
@@ -223,19 +203,31 @@ impl fmt::Display for ResponseStatus {
 impl ErrorTrait for ResponseStatus {}
 
 impl From<std::io::Error> for ResponseStatus {
-    fn from(_err: std::io::Error) -> Self {
+    fn from(err: std::io::Error) -> Self {
+        warn!(
+            "Conversion from {} to ResponseStatus::ConnectionError.",
+            err
+        );
         ResponseStatus::ConnectionError
     }
 }
 
 impl From<bincode::Error> for ResponseStatus {
-    fn from(_err: bincode::Error) -> Self {
+    fn from(err: bincode::Error) -> Self {
+        warn!(
+            "Conversion from {} to ResponseStatus::InvalidEncoding.",
+            err
+        );
         ResponseStatus::InvalidEncoding
     }
 }
 
 impl From<std::num::TryFromIntError> for ResponseStatus {
-    fn from(_err: std::num::TryFromIntError) -> Self {
+    fn from(err: std::num::TryFromIntError) -> Self {
+        warn!(
+            "Conversion from {} to ResponseStatus::InvalidEncoding.",
+            err
+        );
         ResponseStatus::InvalidEncoding
     }
 }
