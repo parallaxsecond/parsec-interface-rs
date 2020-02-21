@@ -202,8 +202,8 @@ mod tests {
         let resp_hdr: ResponseHeader = req_hdr.into();
 
         let mut resp_hdr_exp = ResponseHeader::new();
-        resp_hdr_exp.version_maj = 0x00;
-        resp_hdr_exp.version_min = 0x01;
+        resp_hdr_exp.version_maj = 0x01;
+        resp_hdr_exp.version_min = 0x00;
         resp_hdr_exp.provider = ProviderID::CoreProvider;
         resp_hdr_exp.session = 0x11_22_33_44_55_66_77_88;
         resp_hdr_exp.content_type = BodyType::Protobuf;
@@ -236,8 +236,8 @@ mod tests {
         let body = RequestBody::from_bytes(vec![0x70, 0x80, 0x90]);
         let auth = RequestAuth::from_bytes(vec![0xa0, 0xb0, 0xc0]);
         let header = RequestHeader {
-            version_maj: 0x00,
-            version_min: 0x01,
+            version_maj: 0x01,
+            version_min: 0x00,
             provider: ProviderID::CoreProvider,
             session: 0x11_22_33_44_55_66_77_88,
             content_type: BodyType::Protobuf,
@@ -250,7 +250,7 @@ mod tests {
 
     fn get_request_bytes() -> Vec<u8> {
         vec![
-            0x10, 0xA7, 0xC0, 0x5E, 0x16, 0x00, 0x00, 0x01, 0x00, 0x88, 0x77, 0x66, 0x55, 0x44,
+            0x10, 0xA7, 0xC0, 0x5E, 0x16, 0x00, 0x01, 0x00, 0x00, 0x88, 0x77, 0x66, 0x55, 0x44,
             0x33, 0x22, 0x11, 0x00, 0x00, 0x01, 0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x01, 0x00,
             0x70, 0x80, 0x90, 0xa0, 0xb0, 0xc0,
         ]
