@@ -26,7 +26,7 @@ pub enum ResponseStatus {
     WrongProviderID = 1,
     ContentTypeNotSupported = 2,
     AcceptTypeNotSupported = 3,
-    VersionTooBig = 4,
+    WireProtocolVersionNotSupported = 4,
     ProviderNotRegistered = 5,
     ProviderDoesNotExist = 6,
     DeserializingBodyFailed = 7,
@@ -92,7 +92,7 @@ impl fmt::Display for ResponseStatus {
             ResponseStatus::AcceptTypeNotSupported => {
                 write!(f, "requested accept type is not supported by the backend")
             }
-            ResponseStatus::VersionTooBig => {
+            ResponseStatus::WireProtocolVersionNotSupported => {
                 write!(f, "requested version is not supported by the backend")
             }
             ResponseStatus::ProviderNotRegistered => {

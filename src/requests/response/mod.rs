@@ -177,11 +177,30 @@ mod tests {
             .expect("Failed to write response");
     }
 
+    #[test]
+    fn wrong_version() {
+        let mut mock = test_utils::MockReadWrite {
+            buffer: get_response_bytes(),
+        };
+        // Put an invalid version major field.
+        mock.buffer[6] = 0xFF;
+        // Put an invalid version minor field.
+        mock.buffer[7] = 0xFF;
+
+        let response_status =
+            Response::read_from_stream(&mut mock, 1000).expect_err("Should have failed.");
+
+        assert_eq!(
+            response_status,
+            ResponseStatus::WireProtocolVersionNotSupported
+        );
+    }
+
     fn get_response() -> Response {
         let body = ResponseBody::from_bytes(vec![0x70, 0x80, 0x90]);
         let header = ResponseHeader {
-            version_maj: 0xde,
-            version_min: 0xf0,
+            version_maj: 0x00,
+            version_min: 0x01,
             provider: ProviderID::CoreProvider,
             session: 0x11_22_33_44_55_66_77_88,
             content_type: BodyType::Protobuf,
@@ -193,7 +212,7 @@ mod tests {
 
     fn get_response_bytes() -> Vec<u8> {
         vec![
-            0x10, 0xA7, 0xC0, 0x5E, 0x14, 0x00, 0xde, 0xf0, 0x00, 0x88, 0x77, 0x66, 0x55, 0x44,
+            0x10, 0xA7, 0xC0, 0x5E, 0x14, 0x00, 0x00, 0x01, 0x00, 0x88, 0x77, 0x66, 0x55, 0x44,
             0x33, 0x22, 0x11, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x70, 0x80,
             0x90,
         ]

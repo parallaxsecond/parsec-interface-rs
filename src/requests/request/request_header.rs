@@ -87,6 +87,7 @@ impl RawRequestHeader {
     ///     sent across
     /// - if the parsed bytes cannot be unmarshalled into the contained fields,
     /// `ResponseStatus::InvalidEncoding` is returned.
+    /// - if the wire protocol version used is different than 0.1
     pub fn read_from_stream<R: Read>(mut stream: &mut R) -> Result<RawRequestHeader> {
         let magic_number = get_from_stream!(stream, u32);
         let hdr_size = get_from_stream!(stream, u16);
@@ -96,7 +97,12 @@ impl RawRequestHeader {
         let mut bytes = vec![0_u8; usize::try_from(hdr_size)?];
         stream.read_exact(&mut bytes)?;
 
-        Ok(bincode::deserialize(&bytes)?)
+        let raw_request: RawRequestHeader = bincode::deserialize(&bytes)?;
+        if raw_request.version_maj != 0 || raw_request.version_min != 1 {
+            Err(ResponseStatus::WireProtocolVersionNotSupported)
+        } else {
+            Ok(raw_request)
+        }
     }
 }
 

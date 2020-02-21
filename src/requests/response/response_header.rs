@@ -80,6 +80,7 @@ impl RawResponseHeader {
     ///     sent across
     /// - if the parsed bytes cannot be unmarshalled into the contained fields,
     /// an error of kind `ErrorKind::InvalidData` is returned
+    /// - if the wire protocol version used is different than 0.1
     pub fn read_from_stream(mut stream: &mut impl Read) -> Result<RawResponseHeader> {
         let magic_number = get_from_stream!(stream, u32);
         let hdr_size = get_from_stream!(stream, u16);
@@ -89,7 +90,12 @@ impl RawResponseHeader {
         let mut bytes = vec![0_u8; usize::try_from(hdr_size)?];
         stream.read_exact(&mut bytes)?;
 
-        Ok(bincode::deserialize(&bytes)?)
+        let raw_response: RawResponseHeader = bincode::deserialize(&bytes)?;
+        if raw_response.version_maj != 0 || raw_response.version_min != 1 {
+            Err(ResponseStatus::WireProtocolVersionNotSupported)
+        } else {
+            Ok(raw_response)
+        }
     }
 }
 
@@ -113,7 +119,7 @@ impl ResponseHeader {
     pub(crate) fn new() -> ResponseHeader {
         ResponseHeader {
             version_maj: 0,
-            version_min: 0,
+            version_min: 1,
             provider: ProviderID::CoreProvider,
             session: 0,
             content_type: BodyType::Protobuf,
