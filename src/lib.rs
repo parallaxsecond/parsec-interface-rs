@@ -122,7 +122,7 @@
 //!        session: 0,
 //!        content_type: BodyType::Protobuf,
 //!        accept_type: BodyType::Protobuf,
-//!        auth_type: AuthType::Simple,
+//!        auth_type: AuthType::Direct,
 //!        opcode: Opcode::Ping,
 //!    },
 //!    body: converter.operation_to_body(operation).unwrap(),

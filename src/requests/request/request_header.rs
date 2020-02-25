@@ -135,7 +135,7 @@ impl RequestHeader {
             session: 0,
             content_type: BodyType::Protobuf,
             accept_type: BodyType::Protobuf,
-            auth_type: AuthType::Simple,
+            auth_type: AuthType::Direct,
             opcode: Opcode::Ping,
         }
     }

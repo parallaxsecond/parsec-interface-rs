@@ -242,7 +242,7 @@ mod tests {
             session: 0x11_22_33_44_55_66_77_88,
             content_type: BodyType::Protobuf,
             accept_type: BodyType::Protobuf,
-            auth_type: AuthType::Simple,
+            auth_type: AuthType::Direct,
             opcode: Opcode::Ping,
         };
         Request { header, body, auth }
