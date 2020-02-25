@@ -106,6 +106,6 @@ pub enum Opcode {
 pub enum AuthType {
     /// No authentication
     NoAuth = 0,
-    /// Simple, dummy, authentication.
-    Simple = 1,
+    /// Direct authentication
+    Direct = 1,
 }
