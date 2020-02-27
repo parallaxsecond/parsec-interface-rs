@@ -45,7 +45,9 @@
 //! # Parsec Rust Interface
 //!
 //! The Parsec Rust Interface provides methods to communicate easily with the Parsec service using
-//! the [wire protocol](https://github.com/docker/parsec/blob/master/docs/wire_protocol.md).
+//! the [wire protocol](https://github.com/docker/parsec/blob/master/docs/wire_protocol.md) and the
+//! [operation
+//! contracts](https://parallaxsecond.github.io/parsec-book/parsec_client/operations/index.html).
 //!
 //! ## For the Parsec service
 //!
@@ -54,34 +56,88 @@
 //! * use the `body_to_operation` method of the `Convert` trait on a converter to parse the request
 //! body into a `NativeOperation`
 //!
-//! execute the operation to yield a `NativeResult` and:
+//!```
+//!# use std::io::{Read, Result};
+//!#
+//!# pub struct MockRead {
+//!#    pub buffer: Vec<u8>,
+//!# }
+//!#
+//!# impl Read for MockRead {
+//!#     fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
+//!#         for val in buf.iter_mut() {
+//!#             *val = self.buffer.remove(0);
+//!#         }
+//!#
+//!#         Ok(buf.len())
+//!#     }
+//!# }
+//!#
+//!# let mut stream = MockRead {
+//!#     buffer: vec![
+//!#         0x10, 0xA7, 0xC0, 0x5E, 0x16, 0x0, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+//!#         0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x0, 0x0, 0x0, 0x4, 0x0, 0x1, 0x0, 0x72, 0x6F, 0x6F,
+//!#         0x74
+//!#     ]
+//!# };
+//!use parsec_interface::operations::{Convert, NativeOperation};
+//!use parsec_interface::requests::Request;
+//!use parsec_interface::operations_protobuf::ProtobufConverter;
+//!
+//!let converter = ProtobufConverter {};
+//!// stream is a Read object
+//!let request = Request::read_from_stream(&mut stream, 2048).unwrap();
+//!let operation: NativeOperation = converter
+//!                                 .body_to_operation(request.body, request.header.opcode)
+//!                                 .unwrap();
+//!```
+//!
+//! The service can now execute the operation to yield a `NativeResult` and:
 //! * use the `result_to_body` method to serialize the `NativeResult`
 //! * create a `Response` containing the result as its body and write it back to the stream  with
 //! the `write_to_stream` method.
 //!
-//! ### Example
-//!
-//!```no_run
-//!use std::os::unix::net::UnixStream;
-//!use parsec_interface::operations::{Convert, NativeResult};
-//!use parsec_interface::requests::{Request, Response};
+//!```
+//!# use std::io::{Write, Result};
+//!#
+//!# pub struct MockWrite {
+//!#     pub buffer: Vec<u8>,
+//!# }
+//!#
+//!# impl Write for MockWrite {
+//!#     fn write(&mut self, buf: &[u8]) -> Result<usize> {
+//!#         for val in buf.iter() {
+//!#             self.buffer.push(*val);
+//!#         }
+//!#         Ok(buf.len())
+//!#     }
+//!#
+//!#     fn flush(&mut self) -> Result<()> {
+//!#         Ok(())
+//!#     }
+//!# }
+//!# let mut stream = MockWrite { buffer: Vec::new() };
+//!use parsec_interface::operations::{Convert, NativeResult, ResultCreateKey};
+//!use parsec_interface::requests::{ProviderID, Opcode, BodyType, Response, ResponseStatus};
+//!use parsec_interface::requests::response::ResponseHeader;
 //!use parsec_interface::operations_protobuf::ProtobufConverter;
-//!use parsec_interface::operations::ResultCreateKey;
 //!
-//!const MAX_BODY_LENGTH: usize = 2048;
-//!
-//!let mut stream = UnixStream::connect("socket_path").unwrap();
 //!let converter = ProtobufConverter {};
-//!let request = Request::read_from_stream(&mut stream, MAX_BODY_LENGTH).unwrap();
-//!let operation = converter.body_to_operation(request.body, request.header.opcode).unwrap();
-//!
-//!// Deal with the operation to get a `NativeResult`
 //!let result = NativeResult::CreateKey(ResultCreateKey {});
 //!let result_body = converter.result_to_body(result).unwrap();
 //!let response = Response {
-//!    header: request.header.into(),
+//!    header: ResponseHeader {
+//!        version_maj: 1,
+//!        version_min: 0,
+//!        provider: ProviderID::MbedProvider,
+//!        session: 0,
+//!        content_type: BodyType::Protobuf,
+//!        opcode: Opcode::CreateKey,
+//!        status: ResponseStatus::Success,
+//!    },
 //!    body: result_body,
 //!};
+//!// stream is a Write object
 //!response.write_to_stream(&mut stream).unwrap();
 //!```
 //!
@@ -92,31 +148,38 @@
 //! `Request`
 //! * write it to the stream with the `write_to_stream` method.
 //!
-//! and after the operation has been executed by the Parsec service:
-//! * read from a stream the `Response` from the service with the `read_from_stream` method
-//! * use the `body_to_result` method to parse the result body into a `NativeResult`
-//!
-//! See the [Parsec Test client](https://github.com/docker/parsec-client-test) as an example of a
-//! Rust client.
-//!
-//! ### Example
-//!
-//!```no_run
-//!use std::os::unix::net::UnixStream;
+//!```
+//!# use std::io::{Write, Result};
+//!#
+//!# pub struct MockWrite {
+//!#     pub buffer: Vec<u8>,
+//!# }
+//!#
+//!# impl Write for MockWrite {
+//!#     fn write(&mut self, buf: &[u8]) -> Result<usize> {
+//!#         for val in buf.iter() {
+//!#             self.buffer.push(*val);
+//!#         }
+//!#         Ok(buf.len())
+//!#     }
+
+//!#     fn flush(&mut self) -> Result<()> {
+//!#         Ok(())
+//!#     }
+//!# }
+//!#
+//!# let mut stream = MockWrite { buffer: Vec::new() };
 //!use parsec_interface::operations::{Convert, NativeOperation};
-//!use parsec_interface::requests::{Request, Response, ProviderID, BodyType, AuthType, Opcode};
+//!use parsec_interface::requests::{Request, ProviderID, BodyType, AuthType, Opcode};
 //!use parsec_interface::requests::request::{RequestHeader, RequestAuth};
 //!use parsec_interface::operations_protobuf::ProtobufConverter;
 //!use parsec_interface::operations::OpPing;
 //!
-//!const MAX_BODY_LENGTH: usize = 2048;
-//!
-//!let mut stream = UnixStream::connect("socket_path").unwrap();
 //!let converter = ProtobufConverter {};
 //!let operation = NativeOperation::Ping(OpPing {});
 //!let request = Request {
 //!    header: RequestHeader {
-//!        version_maj: 0,
+//!        version_maj: 1,
 //!        version_min: 0,
 //!        provider: ProviderID::CoreProvider,
 //!        session: 0,
@@ -126,14 +189,53 @@
 //!        opcode: Opcode::Ping,
 //!    },
 //!    body: converter.operation_to_body(operation).unwrap(),
-//!    auth: RequestAuth::from_bytes(Vec::new()),
+//!    auth: RequestAuth::from_bytes(Vec::from("root")),
 //!};
+//!// stream is a Write object
 //!request.write_to_stream(&mut stream).unwrap();
-//!
-//!// Wait for the service to execute the operation
-//!let response = Response::read_from_stream(&mut stream, MAX_BODY_LENGTH).unwrap();
-//!let result = converter.body_to_result(response.body, response.header.opcode).unwrap();
 //!```
+//!
+//! After the operation has been executed by the Parsec service:
+//! * read from a stream the `Response` from the service with the `read_from_stream` method
+//! * use the `body_to_result` method to parse the result body into a `NativeResult`
+//!
+//!```
+//!# use std::io::{Read, Result};
+//!#
+//!# pub struct MockRead {
+//!#     pub buffer: Vec<u8>,
+//!# }
+//!#
+//!# impl Read for MockRead {
+//!#     fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
+//!#         for val in buf.iter_mut() {
+//!#             *val = self.buffer.remove(0);
+//!#         }
+//!#
+//!#         Ok(buf.len())
+//!#     }
+//!# }
+//!#
+//!# let mut stream = MockRead {
+//!#     buffer: vec![
+//!#         0x10, 0xA7, 0xC0, 0x5E, 0x14, 0x0, 0x1, 0x0, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+//!#         0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2, 0x0, 0x0, 0x0,
+//!#     ]
+//!# };
+//!use parsec_interface::operations::{Convert, NativeResult};
+//!use parsec_interface::requests::Response;
+//!use parsec_interface::operations_protobuf::ProtobufConverter;
+//!
+//!let converter = ProtobufConverter {};
+//!// stream is a Read object
+//!let response = Response::read_from_stream(&mut stream, 2048).unwrap();
+//!let result: NativeResult = converter
+//!                           .body_to_result(response.body, response.header.opcode)
+//!                           .unwrap();
+//!```
+//!
+//! See the [Parsec Test client](https://github.com/parallaxsecond/parsec-client-test) as an example
+//! of a Rust client.
 
 pub mod operations;
 pub mod operations_protobuf;

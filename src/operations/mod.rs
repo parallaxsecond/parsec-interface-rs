@@ -14,8 +14,9 @@
 // limitations under the License.
 //! # Rust representation of operations
 //!
-//! `NativeOperation` and `NativeResult`: Rust native representation of the language neutral operations
-//! described in [`parsec-operations`](https://github.com/docker/parsec-operations).
+//! Rust native representation of the language neutral operations described in the
+//! [Operations](https://parallaxsecond.github.io/parsec-book/parsec_client/operations/index.html)
+//! page in the book.
 mod ping;
 pub mod key_attributes;
 mod create_key;

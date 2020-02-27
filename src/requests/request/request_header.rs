@@ -113,7 +113,9 @@ impl RawRequestHeader {
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct RequestHeader {
+    /// Only 1 is a supported value for that field currently.
     pub version_maj: u8,
+    /// Only 0 is a supported value for that field currently.
     pub version_min: u8,
     pub provider: ProviderID,
     pub session: u64,

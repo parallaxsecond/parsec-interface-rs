@@ -16,8 +16,12 @@
 --->
 # Parsec Rust Interface
 
-![](https://github.com/parallaxsecond/parsec-interface-rs/workflows/Continuous%20Integration/badge.svg)
-![](https://travis-ci.com/parallaxsecond/parsec.svg?branch=master)
+<p align="center">
+  <a href="https://crates.io/crates/parsec-interface"><img alt="Crates.io" src="https://img.shields.io/crates/v/parsec-interface"></a>
+  <a href="https://docs.rs/parsec-interface"><img src="https://docs.rs/parsec-interface/badge.svg" alt="Code documentation"/></a>
+  <a href="https://github.com/parallaxsecond/parsec-interface-rs/actions?query=workflow%3A%22Continuous+Integration%22"><img src="https://github.com/parallaxsecond/parsec-interface-rs/workflows/Continuous%20Integration/badge.svg" alt="CI tests"/></a>
+  <a href="https://travis-ci.com/parallaxsecond/parsec-interface-rs"><img src="https://travis-ci.com/parallaxsecond/parsec-interface-rs.svg?branch=master" alt="Travis CI tests"/></a>
+</p>
 
 This repository contains an interface library to be used both by the Parsec service and a Rust Client library.
 The library contains methods to communicate using the [wire protocol](https://github.com/parallaxsecond/parsec/blob/master/docs/wire_protocol.md).

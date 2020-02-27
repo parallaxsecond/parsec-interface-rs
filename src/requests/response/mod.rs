@@ -12,6 +12,8 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//! Response definition
+
 use super::request::RequestHeader;
 use super::ResponseStatus;
 use super::Result;
@@ -32,13 +34,12 @@ pub use response_header::ResponseHeader;
 pub use response_header::RawResponseHeader as RawHeader;
 
 /// Native representation of the response wire format.
-///
-/// Response body consists of an opaque vector of bytes. Interpretation of said bytes
-/// is deferred to the a converter which can handle the `content_type` defined in the
-/// header.
 #[derive(PartialEq, Debug)]
 pub struct Response {
     pub header: ResponseHeader,
+    /// Response body consists of an opaque vector of bytes. Interpretation of said bytes
+    /// is deferred to the a converter which can handle the `content_type` defined in the
+    /// header.
     pub body: ResponseBody,
 }
 
@@ -63,6 +64,7 @@ impl Response {
         response
     }
 
+    /// Create an empty response with a specific status.
     pub fn from_status(status: ResponseStatus) -> Response {
         let mut response = Response::new();
         response.header.status = status;
@@ -98,7 +100,7 @@ impl Response {
     /// - if reading any of the subfields (header or body) fails, the
     /// corresponding `ResponseStatus` will be returned.
     /// - if the request body size specified in the header is larger than the limit passed as
-    /// a parameter, `RequestBodyExceedsLimit` will be returned.
+    /// a parameter, `BodySizeExceedsLimit` will be returned.
     pub fn read_from_stream(stream: &mut impl Read, body_len_limit: usize) -> Result<Response> {
         let raw_header = RawResponseHeader::read_from_stream(stream)?;
         let body_len = usize::try_from(raw_header.body_len)?;

@@ -33,10 +33,9 @@ pub struct ProviderInfo {
 pub struct OpListProviders;
 
 /// Native object for provider listing result.
-///
-/// A list of `ProviderInfo` structures, one for each provider available in
-/// the service.
 #[derive(Debug)]
 pub struct ResultListProviders {
+    /// A list of `ProviderInfo` structures, one for each provider available in
+    /// the service.
     pub providers: Vec<ProviderInfo>,
 }

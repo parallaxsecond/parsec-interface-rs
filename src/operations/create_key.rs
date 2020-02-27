@@ -15,13 +15,12 @@
 use super::key_attributes::KeyAttributes;
 
 /// Native object for creating a cryptographic key.
-///
-/// `key_name` specifies a name by which the service will identify the key. Key
-/// name must be unique per application. `key_attributes` specifies the parameters
-/// to be associated with the key.
 #[derive(Clone, Debug)]
 pub struct OpCreateKey {
+    /// `key_name` specifies a name by which the service will identify the key. Key
+    /// name must be unique per application.
     pub key_name: String,
+    /// `key_attributes` specifies the parameters to be associated with the key.
     pub key_attributes: KeyAttributes,
 }
 
