@@ -12,7 +12,7 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//! # `Request`s and `Response`s
+//! # Request and response definitions
 //!
 //! A `Request` is what is sent to the service to execute one operation. A `Response` is what the
 //! service returns.
@@ -79,9 +79,9 @@ pub enum BodyType {
 
 /// Listing of available operations and their associated opcode.
 ///
-/// Passed in headers as `opcode`. The values of the enumeration constants come from the operations
-/// documentation available
-/// [here](https://github.com/docker/parsec/blob/master/docs/operation_directory.proto).
+/// Passed in headers as `opcode`. Check the
+/// [Operations](https://parallaxsecond.github.io/parsec-book/parsec_client/operations/index.html)
+/// page of the book for more information.
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(FromPrimitive, Copy, Clone, PartialEq, Debug, Hash, Eq)]
 #[repr(u16)]

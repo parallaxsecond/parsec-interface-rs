@@ -14,19 +14,17 @@
 // limitations under the License.
 
 /// Native object for public key exporting operation.
-///
-/// `key_name` identifies the key for which the public
-/// part will be exported. The specified key must be an asymmetric keypair.
 #[derive(Debug)]
 pub struct OpExportPublicKey {
+    /// `key_name` identifies the key for which the public
+    /// part will be exported. The specified key must be an asymmetric keypair.
     pub key_name: String,
 }
 
 /// Native object for result of public key export operation.
-///
-/// `key_data` holds the bytes defining the public key, formatted as specified
-/// by the provider for which the request was made.
 #[derive(Debug)]
 pub struct ResultExportPublicKey {
+    /// `key_data` holds the bytes defining the public key, formatted as specified
+    /// by the provider for which the request was made.
     pub key_data: Vec<u8>,
 }

@@ -20,10 +20,9 @@ use std::collections::HashSet;
 pub struct OpListOpcodes;
 
 /// Native object for opcode listing result.
-///
-/// `opcodes` holds a list of opcodes supported by the provider identified in
-/// the request.
 #[derive(Debug)]
 pub struct ResultListOpcodes {
+    /// `opcodes` holds a list of opcodes supported by the provider identified in
+    /// the request.
     pub opcodes: HashSet<Opcode>,
 }

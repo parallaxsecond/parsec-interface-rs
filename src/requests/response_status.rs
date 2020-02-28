@@ -19,6 +19,10 @@ use std::error::Error as ErrorTrait;
 use std::fmt;
 
 /// C-like enum mapping response status options to their code.
+///
+/// See the [status
+/// code](https://parallaxsecond.github.io/parsec-book/parsec_client/status_codes.html) page for a
+/// broader description of these codes.
 #[derive(Copy, Clone, Debug, PartialEq, FromPrimitive)]
 #[repr(u16)]
 pub enum ResponseStatus {
@@ -202,6 +206,10 @@ impl fmt::Display for ResponseStatus {
 
 impl ErrorTrait for ResponseStatus {}
 
+/// Conversion from a std::io::Error to a ResponseStatus
+///
+/// It allows to easily return a ResponseStatus in case of error when using functions from the
+/// standard library.
 impl From<std::io::Error> for ResponseStatus {
     fn from(err: std::io::Error) -> Self {
         warn!(
@@ -238,4 +246,5 @@ impl From<std::convert::Infallible> for ResponseStatus {
     }
 }
 
+/// A Result type with the Err variant set as a ResponseStatus
 pub type Result<T> = std::result::Result<T, ResponseStatus>;

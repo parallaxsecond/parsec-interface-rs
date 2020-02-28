@@ -14,10 +14,9 @@
 // limitations under the License.
 
 /// Native object for cryptographic key destruction.
-///
-/// `key_name` identifies the key to be destroyed.
 #[derive(Debug, Clone)]
 pub struct OpDestroyKey {
+    /// `key_name` identifies the key to be destroyed.
     pub key_name: String,
 }
 

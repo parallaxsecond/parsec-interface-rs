@@ -17,7 +17,7 @@ use crate::requests::Result;
 use arbitrary::Arbitrary;
 use std::io::{Read, Write};
 
-/// Wrapper around the body of a request.
+/// Wrapper around the authentication value of a request.
 ///
 /// Hides the contents and keeps them immutable.
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]

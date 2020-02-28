@@ -12,6 +12,9 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//! # Request definition
+//!
+//! A `Request` is to the service to execute one operation.
 use super::response::ResponseHeader;
 use crate::requests::{ResponseStatus, Result};
 #[cfg(feature = "fuzz")]
@@ -35,18 +38,17 @@ pub use request_header::RequestHeader;
 pub use request_header::RawRequestHeader as RawHeader;
 
 /// Representation of the request wire format.
-///
-/// Request body consists of `RequestBody` object holding a collection of bytes.
-/// Interpretation of said bytes is deferred to the a converter which can handle the
-/// `content_type` defined in the header.
-///
-/// Auth field is stored as a `RequestAuth` object. A parser that can handle the `auth_type`
-/// specified in the header is needed to authenticate the request.
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(PartialEq, Debug)]
 pub struct Request {
+    /// Request header
     pub header: RequestHeader,
+    /// Request body consists of `RequestBody` object holding a collection of bytes.
+    /// Interpretation of said bytes is deferred to the a converter which can handle the
+    /// `content_type` defined in the header.
     pub body: RequestBody,
+    /// Auth field is stored as a `RequestAuth` object. A parser that can handle the `auth_type`
+    /// specified in the header is needed to authenticate the request.
     pub auth: RequestAuth,
 }
 
@@ -93,7 +95,7 @@ impl Request {
     /// - if reading any of the subfields (header, body or auth) fails, the corresponding
     /// `ResponseStatus` will be returned.
     /// - if the request body size specified in the header is larger than the limit passed as
-    /// a parameter, `RequestBodyExceedsLimit` will be returned.
+    /// a parameter, `BodySizeExceedsLimit` will be returned.
     pub fn read_from_stream(stream: &mut impl Read, body_len_limit: usize) -> Result<Request> {
         let raw_header = RawRequestHeader::read_from_stream(stream)?;
         let body_len = usize::try_from(raw_header.body_len)?;

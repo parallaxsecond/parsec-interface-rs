@@ -15,16 +15,17 @@
 use super::key_attributes::KeyAttributes;
 
 /// Native object for cryptographic key importing operation.
-///
-/// `key_name` specifies a name by which the service will identify the key. Key
-/// name must be unique per application. `key_attributes` specifies the parameters
-/// to be associated with the key. `key_data` contains the bytes for the key,
-/// formatted in accordance with the requirements of the provider for the key type
-/// specified in `key_attributes`.
 #[derive(Clone, Debug)]
 pub struct OpImportKey {
+    /// `key_name` specifies a name by which the service will identify the key. Key
+    /// name must be unique per application.
     pub key_name: String,
+    /// `key_attributes` specifies the parameters
+    /// to be associated with the key.
     pub key_attributes: KeyAttributes,
+    /// `key_data` contains the bytes for the key,
+    /// formatted in accordance with the requirements of the provider for the key type
+    /// specified in `key_attributes`.
     pub key_data: Vec<u8>,
 }
 

@@ -14,16 +14,15 @@
 // limitations under the License.
 
 /// Native object for asymmetric verification of signatures.
-///
-/// `key_name` specifies the key to be used for verification.
-/// The `hash` contains a short message or hash value as described for the
-/// asymmetric signing operation.
-/// `signature` contains the bytes of the signature which requires validation and must
-/// follow any format requirements imposed by the provider.
 #[derive(Debug)]
 pub struct OpAsymVerify {
+    /// `key_name` specifies the key to be used for verification.
     pub key_name: String,
+    /// The `hash` contains a short message or hash value as described for the
+    /// asymmetric signing operation.
     pub hash: Vec<u8>,
+    /// `signature` contains the bytes of the signature which requires validation and must
+    /// follow any format requirements imposed by the provider.
     pub signature: Vec<u8>,
 }
 

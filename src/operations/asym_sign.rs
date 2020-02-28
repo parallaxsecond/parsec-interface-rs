@@ -14,26 +14,23 @@
 // limitations under the License.
 
 /// Native object for asymmetric sign operations.
-///
-/// `key_name` defines which key should be used for the signing operation.
-/// The `hash` value must either be a short message (length dependend on the size of
-/// the key), or the result of a hashing operation. Thus, if a hash-and-sign is
-/// required, the hash must be computed before this operation is called. The length
-/// of the hash must be equal to the length of the hash specified on the key algorithm.
-///
-/// The `hash` field must also follow any formatting conventions dictated by the provider for
-/// which the request was made.
 #[derive(Debug)]
 pub struct OpAsymSign {
+    /// Defines which key should be used for the signing operation.
     pub key_name: String,
+    /// This value must either be a short message (length dependend on the size of
+    /// the key), or the result of a hashing operation. Thus, if a hash-and-sign is
+    /// required, the hash must be computed before this operation is called. The length
+    /// of the hash must be equal to the length of the hash specified on the key algorithm.
+    /// This field must also follow any formatting conventions dictated by the provider for
+    /// which the request was made.
     pub hash: Vec<u8>,
 }
 
 /// Native object for asymmetric sign result.
-///
-/// The `signature` field contains the resulting bytes from the signing operation. The format of
-/// the signature is as specified by the provider doing the signing.
 #[derive(Debug)]
 pub struct ResultAsymSign {
+    /// The `signature` field contains the resulting bytes from the signing operation. The format of
+    /// the signature is as specified by the provider doing the signing.
     pub signature: Vec<u8>,
 }

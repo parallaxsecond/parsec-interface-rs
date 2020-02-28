@@ -19,11 +19,11 @@ pub struct OpPing;
 
 /// Native object for Ping result.
 ///
-/// The field names stand for 'supported version major' and
-/// 'supported version minor' - the latest version supported by the
-/// provider forming the result.
+/// The latest wire protocol version supported by the service.
 #[derive(Copy, Clone, Debug)]
 pub struct ResultPing {
+    /// Supported version major
     pub supp_version_maj: u8,
+    /// Supported version minor
     pub supp_version_min: u8,
 }
