@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -40,13 +40,13 @@ const MAGIC_NUMBER: u32 = 0x5EC0_A710;
 #[repr(u8)]
 pub enum ProviderID {
     /// Provider to use for core Parsec operations.
-    CoreProvider = 0,
+    Core = 0,
     /// Provider using Mbed Crypto software library.
-    MbedProvider = 1,
+    MbedCrypto = 1,
     /// Provider using a PKCS 11 compatible library.
-    Pkcs11Provider = 2,
+    Pkcs11 = 2,
     /// Provider using a TSS 2.0 Enhanced System API library.
-    TpmProvider = 3,
+    Tpm = 3,
 }
 
 impl std::fmt::Display for ProviderID {
@@ -87,10 +87,10 @@ pub enum BodyType {
 #[repr(u16)]
 pub enum Opcode {
     Ping = 1,
-    CreateKey = 2,
+    GenerateKey = 2,
     DestroyKey = 3,
-    AsymSign = 4,
-    AsymVerify = 5,
+    SignHash = 4,
+    VerifyHash = 5,
     ImportKey = 6,
     ExportPublicKey = 7,
     ListProviders = 8,

@@ -12,8 +12,8 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use super::generated_ops::import_key::{Operation as OperationProto, Result as ResultProto};
-use crate::operations::import_key::{Operation, Result};
+use super::generated_ops::generate_key::{Operation as OperationProto, Result as ResultProto};
+use crate::operations::generate_key::{Operation, Result};
 use crate::requests::ResponseStatus;
 use log::error;
 use std::convert::{TryFrom, TryInto};
@@ -27,11 +27,10 @@ impl TryFrom<OperationProto> for Operation {
             attributes: proto_op
                 .attributes
                 .ok_or_else(|| {
-                    error!("attributes field of ImportKey::Operation message is empty.");
+                    error!("attributes field of GenerateKey::Operation message is empty.");
                     ResponseStatus::InvalidEncoding
                 })?
                 .try_into()?,
-            data: proto_op.data,
         })
     }
 }
@@ -40,27 +39,27 @@ impl TryFrom<Operation> for OperationProto {
     type Error = ResponseStatus;
 
     fn try_from(op: Operation) -> std::result::Result<Self, Self::Error> {
-        Ok(OperationProto {
-            key_name: op.key_name,
-            attributes: Some(op.attributes.try_into()?),
-            data: op.data,
-        })
-    }
-}
+        let mut proto: OperationProto = Default::default();
+        proto.key_name = op.key_name;
+        proto.attributes = Some(op.attributes.try_into()?);
 
-impl TryFrom<ResultProto> for Result {
-    type Error = ResponseStatus;
-
-    fn try_from(_proto_op: ResultProto) -> std::result::Result<Self, Self::Error> {
-        Ok(Result {})
+        Ok(proto)
     }
 }
 
 impl TryFrom<Result> for ResultProto {
     type Error = ResponseStatus;
 
-    fn try_from(_op: Result) -> std::result::Result<Self, Self::Error> {
-        Ok(ResultProto {})
+    fn try_from(_result: Result) -> std::result::Result<Self, Self::Error> {
+        Ok(Default::default())
+    }
+}
+
+impl TryFrom<ResultProto> for Result {
+    type Error = ResponseStatus;
+
+    fn try_from(_response: ResultProto) -> std::result::Result<Self, Self::Error> {
+        Ok(Result {})
     }
 }
 
@@ -69,7 +68,7 @@ mod test {
     use super::super::generated_ops::algorithm::{
         self as algorithm_proto, Algorithm as AlgorithmProto,
     };
-    use super::super::generated_ops::import_key::{
+    use super::super::generated_ops::generate_key::{
         Operation as OperationProto, Result as ResultProto,
     };
     use super::super::generated_ops::key_attributes::{
@@ -77,70 +76,64 @@ mod test {
     };
     use super::super::{Convert, ProtobufConverter};
     use crate::operations::algorithm::{Algorithm, AsymmetricSignature, Hash};
+    use crate::operations::generate_key::{Operation, Result};
     use crate::operations::key_attributes::{self, KeyAttributes, KeyPolicy, UsageFlags};
-    use crate::operations::{import_key::Operation, import_key::Result, NativeOperation};
+    use crate::operations::NativeOperation;
     use crate::requests::Opcode;
     use std::convert::TryInto;
 
     static CONVERTER: ProtobufConverter = ProtobufConverter {};
 
     #[test]
-    fn import_key_op_from_proto() {
+    fn create_key_op_from_proto() {
         let name = "test name".to_string();
-        let key_data = vec![0x11, 0x22, 0x33];
         let proto = OperationProto {
             key_name: name.clone(),
             attributes: Some(get_key_attrs_proto()),
-            data: key_data.clone(),
         };
 
         let op: Operation = proto.try_into().expect("Failed conversion");
         assert_eq!(op.key_name, name);
-        assert_eq!(op.data, key_data);
     }
 
     #[test]
-    fn import_key_op_to_proto() {
+    fn create_key_op_to_proto() {
         let name = "test name".to_string();
-        let key_data = vec![0x11, 0x22, 0x33];
         let op = Operation {
             key_name: name.clone(),
             attributes: get_key_attrs(),
-            data: key_data.clone(),
         };
 
         let proto: OperationProto = op.try_into().expect("Failed conversion");
         assert_eq!(proto.key_name, name);
-        assert_eq!(proto.data, key_data);
     }
 
     #[test]
-    fn import_key_res_from_proto() {
+    fn create_key_res_from_proto() {
         let proto = ResultProto {};
         let _res: Result = proto.try_into().expect("Failed conversion");
     }
 
     #[test]
-    fn import_key_res_to_proto() {
+    fn create_key_res_to_proto() {
         let res = Result {};
         let _proto: ResultProto = res.try_into().expect("Failed conversion");
     }
 
     #[test]
-    fn import_key_op_e2e() {
+    fn create_key_op_e2e() {
         let name = "test name".to_string();
         let op = Operation {
             key_name: name,
             attributes: get_key_attrs(),
-            data: vec![0x11, 0x22, 0x33],
         };
 
         let body = CONVERTER
-            .operation_to_body(NativeOperation::ImportKey(op))
+            .operation_to_body(NativeOperation::GenerateKey(op))
             .expect("Failed to convert to body");
 
         let _ = CONVERTER
-            .body_to_operation(body, Opcode::ImportKey)
+            .body_to_operation(body, Opcode::GenerateKey)
             .expect("Failed to convert to operation");
     }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -12,52 +12,54 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use super::generated_ops::destroy_key::{OpDestroyKeyProto, ResultDestroyKeyProto};
-use crate::operations::{OpDestroyKey, ResultDestroyKey};
+use super::generated_ops::destroy_key::{Operation as OperationProto, Result as ResultProto};
+use crate::operations::destroy_key::{Operation, Result};
 use crate::requests::ResponseStatus;
 use std::convert::TryFrom;
 
-impl TryFrom<OpDestroyKeyProto> for OpDestroyKey {
+impl TryFrom<OperationProto> for Operation {
     type Error = ResponseStatus;
 
-    fn try_from(proto_op: OpDestroyKeyProto) -> Result<Self, Self::Error> {
-        Ok(OpDestroyKey {
+    fn try_from(proto_op: OperationProto) -> std::result::Result<Self, Self::Error> {
+        Ok(Operation {
             key_name: proto_op.key_name,
         })
     }
 }
 
-impl TryFrom<OpDestroyKey> for OpDestroyKeyProto {
+impl TryFrom<Operation> for OperationProto {
     type Error = ResponseStatus;
 
-    fn try_from(op: OpDestroyKey) -> Result<Self, Self::Error> {
-        Ok(OpDestroyKeyProto {
+    fn try_from(op: Operation) -> std::result::Result<Self, Self::Error> {
+        Ok(OperationProto {
             key_name: op.key_name,
         })
     }
 }
 
-impl TryFrom<ResultDestroyKeyProto> for ResultDestroyKey {
+impl TryFrom<ResultProto> for Result {
     type Error = ResponseStatus;
 
-    fn try_from(_proto_result: ResultDestroyKeyProto) -> Result<Self, Self::Error> {
-        Ok(ResultDestroyKey {})
+    fn try_from(_proto_result: ResultProto) -> std::result::Result<Self, Self::Error> {
+        Ok(Result {})
     }
 }
 
-impl TryFrom<ResultDestroyKey> for ResultDestroyKeyProto {
+impl TryFrom<Result> for ResultProto {
     type Error = ResponseStatus;
 
-    fn try_from(_result: ResultDestroyKey) -> Result<Self, Self::Error> {
-        Ok(ResultDestroyKeyProto {})
+    fn try_from(_result: Result) -> std::result::Result<Self, Self::Error> {
+        Ok(ResultProto {})
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::super::generated_ops::destroy_key::{OpDestroyKeyProto, ResultDestroyKeyProto};
+    use super::super::generated_ops::destroy_key::{
+        Operation as OperationProto, Result as ResultProto,
+    };
     use super::super::{Convert, ProtobufConverter};
-    use crate::operations::{NativeOperation, OpDestroyKey, ResultDestroyKey};
+    use crate::operations::{destroy_key::Operation, destroy_key::Result, NativeOperation};
     use crate::requests::{request::RequestBody, response::ResponseBody, Opcode};
     use std::convert::TryInto;
 
@@ -65,11 +67,11 @@ mod test {
 
     #[test]
     fn destroy_key_proto_to_op() {
-        let mut proto: OpDestroyKeyProto = Default::default();
+        let mut proto: OperationProto = Default::default();
         let key_name = "test name".to_string();
         proto.key_name = key_name.clone();
 
-        let op: OpDestroyKey = proto.try_into().expect("Failed to convert");
+        let op: Operation = proto.try_into().expect("Failed to convert");
 
         assert_eq!(op.key_name, key_name);
     }
@@ -77,32 +79,32 @@ mod test {
     #[test]
     fn destroy_key_op_to_proto() {
         let key_name = "test name".to_string();
-        let op = OpDestroyKey {
+        let op = Operation {
             key_name: key_name.clone(),
         };
 
-        let proto: OpDestroyKeyProto = op.try_into().expect("Failed to convert");
+        let proto: OperationProto = op.try_into().expect("Failed to convert");
 
         assert_eq!(proto.key_name, key_name);
     }
 
     #[test]
     fn destroy_key_proto_to_resp() {
-        let proto: ResultDestroyKeyProto = Default::default();
+        let proto: ResultProto = Default::default();
 
-        let _result: ResultDestroyKey = proto.try_into().expect("Failed to convert");
+        let _result: Result = proto.try_into().expect("Failed to convert");
     }
 
     #[test]
     fn destroy_key_resp_to_proto() {
-        let result = ResultDestroyKey {};
+        let result = Result {};
 
-        let _proto: ResultDestroyKeyProto = result.try_into().expect("Failed to convert");
+        let _proto: ResultProto = result.try_into().expect("Failed to convert");
     }
 
     #[test]
     fn op_destroy_key_e2e() {
-        let op = OpDestroyKey {
+        let op = Operation {
             key_name: "test name".to_string(),
         };
         let body = CONVERTER

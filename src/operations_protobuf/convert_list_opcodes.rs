@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -12,33 +12,33 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use super::generated_ops::list_opcodes::{OpListOpcodesProto, ResultListOpcodesProto};
-use crate::operations::{OpListOpcodes, ResultListOpcodes};
+use super::generated_ops::list_opcodes::{Operation as OperationProto, Result as ResultProto};
+use crate::operations::list_opcodes::{Operation, Result};
 use crate::requests::{Opcode, ResponseStatus};
 use num::FromPrimitive;
 use std::collections::HashSet;
 use std::convert::TryFrom;
 
-impl TryFrom<OpListOpcodesProto> for OpListOpcodes {
+impl TryFrom<OperationProto> for Operation {
     type Error = ResponseStatus;
 
-    fn try_from(_proto_op: OpListOpcodesProto) -> Result<Self, Self::Error> {
-        Ok(OpListOpcodes {})
+    fn try_from(_proto_op: OperationProto) -> std::result::Result<Self, Self::Error> {
+        Ok(Operation {})
     }
 }
 
-impl TryFrom<OpListOpcodes> for OpListOpcodesProto {
+impl TryFrom<Operation> for OperationProto {
     type Error = ResponseStatus;
 
-    fn try_from(_op: OpListOpcodes) -> Result<Self, Self::Error> {
+    fn try_from(_op: Operation) -> std::result::Result<Self, Self::Error> {
         Ok(Default::default())
     }
 }
 
-impl TryFrom<ResultListOpcodesProto> for ResultListOpcodes {
+impl TryFrom<ResultProto> for Result {
     type Error = ResponseStatus;
 
-    fn try_from(proto_op: ResultListOpcodesProto) -> Result<Self, Self::Error> {
+    fn try_from(proto_op: ResultProto) -> std::result::Result<Self, Self::Error> {
         let mut opcodes: HashSet<Opcode> = HashSet::new();
         for opcode in proto_op.opcodes {
             let opcode = match FromPrimitive::from_u32(opcode) {
@@ -48,29 +48,31 @@ impl TryFrom<ResultListOpcodesProto> for ResultListOpcodes {
             let _ = opcodes.insert(opcode);
         }
 
-        Ok(ResultListOpcodes { opcodes })
+        Ok(Result { opcodes })
     }
 }
 
-impl TryFrom<ResultListOpcodes> for ResultListOpcodesProto {
+impl TryFrom<Result> for ResultProto {
     type Error = ResponseStatus;
 
-    fn try_from(op: ResultListOpcodes) -> Result<Self, Self::Error> {
+    fn try_from(op: Result) -> std::result::Result<Self, Self::Error> {
         let mut opcodes: Vec<u32> = Vec::new();
         for opcode in op.opcodes {
             opcodes.push(opcode as u32);
         }
 
-        Ok(ResultListOpcodesProto { opcodes })
+        Ok(ResultProto { opcodes })
     }
 }
 
 #[cfg(test)]
 mod test {
-    // OpListOpcodes <-> Proto conversions are not tested since they're too simple
-    use super::super::generated_ops::list_opcodes::ResultListOpcodesProto;
+    // Operation <-> Proto conversions are not tested since they're too simple
+    use super::super::generated_ops::list_opcodes::Result as ResultProto;
     use super::super::{Convert, ProtobufConverter};
-    use crate::operations::{NativeOperation, NativeResult, OpListOpcodes, ResultListOpcodes};
+    use crate::operations::{
+        list_opcodes::Operation, list_opcodes::Result, NativeOperation, NativeResult,
+    };
     use crate::requests::{request::RequestBody, response::ResponseBody, Opcode};
     use std::collections::HashSet;
     use std::convert::TryInto;
@@ -79,9 +81,9 @@ mod test {
 
     #[test]
     fn proto_to_resp() {
-        let mut proto: ResultListOpcodesProto = Default::default();
+        let mut proto: ResultProto = Default::default();
         proto.opcodes.push(1);
-        let resp: ResultListOpcodes = proto.try_into().unwrap();
+        let resp: Result = proto.try_into().unwrap();
 
         assert_eq!(resp.opcodes.len(), 1);
         assert!(resp.opcodes.contains(&Opcode::Ping));
@@ -89,12 +91,12 @@ mod test {
 
     #[test]
     fn resp_to_proto() {
-        let mut resp: ResultListOpcodes = ResultListOpcodes {
+        let mut resp: Result = Result {
             opcodes: HashSet::new(),
         };
         let _ = resp.opcodes.insert(Opcode::Ping);
 
-        let proto: ResultListOpcodesProto = resp.try_into().unwrap();
+        let proto: ResultProto = resp.try_into().unwrap();
         assert_eq!(proto.opcodes.len(), 1);
         assert_eq!(proto.opcodes[0], 1);
     }
@@ -109,7 +111,7 @@ mod test {
 
     #[test]
     fn op_list_opcodes_from_native() {
-        let list_opcodes = OpListOpcodes {};
+        let list_opcodes = Operation {};
         let body = CONVERTER
             .operation_to_body(NativeOperation::ListOpcodes(list_opcodes))
             .expect("Failed to convert request");
@@ -118,7 +120,7 @@ mod test {
 
     #[test]
     fn op_list_opcodes_e2e() {
-        let list_opcodes = OpListOpcodes {};
+        let list_opcodes = Operation {};
         let req_body = CONVERTER
             .operation_to_body(NativeOperation::ListOpcodes(list_opcodes))
             .expect("Failed to convert request");
@@ -148,7 +150,7 @@ mod test {
 
     #[test]
     fn result_list_opcodes_from_native() {
-        let mut list_opcodes = ResultListOpcodes {
+        let mut list_opcodes = Result {
             opcodes: HashSet::new(),
         };
         let _ = list_opcodes.opcodes.insert(Opcode::Ping);
@@ -161,7 +163,7 @@ mod test {
 
     #[test]
     fn list_opcodes_result_e2e() {
-        let mut list_opcodes = ResultListOpcodes {
+        let mut list_opcodes = Result {
             opcodes: HashSet::new(),
         };
         let _ = list_opcodes.opcodes.insert(Opcode::Ping);

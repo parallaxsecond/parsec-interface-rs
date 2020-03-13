@@ -36,7 +36,7 @@ macro_rules! get_from_stream {
 }
 
 #[cfg(test)]
-pub mod test_utils {
+pub mod tests {
     use std::io::{Error, ErrorKind, Read, Result, Write};
 
     #[derive(Debug)]

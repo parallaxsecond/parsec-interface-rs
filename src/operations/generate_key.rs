@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -16,16 +16,16 @@ use super::key_attributes::KeyAttributes;
 
 /// Native object for creating a cryptographic key.
 #[derive(Clone, Debug)]
-pub struct OpCreateKey {
+pub struct Operation {
     /// `key_name` specifies a name by which the service will identify the key. Key
     /// name must be unique per application.
     pub key_name: String,
     /// `key_attributes` specifies the parameters to be associated with the key.
-    pub key_attributes: KeyAttributes,
+    pub attributes: KeyAttributes,
 }
 
 /// Native object for the result of creating a cryptographic key.
 ///
 /// The true result is returned in the `status` field of the response.
 #[derive(Copy, Clone, Debug)]
-pub struct ResultCreateKey;
+pub struct Result;

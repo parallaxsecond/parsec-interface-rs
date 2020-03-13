@@ -29,7 +29,7 @@ use std::io::{Read, Write};
 /// wire format (i.e. little-endian, native encoding).
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
-pub struct RawRequestHeader {
+pub struct Raw {
     pub version_maj: u8,
     pub version_min: u8,
     pub provider: u8,
@@ -42,11 +42,11 @@ pub struct RawRequestHeader {
     pub opcode: u16,
 }
 
-impl RawRequestHeader {
+impl Raw {
     #[cfg(feature = "testing")]
     #[allow(clippy::new_without_default)]
-    pub fn new() -> RawRequestHeader {
-        RawRequestHeader {
+    pub fn new() -> Raw {
+        Raw {
             version_maj: 0,
             version_min: 0,
             provider: 0,
@@ -88,7 +88,7 @@ impl RawRequestHeader {
     /// - if the parsed bytes cannot be unmarshalled into the contained fields,
     /// `ResponseStatus::InvalidEncoding` is returned.
     /// - if the wire protocol version used is different than 1.0
-    pub fn read_from_stream<R: Read>(mut stream: &mut R) -> Result<RawRequestHeader> {
+    pub fn read_from_stream<R: Read>(mut stream: &mut R) -> Result<Raw> {
         let magic_number = get_from_stream!(stream, u32);
         let hdr_size = get_from_stream!(stream, u16);
         if magic_number != MAGIC_NUMBER || hdr_size != REQUEST_HDR_SIZE {
@@ -97,7 +97,7 @@ impl RawRequestHeader {
         let mut bytes = vec![0_u8; usize::try_from(hdr_size)?];
         stream.read_exact(&mut bytes)?;
 
-        let raw_request: RawRequestHeader = bincode::deserialize(&bytes)?;
+        let raw_request: Raw = bincode::deserialize(&bytes)?;
         if raw_request.version_maj != 1 || raw_request.version_min != 0 {
             Err(ResponseStatus::WireProtocolVersionNotSupported)
         } else {
@@ -146,10 +146,10 @@ impl RequestHeader {
 /// Conversion from the raw to native request header.
 ///
 /// This conversion must be done before a `Request` value can be populated.
-impl TryFrom<RawRequestHeader> for RequestHeader {
+impl TryFrom<Raw> for RequestHeader {
     type Error = ResponseStatus;
 
-    fn try_from(header: RawRequestHeader) -> ::std::result::Result<Self, Self::Error> {
+    fn try_from(header: Raw) -> ::std::result::Result<Self, Self::Error> {
         let content_type: BodyType = match FromPrimitive::from_u8(header.content_type) {
             Some(content_type) => content_type,
             None => return Err(ResponseStatus::ContentTypeNotSupported),
@@ -187,9 +187,9 @@ impl TryFrom<RawRequestHeader> for RequestHeader {
 ///
 /// This is required in order to bring the contents of the header in a state
 /// which can be serialized.
-impl From<RequestHeader> for RawRequestHeader {
+impl From<RequestHeader> for Raw {
     fn from(header: RequestHeader) -> Self {
-        RawRequestHeader {
+        Raw {
             version_maj: header.version_maj,
             version_min: header.version_min,
             provider: header.provider as u8,

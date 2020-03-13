@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,19 +15,20 @@
 //! # Protobuf converter
 //!
 //! This module exposes the `ProtobufConverter` struct that implements the `Convert` trait.
+mod convert_algorithm;
 mod convert_ping;
-mod convert_create_key;
+mod convert_generate_key;
 mod convert_key_attributes;
 mod convert_import_key;
 mod convert_export_public_key;
 mod convert_destroy_key;
-mod convert_asym_sign;
-mod convert_asym_verify;
+mod convert_sign_hash;
+mod convert_verify_hash;
 mod convert_list_providers;
 mod convert_list_opcodes;
 
 #[rustfmt::skip]
-#[allow(unused_qualifications, missing_copy_implementations, clippy::pedantic)]
+#[allow(unused_qualifications, missing_copy_implementations, clippy::pedantic, clippy::module_inception)]
 mod generated_ops {
     // Include the Rust generated file in its own module.
     macro_rules! include_protobuf_as_module {
@@ -39,9 +40,9 @@ mod generated_ops {
         };
     }
 
-    include_protobuf_as_module!(asym_sign);
-    include_protobuf_as_module!(asym_verify);
-    include_protobuf_as_module!(create_key);
+    include_protobuf_as_module!(sign_hash);
+    include_protobuf_as_module!(verify_hash);
+    include_protobuf_as_module!(generate_key);
     include_protobuf_as_module!(destroy_key);
     include_protobuf_as_module!(export_public_key);
     include_protobuf_as_module!(import_key);
@@ -49,21 +50,22 @@ mod generated_ops {
     include_protobuf_as_module!(list_providers);
     include_protobuf_as_module!(ping);
     include_protobuf_as_module!(key_attributes);
+    include_protobuf_as_module!(algorithm);
 }
 
 use crate::operations::{Convert, NativeOperation, NativeResult};
 use crate::requests::{
     request::RequestBody, response::ResponseBody, Opcode, ResponseStatus, Result,
 };
-use generated_ops::asym_sign::{OpAsymmetricSignProto, ResultAsymmetricSignProto};
-use generated_ops::asym_verify::{OpAsymmetricVerifyProto, ResultAsymmetricVerifyProto};
-use generated_ops::create_key::{OpCreateKeyProto, ResultCreateKeyProto};
-use generated_ops::destroy_key::{OpDestroyKeyProto, ResultDestroyKeyProto};
-use generated_ops::export_public_key::{OpExportPublicKeyProto, ResultExportPublicKeyProto};
-use generated_ops::import_key::{OpImportKeyProto, ResultImportKeyProto};
-use generated_ops::list_opcodes::{OpListOpcodesProto, ResultListOpcodesProto};
-use generated_ops::list_providers::{OpListProvidersProto, ResultListProvidersProto};
-use generated_ops::ping::{OpPingProto, ResultPingProto};
+use generated_ops::destroy_key as destroy_key_proto;
+use generated_ops::export_public_key as export_public_key_proto;
+use generated_ops::generate_key as generate_key_proto;
+use generated_ops::import_key as import_key_proto;
+use generated_ops::list_opcodes as list_opcodes_proto;
+use generated_ops::list_providers as list_providers_proto;
+use generated_ops::ping as ping_proto;
+use generated_ops::sign_hash as sign_hash_proto;
+use generated_ops::verify_hash as verify_hash_proto;
 use prost::Message;
 use std::convert::TryInto;
 
@@ -98,39 +100,39 @@ impl Convert for ProtobufConverter {
         match opcode {
             Opcode::ListProviders => Ok(NativeOperation::ListProviders(wire_to_native!(
                 body.bytes(),
-                OpListProvidersProto
+                list_providers_proto::Operation
             ))),
             Opcode::ListOpcodes => Ok(NativeOperation::ListOpcodes(wire_to_native!(
                 body.bytes(),
-                OpListOpcodesProto
+                list_opcodes_proto::Operation
             ))),
             Opcode::Ping => Ok(NativeOperation::Ping(wire_to_native!(
                 body.bytes(),
-                OpPingProto
+                ping_proto::Operation
             ))),
-            Opcode::CreateKey => Ok(NativeOperation::CreateKey(wire_to_native!(
+            Opcode::GenerateKey => Ok(NativeOperation::GenerateKey(wire_to_native!(
                 body.bytes(),
-                OpCreateKeyProto
+                generate_key_proto::Operation
             ))),
             Opcode::ImportKey => Ok(NativeOperation::ImportKey(wire_to_native!(
                 body.bytes(),
-                OpImportKeyProto
+                import_key_proto::Operation
             ))),
             Opcode::ExportPublicKey => Ok(NativeOperation::ExportPublicKey(wire_to_native!(
                 body.bytes(),
-                OpExportPublicKeyProto
+                export_public_key_proto::Operation
             ))),
             Opcode::DestroyKey => Ok(NativeOperation::DestroyKey(wire_to_native!(
                 body.bytes(),
-                OpDestroyKeyProto
+                destroy_key_proto::Operation
             ))),
-            Opcode::AsymSign => Ok(NativeOperation::AsymSign(wire_to_native!(
+            Opcode::SignHash => Ok(NativeOperation::SignHash(wire_to_native!(
                 body.bytes(),
-                OpAsymmetricSignProto
+                sign_hash_proto::Operation
             ))),
-            Opcode::AsymVerify => Ok(NativeOperation::AsymVerify(wire_to_native!(
+            Opcode::VerifyHash => Ok(NativeOperation::VerifyHash(wire_to_native!(
                 body.bytes(),
-                OpAsymmetricVerifyProto
+                verify_hash_proto::Operation
             ))),
         }
     }
@@ -138,37 +140,36 @@ impl Convert for ProtobufConverter {
     fn operation_to_body(&self, operation: NativeOperation) -> Result<RequestBody> {
         match operation {
             NativeOperation::ListProviders(operation) => Ok(RequestBody::from_bytes(
-                native_to_wire!(operation, OpListProvidersProto),
+                native_to_wire!(operation, list_providers_proto::Operation),
             )),
             NativeOperation::ListOpcodes(operation) => Ok(RequestBody::from_bytes(
-                native_to_wire!(operation, OpListOpcodesProto),
+                native_to_wire!(operation, list_opcodes_proto::Operation),
             )),
             NativeOperation::Ping(operation) => Ok(RequestBody::from_bytes(native_to_wire!(
                 operation,
-                OpPingProto
+                ping_proto::Operation
             ))),
-            NativeOperation::CreateKey(operation) => Ok(RequestBody::from_bytes(native_to_wire!(
-                operation,
-                OpCreateKeyProto
-            ))),
+            NativeOperation::GenerateKey(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, generate_key_proto::Operation),
+            )),
             NativeOperation::ImportKey(operation) => Ok(RequestBody::from_bytes(native_to_wire!(
                 operation,
-                OpImportKeyProto
+                import_key_proto::Operation
             ))),
             NativeOperation::ExportPublicKey(operation) => Ok(RequestBody::from_bytes(
-                native_to_wire!(operation, OpExportPublicKeyProto),
+                native_to_wire!(operation, export_public_key_proto::Operation),
             )),
             NativeOperation::DestroyKey(operation) => Ok(RequestBody::from_bytes(native_to_wire!(
                 operation,
-                OpDestroyKeyProto
+                destroy_key_proto::Operation
             ))),
-            NativeOperation::AsymSign(operation) => Ok(RequestBody::from_bytes(native_to_wire!(
+            NativeOperation::SignHash(operation) => Ok(RequestBody::from_bytes(native_to_wire!(
                 operation,
-                OpAsymmetricSignProto
+                sign_hash_proto::Operation
             ))),
-            NativeOperation::AsymVerify(operation) => Ok(RequestBody::from_bytes(native_to_wire!(
+            NativeOperation::VerifyHash(operation) => Ok(RequestBody::from_bytes(native_to_wire!(
                 operation,
-                OpAsymmetricVerifyProto
+                verify_hash_proto::Operation
             ))),
         }
     }
@@ -177,39 +178,39 @@ impl Convert for ProtobufConverter {
         match opcode {
             Opcode::ListProviders => Ok(NativeResult::ListProviders(wire_to_native!(
                 body.bytes(),
-                ResultListProvidersProto
+                list_providers_proto::Result
             ))),
             Opcode::ListOpcodes => Ok(NativeResult::ListOpcodes(wire_to_native!(
                 body.bytes(),
-                ResultListOpcodesProto
+                list_opcodes_proto::Result
             ))),
             Opcode::Ping => Ok(NativeResult::Ping(wire_to_native!(
                 body.bytes(),
-                ResultPingProto
+                ping_proto::Result
             ))),
-            Opcode::CreateKey => Ok(NativeResult::CreateKey(wire_to_native!(
+            Opcode::GenerateKey => Ok(NativeResult::GenerateKey(wire_to_native!(
                 body.bytes(),
-                ResultCreateKeyProto
+                generate_key_proto::Result
             ))),
             Opcode::ImportKey => Ok(NativeResult::ImportKey(wire_to_native!(
                 body.bytes(),
-                ResultImportKeyProto
+                import_key_proto::Result
             ))),
             Opcode::ExportPublicKey => Ok(NativeResult::ExportPublicKey(wire_to_native!(
                 body.bytes(),
-                ResultExportPublicKeyProto
+                export_public_key_proto::Result
             ))),
             Opcode::DestroyKey => Ok(NativeResult::DestroyKey(wire_to_native!(
                 body.bytes(),
-                ResultDestroyKeyProto
+                destroy_key_proto::Result
             ))),
-            Opcode::AsymSign => Ok(NativeResult::AsymSign(wire_to_native!(
+            Opcode::SignHash => Ok(NativeResult::SignHash(wire_to_native!(
                 body.bytes(),
-                ResultAsymmetricSignProto
+                sign_hash_proto::Result
             ))),
-            Opcode::AsymVerify => Ok(NativeResult::AsymVerify(wire_to_native!(
+            Opcode::VerifyHash => Ok(NativeResult::VerifyHash(wire_to_native!(
                 body.bytes(),
-                ResultAsymmetricVerifyProto
+                verify_hash_proto::Result
             ))),
         }
     }
@@ -218,39 +219,39 @@ impl Convert for ProtobufConverter {
         match result {
             NativeResult::ListProviders(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
-                ResultListProvidersProto
+                list_providers_proto::Result
             ))),
             NativeResult::ListOpcodes(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
-                ResultListOpcodesProto
+                list_opcodes_proto::Result
             ))),
             NativeResult::Ping(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
-                ResultPingProto
+                ping_proto::Result
             ))),
-            NativeResult::CreateKey(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+            NativeResult::GenerateKey(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
-                ResultCreateKeyProto
+                generate_key_proto::Result
             ))),
             NativeResult::ImportKey(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
-                ResultImportKeyProto
+                import_key_proto::Result
             ))),
             NativeResult::ExportPublicKey(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
-                ResultExportPublicKeyProto
+                export_public_key_proto::Result
             ))),
             NativeResult::DestroyKey(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
-                ResultDestroyKeyProto
+                destroy_key_proto::Result
             ))),
-            NativeResult::AsymSign(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+            NativeResult::SignHash(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
-                ResultAsymmetricSignProto
+                sign_hash_proto::Result
             ))),
-            NativeResult::AsymVerify(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+            NativeResult::VerifyHash(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
-                ResultAsymmetricVerifyProto
+                verify_hash_proto::Result
             ))),
         }
     }

@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -13,26 +13,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 use super::generated_ops::list_providers::{
-    OpListProvidersProto, ProviderInfoProto, ResultListProvidersProto,
+    Operation as OperationProto, ProviderInfo as ProviderInfoProto, Result as ResultProto,
 };
-use crate::operations::{OpListProviders, ProviderInfo, ResultListProviders};
+use crate::operations::list_providers::{Operation, ProviderInfo, Result};
 use crate::requests::{ProviderID, ResponseStatus};
 use num::FromPrimitive;
 use std::convert::{TryFrom, TryInto};
 use uuid::Uuid;
 
-impl TryFrom<OpListProvidersProto> for OpListProviders {
+impl TryFrom<OperationProto> for Operation {
     type Error = ResponseStatus;
 
-    fn try_from(_proto_op: OpListProvidersProto) -> Result<Self, Self::Error> {
-        Ok(OpListProviders {})
+    fn try_from(_proto_op: OperationProto) -> std::result::Result<Self, Self::Error> {
+        Ok(Operation {})
     }
 }
 
-impl TryFrom<OpListProviders> for OpListProvidersProto {
+impl TryFrom<Operation> for OperationProto {
     type Error = ResponseStatus;
 
-    fn try_from(_op: OpListProviders) -> Result<Self, Self::Error> {
+    fn try_from(_op: Operation) -> std::result::Result<Self, Self::Error> {
         Ok(Default::default())
     }
 }
@@ -40,7 +40,7 @@ impl TryFrom<OpListProviders> for OpListProvidersProto {
 impl TryFrom<ProviderInfoProto> for ProviderInfo {
     type Error = ResponseStatus;
 
-    fn try_from(proto_info: ProviderInfoProto) -> Result<Self, Self::Error> {
+    fn try_from(proto_info: ProviderInfoProto) -> std::result::Result<Self, Self::Error> {
         // UUIDs are strings of 36 ASCII characters (bytes) containing 32 lowercase hexadecimal
         // digits and 4 hyphens.
         let provider_uuid = match Uuid::parse_str(&proto_info.uuid) {
@@ -67,7 +67,7 @@ impl TryFrom<ProviderInfoProto> for ProviderInfo {
 impl TryFrom<ProviderInfo> for ProviderInfoProto {
     type Error = ResponseStatus;
 
-    fn try_from(info: ProviderInfo) -> Result<Self, Self::Error> {
+    fn try_from(info: ProviderInfo) -> std::result::Result<Self, Self::Error> {
         Ok(ProviderInfoProto {
             uuid: info.uuid.to_string(),
             description: info.description,
@@ -80,42 +80,41 @@ impl TryFrom<ProviderInfo> for ProviderInfoProto {
     }
 }
 
-impl TryFrom<ResultListProvidersProto> for ResultListProviders {
+impl TryFrom<ResultProto> for Result {
     type Error = ResponseStatus;
 
-    fn try_from(proto_op: ResultListProvidersProto) -> Result<Self, Self::Error> {
+    fn try_from(proto_op: ResultProto) -> std::result::Result<Self, Self::Error> {
         let mut providers: Vec<ProviderInfo> = Vec::new();
         for provider in proto_op.providers {
             providers.push(provider.try_into()?);
         }
 
-        Ok(ResultListProviders { providers })
+        Ok(Result { providers })
     }
 }
 
-impl TryFrom<ResultListProviders> for ResultListProvidersProto {
+impl TryFrom<Result> for ResultProto {
     type Error = ResponseStatus;
 
-    fn try_from(op: ResultListProviders) -> Result<Self, Self::Error> {
+    fn try_from(op: Result) -> std::result::Result<Self, Self::Error> {
         let mut providers: Vec<ProviderInfoProto> = Vec::new();
         for provider in op.providers {
             providers.push(provider.try_into()?);
         }
 
-        Ok(ResultListProvidersProto { providers })
+        Ok(ResultProto { providers })
     }
 }
 
 #[cfg(test)]
 mod test {
-    // OpListProviders <-> Proto conversions are not tested since they're too simple
+    // Operation <-> Proto conversions are not tested since they're too simple
     use super::super::generated_ops::list_providers::{
-        ProviderInfoProto, ResultListProvidersProto,
+        ProviderInfo as ProviderInfoProto, Result as ResultProto,
     };
     use super::super::{Convert, ProtobufConverter};
-    use crate::operations::{
-        NativeOperation, NativeResult, OpListProviders, ProviderInfo, ResultListProviders,
-    };
+    use crate::operations::list_providers::{Operation, ProviderInfo, Result};
+    use crate::operations::{NativeOperation, NativeResult};
     use crate::requests::{request::RequestBody, response::ResponseBody, Opcode, ProviderID};
     use std::convert::TryInto;
     use uuid::Uuid;
@@ -124,7 +123,7 @@ mod test {
 
     #[test]
     fn proto_to_resp() {
-        let mut proto: ResultListProvidersProto = Default::default();
+        let mut proto: ResultProto = Default::default();
         let mut provider_info = ProviderInfoProto::default();
         provider_info.uuid = String::from("9840cd61-9367-4010-bc24-f5b98a6174d1");
         provider_info.description = String::from("provider description");
@@ -134,7 +133,7 @@ mod test {
         provider_info.version_rev = 0;
         provider_info.id = 1;
         proto.providers.push(provider_info);
-        let resp: ResultListProviders = proto.try_into().unwrap();
+        let resp: Result = proto.try_into().unwrap();
 
         assert_eq!(resp.providers.len(), 1);
         assert_eq!(
@@ -146,12 +145,12 @@ mod test {
         assert_eq!(resp.providers[0].version_maj, 0);
         assert_eq!(resp.providers[0].version_min, 1);
         assert_eq!(resp.providers[0].version_rev, 0);
-        assert_eq!(resp.providers[0].id, ProviderID::MbedProvider);
+        assert_eq!(resp.providers[0].id, ProviderID::MbedCrypto);
     }
 
     #[test]
     fn resp_to_proto() {
-        let mut resp: ResultListProviders = ResultListProviders {
+        let mut resp: Result = Result {
             providers: Vec::new(),
         };
         let provider_info = ProviderInfo {
@@ -161,11 +160,11 @@ mod test {
             version_maj: 0,
             version_min: 1,
             version_rev: 0,
-            id: ProviderID::MbedProvider,
+            id: ProviderID::MbedCrypto,
         };
         resp.providers.push(provider_info);
 
-        let proto: ResultListProvidersProto = resp.try_into().unwrap();
+        let proto: ResultProto = resp.try_into().unwrap();
         assert_eq!(proto.providers.len(), 1);
         assert_eq!(
             proto.providers[0].uuid,
@@ -189,7 +188,7 @@ mod test {
 
     #[test]
     fn op_list_providers_from_native() {
-        let list_providers = OpListProviders {};
+        let list_providers = Operation {};
         let body = CONVERTER
             .operation_to_body(NativeOperation::ListProviders(list_providers))
             .expect("Failed to convert request");
@@ -198,7 +197,7 @@ mod test {
 
     #[test]
     fn op_list_providers_e2e() {
-        let list_providers = OpListProviders {};
+        let list_providers = Operation {};
         let req_body = CONVERTER
             .operation_to_body(NativeOperation::ListProviders(list_providers))
             .expect("Failed to convert request");
@@ -228,7 +227,7 @@ mod test {
 
     #[test]
     fn result_list_providers_from_native() {
-        let mut list_providers = ResultListProviders {
+        let mut list_providers = Result {
             providers: Vec::new(),
         };
         let provider_info = ProviderInfo {
@@ -238,7 +237,7 @@ mod test {
             version_maj: 0,
             version_min: 1,
             version_rev: 0,
-            id: ProviderID::MbedProvider,
+            id: ProviderID::MbedCrypto,
         };
         list_providers.providers.push(provider_info);
 
@@ -250,7 +249,7 @@ mod test {
 
     #[test]
     fn list_providers_result_e2e() {
-        let mut list_providers = ResultListProviders {
+        let mut list_providers = Result {
             providers: Vec::new(),
         };
         let provider_info = ProviderInfo {
@@ -260,7 +259,7 @@ mod test {
             version_maj: 0,
             version_min: 1,
             version_rev: 0,
-            id: ProviderID::MbedProvider,
+            id: ProviderID::MbedCrypto,
         };
         list_providers.providers.push(provider_info);
 

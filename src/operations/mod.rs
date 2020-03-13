@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -17,51 +17,43 @@
 //! Rust native representation of the language neutral operations described in the
 //! [Operations](https://parallaxsecond.github.io/parsec-book/parsec_client/operations/index.html)
 //! page in the book.
-mod ping;
+pub mod ping;
 pub mod key_attributes;
-mod create_key;
-mod import_key;
-mod export_public_key;
-mod destroy_key;
-mod asym_sign;
-mod asym_verify;
-mod list_opcodes;
-mod list_providers;
+pub mod algorithm;
+pub mod generate_key;
+pub mod import_key;
+pub mod export_public_key;
+pub mod destroy_key;
+pub mod sign_hash;
+pub mod verify_hash;
+pub mod list_opcodes;
+pub mod list_providers;
 
 use crate::requests::{request::RequestBody, response::ResponseBody, Opcode, Result};
-pub use asym_sign::{OpAsymSign, ResultAsymSign};
-pub use asym_verify::{OpAsymVerify, ResultAsymVerify};
-pub use create_key::{OpCreateKey, ResultCreateKey};
-pub use destroy_key::{OpDestroyKey, ResultDestroyKey};
-pub use export_public_key::{OpExportPublicKey, ResultExportPublicKey};
-pub use import_key::{OpImportKey, ResultImportKey};
-pub use list_opcodes::{OpListOpcodes, ResultListOpcodes};
-pub use list_providers::{OpListProviders, ProviderInfo, ResultListProviders};
-pub use ping::{OpPing, ResultPing};
 
 /// Container type for operation conversion values, holding a native operation object
 /// to be passed in/out of a converter.
 #[derive(Debug)]
 pub enum NativeOperation {
-    ListProviders(OpListProviders),
-    ListOpcodes(OpListOpcodes),
-    Ping(OpPing),
-    CreateKey(OpCreateKey),
-    ImportKey(OpImportKey),
-    ExportPublicKey(OpExportPublicKey),
-    DestroyKey(OpDestroyKey),
-    AsymSign(OpAsymSign),
-    AsymVerify(OpAsymVerify),
+    ListProviders(list_providers::Operation),
+    ListOpcodes(list_opcodes::Operation),
+    Ping(ping::Operation),
+    GenerateKey(generate_key::Operation),
+    ImportKey(import_key::Operation),
+    ExportPublicKey(export_public_key::Operation),
+    DestroyKey(destroy_key::Operation),
+    SignHash(sign_hash::Operation),
+    VerifyHash(verify_hash::Operation),
 }
 
 impl NativeOperation {
     pub fn opcode(&self) -> Opcode {
         match self {
             NativeOperation::Ping(_) => Opcode::Ping,
-            NativeOperation::CreateKey(_) => Opcode::CreateKey,
+            NativeOperation::GenerateKey(_) => Opcode::GenerateKey,
             NativeOperation::DestroyKey(_) => Opcode::DestroyKey,
-            NativeOperation::AsymSign(_) => Opcode::AsymSign,
-            NativeOperation::AsymVerify(_) => Opcode::AsymVerify,
+            NativeOperation::SignHash(_) => Opcode::SignHash,
+            NativeOperation::VerifyHash(_) => Opcode::VerifyHash,
             NativeOperation::ImportKey(_) => Opcode::ImportKey,
             NativeOperation::ExportPublicKey(_) => Opcode::ExportPublicKey,
             NativeOperation::ListOpcodes(_) => Opcode::ListOpcodes,
@@ -74,25 +66,25 @@ impl NativeOperation {
 /// passed in/out of the converter.
 #[derive(Debug)]
 pub enum NativeResult {
-    ListProviders(ResultListProviders),
-    ListOpcodes(ResultListOpcodes),
-    Ping(ResultPing),
-    CreateKey(ResultCreateKey),
-    ImportKey(ResultImportKey),
-    ExportPublicKey(ResultExportPublicKey),
-    DestroyKey(ResultDestroyKey),
-    AsymSign(ResultAsymSign),
-    AsymVerify(ResultAsymVerify),
+    ListProviders(list_providers::Result),
+    ListOpcodes(list_opcodes::Result),
+    Ping(ping::Result),
+    GenerateKey(generate_key::Result),
+    ImportKey(import_key::Result),
+    ExportPublicKey(export_public_key::Result),
+    DestroyKey(destroy_key::Result),
+    SignHash(sign_hash::Result),
+    VerifyHash(verify_hash::Result),
 }
 
 impl NativeResult {
     pub fn opcode(&self) -> Opcode {
         match self {
             NativeResult::Ping(_) => Opcode::Ping,
-            NativeResult::CreateKey(_) => Opcode::CreateKey,
+            NativeResult::GenerateKey(_) => Opcode::GenerateKey,
             NativeResult::DestroyKey(_) => Opcode::DestroyKey,
-            NativeResult::AsymSign(_) => Opcode::AsymSign,
-            NativeResult::AsymVerify(_) => Opcode::AsymVerify,
+            NativeResult::SignHash(_) => Opcode::SignHash,
+            NativeResult::VerifyHash(_) => Opcode::VerifyHash,
             NativeResult::ImportKey(_) => Opcode::ImportKey,
             NativeResult::ExportPublicKey(_) => Opcode::ExportPublicKey,
             NativeResult::ListOpcodes(_) => Opcode::ListOpcodes,

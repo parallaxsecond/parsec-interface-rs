@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -24,7 +24,7 @@ use std::io::{Read, Write};
 /// Serialisation and deserialisation are handled by `serde`, also in tune with the
 /// wire format (i.e. little-endian, native encoding).
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
-pub struct RawResponseHeader {
+pub struct Raw {
     pub version_maj: u8,
     pub version_min: u8,
     pub provider: u8,
@@ -35,11 +35,11 @@ pub struct RawResponseHeader {
     pub status: u16,
 }
 
-impl RawResponseHeader {
+impl Raw {
     #[cfg(feature = "testing")]
     #[allow(clippy::new_without_default)]
-    pub fn new() -> RawResponseHeader {
-        RawResponseHeader {
+    pub fn new() -> Raw {
+        Raw {
             version_maj: 0,
             version_min: 0,
             provider: 0,
@@ -81,7 +81,7 @@ impl RawResponseHeader {
     /// - if the parsed bytes cannot be unmarshalled into the contained fields,
     /// an error of kind `ErrorKind::InvalidData` is returned
     /// - if the wire protocol version used is different than 1.0
-    pub fn read_from_stream(mut stream: &mut impl Read) -> Result<RawResponseHeader> {
+    pub fn read_from_stream(mut stream: &mut impl Read) -> Result<Raw> {
         let magic_number = get_from_stream!(stream, u32);
         let hdr_size = get_from_stream!(stream, u16);
         if magic_number != MAGIC_NUMBER || hdr_size != RESPONSE_HDR_SIZE {
@@ -90,7 +90,7 @@ impl RawResponseHeader {
         let mut bytes = vec![0_u8; usize::try_from(hdr_size)?];
         stream.read_exact(&mut bytes)?;
 
-        let raw_response: RawResponseHeader = bincode::deserialize(&bytes)?;
+        let raw_response: Raw = bincode::deserialize(&bytes)?;
         if raw_response.version_maj != 1 || raw_response.version_min != 0 {
             Err(ResponseStatus::WireProtocolVersionNotSupported)
         } else {
@@ -122,7 +122,7 @@ impl ResponseHeader {
         ResponseHeader {
             version_maj: 1,
             version_min: 0,
-            provider: ProviderID::CoreProvider,
+            provider: ProviderID::Core,
             session: 0,
             content_type: BodyType::Protobuf,
             opcode: Opcode::Ping,
@@ -134,10 +134,10 @@ impl ResponseHeader {
 /// Conversion from the raw to native response header.
 ///
 /// This conversion must be done before a `Response` value can be populated.
-impl TryFrom<RawResponseHeader> for ResponseHeader {
+impl TryFrom<Raw> for ResponseHeader {
     type Error = ResponseStatus;
 
-    fn try_from(header: RawResponseHeader) -> Result<ResponseHeader> {
+    fn try_from(header: Raw) -> Result<ResponseHeader> {
         let provider: ProviderID = match FromPrimitive::from_u8(header.provider) {
             Some(provider_id) => provider_id,
             None => return Err(ResponseStatus::ProviderDoesNotExist),
@@ -174,9 +174,9 @@ impl TryFrom<RawResponseHeader> for ResponseHeader {
 ///
 /// This is required in order to bring the contents of the header in a state
 /// which can be serialized.
-impl From<ResponseHeader> for RawResponseHeader {
+impl From<ResponseHeader> for Raw {
     fn from(header: ResponseHeader) -> Self {
-        RawResponseHeader {
+        Raw {
             version_maj: header.version_maj,
             version_min: header.version_min,
             provider: header.provider as u8,

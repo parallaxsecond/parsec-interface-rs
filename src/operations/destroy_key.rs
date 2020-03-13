@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,7 +15,7 @@
 
 /// Native object for cryptographic key destruction.
 #[derive(Debug, Clone)]
-pub struct OpDestroyKey {
+pub struct Operation {
     /// `key_name` identifies the key to be destroyed.
     pub key_name: String,
 }
@@ -24,4 +24,4 @@ pub struct OpDestroyKey {
 ///
 /// True result of operation is returned in the response `status`.
 #[derive(Copy, Clone, Debug)]
-pub struct ResultDestroyKey;
+pub struct Result;

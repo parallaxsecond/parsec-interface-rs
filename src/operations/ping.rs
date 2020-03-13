@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,15 +15,15 @@
 
 /// Native object for Ping operation.
 #[derive(Copy, Clone, Debug)]
-pub struct OpPing;
+pub struct Operation;
 
 /// Native object for Ping result.
 ///
 /// The latest wire protocol version supported by the service.
 #[derive(Copy, Clone, Debug)]
-pub struct ResultPing {
+pub struct Result {
     /// Supported version major
-    pub supp_version_maj: u8,
+    pub wire_protocol_version_maj: u8,
     /// Supported version minor
-    pub supp_version_min: u8,
+    pub wire_protocol_version_min: u8,
 }
