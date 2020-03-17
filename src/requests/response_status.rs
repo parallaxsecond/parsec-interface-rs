@@ -48,24 +48,26 @@ pub enum ResponseStatus {
     NotAuthenticated = 19,
     BodySizeExceedsLimit = 20,
     PsaErrorGenericError = 1132,
-    PsaErrorNotPermitted = 1133,
     PsaErrorNotSupported = 1134,
-    PsaErrorInvalidArgument = 1135,
-    PsaErrorInvalidHandle = 1136,
-    PsaErrorBadState = 1137,
+    PsaErrorNotPermitted = 1133,
     PsaErrorBufferTooSmall = 1138,
     PsaErrorAlreadyExists = 1139,
     PsaErrorDoesNotExist = 1140,
+    PsaErrorBadState = 1137,
+    PsaErrorInvalidArgument = 1135,
     PsaErrorInsufficientMemory = 1141,
     PsaErrorInsufficientStorage = 1142,
-    PsaErrorInssuficientData = 1143,
     PsaErrorCommunicationFailure = 1145,
     PsaErrorStorageFailure = 1146,
+    PsaErrorDataCorrupt = 1152,
+    PsaErrorDataInvalid = 1153,
     PsaErrorHardwareFailure = 1147,
+    PsaErrorCorruptionDetected = 1151,
     PsaErrorInsufficientEntropy = 1148,
     PsaErrorInvalidSignature = 1149,
     PsaErrorInvalidPadding = 1150,
-    PsaErrorTamperingDetected = 1151,
+    PsaErrorInssuficientData = 1143,
+    PsaErrorInvalidHandle = 1136,
 }
 
 impl TryFrom<u16> for ResponseStatus {
@@ -185,8 +187,17 @@ impl fmt::Display for ResponseStatus {
             ResponseStatus::PsaErrorStorageFailure => {
                 write!(f, "there was a storage failure that may have led to data loss")
             }
+            ResponseStatus::PsaErrorDataCorrupt => {
+                write!(f, "stored data has been corrupted")
+            }
+            ResponseStatus::PsaErrorDataInvalid => {
+                write!(f, "data read from storage is not valid for the implementation")
+            }
             ResponseStatus::PsaErrorHardwareFailure => {
                 write!(f, "a hardware failure was detected")
+            }
+            ResponseStatus::PsaErrorCorruptionDetected => {
+                write!(f, "a tampering attempt was detected")
             }
             ResponseStatus::PsaErrorInsufficientEntropy => {
                 write!(f, "there is not enough entropy to generate random data needed for the requested action")
@@ -196,9 +207,6 @@ impl fmt::Display for ResponseStatus {
             }
             ResponseStatus::PsaErrorInvalidPadding => {
                 write!(f, "the decrypted padding is incorrect")
-            }
-            ResponseStatus::PsaErrorTamperingDetected => {
-                write!(f, "a tampering attempt was detected")
             }
         }
     }

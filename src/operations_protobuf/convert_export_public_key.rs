@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -12,59 +12,57 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use super::generated_ops::export_public_key::{OpExportPublicKeyProto, ResultExportPublicKeyProto};
-use crate::operations;
+use super::generated_ops::export_public_key::{Operation as OperationProto, Result as ResultProto};
+use crate::operations::export_public_key::{Operation, Result};
 use crate::requests::ResponseStatus;
 use std::convert::TryFrom;
 
-impl TryFrom<OpExportPublicKeyProto> for operations::OpExportPublicKey {
+impl TryFrom<OperationProto> for Operation {
     type Error = ResponseStatus;
 
-    fn try_from(proto_op: OpExportPublicKeyProto) -> Result<Self, Self::Error> {
-        Ok(operations::OpExportPublicKey {
+    fn try_from(proto_op: OperationProto) -> std::result::Result<Self, Self::Error> {
+        Ok(Operation {
             key_name: proto_op.key_name,
         })
     }
 }
 
-impl TryFrom<operations::OpExportPublicKey> for OpExportPublicKeyProto {
+impl TryFrom<Operation> for OperationProto {
     type Error = ResponseStatus;
 
-    fn try_from(op: operations::OpExportPublicKey) -> Result<Self, Self::Error> {
-        Ok(OpExportPublicKeyProto {
+    fn try_from(op: Operation) -> std::result::Result<Self, Self::Error> {
+        Ok(OperationProto {
             key_name: op.key_name,
         })
     }
 }
 
-impl TryFrom<ResultExportPublicKeyProto> for operations::ResultExportPublicKey {
+impl TryFrom<ResultProto> for Result {
     type Error = ResponseStatus;
 
-    fn try_from(proto_op: ResultExportPublicKeyProto) -> Result<Self, Self::Error> {
-        Ok(operations::ResultExportPublicKey {
-            key_data: proto_op.key_data,
+    fn try_from(proto_op: ResultProto) -> std::result::Result<Self, Self::Error> {
+        Ok(Result {
+            data: proto_op.data,
         })
     }
 }
 
-impl TryFrom<operations::ResultExportPublicKey> for ResultExportPublicKeyProto {
+impl TryFrom<Result> for ResultProto {
     type Error = ResponseStatus;
 
-    fn try_from(op: operations::ResultExportPublicKey) -> Result<Self, Self::Error> {
-        Ok(ResultExportPublicKeyProto {
-            key_data: op.key_data,
-        })
+    fn try_from(op: Result) -> std::result::Result<Self, Self::Error> {
+        Ok(ResultProto { data: op.data })
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::super::generated_ops::export_public_key::{
-        OpExportPublicKeyProto, ResultExportPublicKeyProto,
+        Operation as OperationProto, Result as ResultProto,
     };
     use super::super::{Convert, ProtobufConverter};
     use crate::operations::{
-        NativeOperation, NativeResult, OpExportPublicKey, ResultExportPublicKey,
+        export_public_key::Operation, export_public_key::Result, NativeOperation, NativeResult,
     };
     use crate::requests::{request::RequestBody, response::ResponseBody, Opcode};
     use std::convert::TryInto;
@@ -73,11 +71,11 @@ mod test {
 
     #[test]
     fn export_pk_proto_to_op() {
-        let mut proto: OpExportPublicKeyProto = Default::default();
+        let mut proto: OperationProto = Default::default();
         let key_name = "test name".to_string();
         proto.key_name = key_name.clone();
 
-        let op: OpExportPublicKey = proto.try_into().expect("Failed to convert");
+        let op: Operation = proto.try_into().expect("Failed to convert");
 
         assert_eq!(op.key_name, key_name);
     }
@@ -86,41 +84,41 @@ mod test {
     fn asym_op_to_proto() {
         let key_name = "test name".to_string();
 
-        let op = OpExportPublicKey {
+        let op = Operation {
             key_name: key_name.clone(),
         };
 
-        let proto: OpExportPublicKeyProto = op.try_into().expect("Failed to convert");
+        let proto: OperationProto = op.try_into().expect("Failed to convert");
 
         assert_eq!(proto.key_name, key_name);
     }
 
     #[test]
     fn asym_proto_to_resp() {
-        let mut proto: ResultExportPublicKeyProto = Default::default();
+        let mut proto: ResultProto = Default::default();
         let key_data = vec![0x11, 0x22, 0x33];
-        proto.key_data = key_data.clone();
+        proto.data = key_data.clone();
 
-        let result: ResultExportPublicKey = proto.try_into().expect("Failed to convert");
+        let result: Result = proto.try_into().expect("Failed to convert");
 
-        assert_eq!(result.key_data, key_data);
+        assert_eq!(result.data, key_data);
     }
 
     #[test]
     fn asym_resp_to_proto() {
         let key_data = vec![0x11, 0x22, 0x33];
-        let result = ResultExportPublicKey {
-            key_data: key_data.clone(),
+        let result = Result {
+            data: key_data.clone(),
         };
 
-        let proto: ResultExportPublicKeyProto = result.try_into().expect("Failed to convert");
+        let proto: ResultProto = result.try_into().expect("Failed to convert");
 
-        assert_eq!(proto.key_data, key_data);
+        assert_eq!(proto.data, key_data);
     }
 
     #[test]
     fn op_export_pk_e2e() {
-        let op = OpExportPublicKey {
+        let op = Operation {
             key_name: "test name".to_string(),
         };
         let body = CONVERTER
@@ -134,8 +132,8 @@ mod test {
 
     #[test]
     fn resp_export_pk_e2e() {
-        let result = ResultExportPublicKey {
-            key_data: vec![0x11, 0x22, 0x33],
+        let result = Result {
+            data: vec![0x11, 0x22, 0x33],
         };
         let body = CONVERTER
             .result_to_body(NativeResult::ExportPublicKey(result))

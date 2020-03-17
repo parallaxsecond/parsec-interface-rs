@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -17,11 +17,11 @@ use std::collections::HashSet;
 
 /// Native object for opcode listing operation.
 #[derive(Copy, Clone, Debug)]
-pub struct OpListOpcodes;
+pub struct Operation;
 
 /// Native object for opcode listing result.
 #[derive(Debug)]
-pub struct ResultListOpcodes {
+pub struct Result {
     /// `opcodes` holds a list of opcodes supported by the provider identified in
     /// the request.
     pub opcodes: HashSet<Opcode>,

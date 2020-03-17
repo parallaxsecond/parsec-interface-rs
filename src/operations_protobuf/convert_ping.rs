@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -12,56 +12,57 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use super::generated_ops::ping::{OpPingProto, ResultPingProto};
-use crate::operations;
+use super::generated_ops::ping::{Operation as OperationProto, Result as ResultProto};
+use crate::operations::ping::{Operation, Result};
 use crate::requests::ResponseStatus;
 use std::convert::TryFrom;
 
-impl TryFrom<OpPingProto> for operations::OpPing {
+impl TryFrom<OperationProto> for Operation {
     type Error = ResponseStatus;
 
-    fn try_from(_proto_op: OpPingProto) -> Result<Self, Self::Error> {
-        Ok(operations::OpPing {})
+    fn try_from(_proto_op: OperationProto) -> std::result::Result<Self, Self::Error> {
+        Ok(Operation {})
     }
 }
 
-impl TryFrom<operations::OpPing> for OpPingProto {
+impl TryFrom<Operation> for OperationProto {
     type Error = ResponseStatus;
 
-    fn try_from(_proto_op: operations::OpPing) -> Result<Self, Self::Error> {
+    fn try_from(_proto_op: Operation) -> std::result::Result<Self, Self::Error> {
         Ok(Default::default())
     }
 }
 
-impl TryFrom<operations::ResultPing> for ResultPingProto {
+impl TryFrom<Result> for ResultProto {
     type Error = ResponseStatus;
 
-    fn try_from(result: operations::ResultPing) -> Result<Self, Self::Error> {
-        let mut proto_response: ResultPingProto = Default::default();
-        proto_response.supported_version_maj = u32::from(result.supp_version_maj);
-        proto_response.supported_version_min = u32::from(result.supp_version_min);
+    fn try_from(result: Result) -> std::result::Result<Self, Self::Error> {
+        let mut proto_response: ResultProto = Default::default();
+        proto_response.wire_protocol_version_maj = u32::from(result.wire_protocol_version_maj);
+        proto_response.wire_protocol_version_min = u32::from(result.wire_protocol_version_min);
 
         Ok(proto_response)
     }
 }
 
-impl TryFrom<ResultPingProto> for operations::ResultPing {
+impl TryFrom<ResultProto> for Result {
     type Error = ResponseStatus;
 
-    fn try_from(response: ResultPingProto) -> Result<Self, Self::Error> {
-        Ok(operations::ResultPing {
-            supp_version_maj: u8::try_from(response.supported_version_maj)?,
-            supp_version_min: u8::try_from(response.supported_version_min)?,
+    fn try_from(response: ResultProto) -> std::result::Result<Self, Self::Error> {
+        Ok(Result {
+            wire_protocol_version_maj: u8::try_from(response.wire_protocol_version_maj)?,
+            wire_protocol_version_min: u8::try_from(response.wire_protocol_version_min)?,
         })
     }
 }
 
 #[cfg(test)]
 mod test {
-    // OpPing <-> Proto conversions are not tested since they're too simple
-    use super::super::generated_ops::ping::ResultPingProto;
+    // Operation <-> Proto conversions are not tested since they're too simple
+    use super::super::generated_ops::ping::Result as ResultProto;
     use super::super::{Convert, ProtobufConverter};
-    use crate::operations::{NativeOperation, NativeResult, OpPing, ResultPing};
+    use crate::operations::ping::{Operation, Result};
+    use crate::operations::{NativeOperation, NativeResult};
     use crate::requests::{request::RequestBody, response::ResponseBody, Opcode};
     use std::convert::TryInto;
 
@@ -69,25 +70,25 @@ mod test {
 
     #[test]
     fn proto_to_resp() {
-        let mut proto: ResultPingProto = Default::default();
-        proto.supported_version_maj = 1;
-        proto.supported_version_min = 1;
-        let resp: ResultPing = proto.try_into().unwrap();
+        let mut proto: ResultProto = Default::default();
+        proto.wire_protocol_version_maj = 1;
+        proto.wire_protocol_version_min = 1;
+        let resp: Result = proto.try_into().unwrap();
 
-        assert!(resp.supp_version_maj == 1);
-        assert!(resp.supp_version_min == 1);
+        assert!(resp.wire_protocol_version_maj == 1);
+        assert!(resp.wire_protocol_version_min == 1);
     }
 
     #[test]
     fn resp_to_proto() {
-        let resp: ResultPing = ResultPing {
-            supp_version_maj: 1,
-            supp_version_min: 1,
+        let resp: Result = Result {
+            wire_protocol_version_maj: 1,
+            wire_protocol_version_min: 1,
         };
 
-        let proto: ResultPingProto = resp.try_into().unwrap();
-        assert!(proto.supported_version_maj == 1);
-        assert!(proto.supported_version_min == 1);
+        let proto: ResultProto = resp.try_into().unwrap();
+        assert!(proto.wire_protocol_version_maj == 1);
+        assert!(proto.wire_protocol_version_min == 1);
     }
 
     #[test]
@@ -98,7 +99,7 @@ mod test {
 
     #[test]
     fn op_ping_from_native() {
-        let ping = OpPing {};
+        let ping = Operation {};
         let body = CONVERTER
             .operation_to_body(NativeOperation::Ping(ping))
             .expect("Failed to convert request");
@@ -107,7 +108,7 @@ mod test {
 
     #[test]
     fn op_ping_e2e() {
-        let ping = OpPing {};
+        let ping = Operation {};
         let req_body = CONVERTER
             .operation_to_body(NativeOperation::Ping(ping))
             .expect("Failed to convert request");
@@ -131,9 +132,9 @@ mod test {
 
     #[test]
     fn result_ping_from_native() {
-        let ping = ResultPing {
-            supp_version_maj: 1,
-            supp_version_min: 0,
+        let ping = Result {
+            wire_protocol_version_maj: 1,
+            wire_protocol_version_min: 0,
         };
 
         let body = CONVERTER
@@ -144,9 +145,9 @@ mod test {
 
     #[test]
     fn ping_result_e2e() {
-        let ping = ResultPing {
-            supp_version_maj: 1,
-            supp_version_min: 0,
+        let ping = Result {
+            wire_protocol_version_maj: 1,
+            wire_protocol_version_min: 0,
         };
 
         let body = CONVERTER
@@ -160,8 +161,8 @@ mod test {
 
         match result {
             NativeResult::Ping(result) => {
-                assert_eq!(result.supp_version_maj, 1);
-                assert_eq!(result.supp_version_min, 0);
+                assert_eq!(result.wire_protocol_version_maj, 1);
+                assert_eq!(result.wire_protocol_version_min, 0);
             }
             _ => panic!("Expected ping"),
         }

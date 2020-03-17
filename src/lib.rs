@@ -57,14 +57,14 @@
 //! body into a `NativeOperation`
 //!
 //!```
-//!# use std::io::{Read, Result};
+//!# use std::io::Read;
 //!#
 //!# pub struct MockRead {
 //!#    pub buffer: Vec<u8>,
 //!# }
 //!#
 //!# impl Read for MockRead {
-//!#     fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
+//!#     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
 //!#         for val in buf.iter_mut() {
 //!#             *val = self.buffer.remove(0);
 //!#         }
@@ -98,41 +98,41 @@
 //! the `write_to_stream` method.
 //!
 //!```
-//!# use std::io::{Write, Result};
+//!# use std::io::Write;
 //!#
 //!# pub struct MockWrite {
 //!#     pub buffer: Vec<u8>,
 //!# }
 //!#
 //!# impl Write for MockWrite {
-//!#     fn write(&mut self, buf: &[u8]) -> Result<usize> {
+//!#     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
 //!#         for val in buf.iter() {
 //!#             self.buffer.push(*val);
 //!#         }
 //!#         Ok(buf.len())
 //!#     }
 //!#
-//!#     fn flush(&mut self) -> Result<()> {
+//!#     fn flush(&mut self) -> std::io::Result<()> {
 //!#         Ok(())
 //!#     }
 //!# }
 //!# let mut stream = MockWrite { buffer: Vec::new() };
-//!use parsec_interface::operations::{Convert, NativeResult, ResultCreateKey};
+//!use parsec_interface::operations::{Convert, NativeResult, generate_key::Result};
 //!use parsec_interface::requests::{ProviderID, Opcode, BodyType, Response, ResponseStatus};
 //!use parsec_interface::requests::response::ResponseHeader;
 //!use parsec_interface::operations_protobuf::ProtobufConverter;
 //!
 //!let converter = ProtobufConverter {};
-//!let result = NativeResult::CreateKey(ResultCreateKey {});
+//!let result = NativeResult::GenerateKey(Result {});
 //!let result_body = converter.result_to_body(result).unwrap();
 //!let response = Response {
 //!    header: ResponseHeader {
 //!        version_maj: 1,
 //!        version_min: 0,
-//!        provider: ProviderID::MbedProvider,
+//!        provider: ProviderID::MbedCrypto,
 //!        session: 0,
 //!        content_type: BodyType::Protobuf,
-//!        opcode: Opcode::CreateKey,
+//!        opcode: Opcode::GenerateKey,
 //!        status: ResponseStatus::Success,
 //!    },
 //!    body: result_body,
@@ -149,21 +149,21 @@
 //! * write it to the stream with the `write_to_stream` method.
 //!
 //!```
-//!# use std::io::{Write, Result};
+//!# use std::io::Write;
 //!#
 //!# pub struct MockWrite {
 //!#     pub buffer: Vec<u8>,
 //!# }
 //!#
 //!# impl Write for MockWrite {
-//!#     fn write(&mut self, buf: &[u8]) -> Result<usize> {
+//!#     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
 //!#         for val in buf.iter() {
 //!#             self.buffer.push(*val);
 //!#         }
 //!#         Ok(buf.len())
 //!#     }
 
-//!#     fn flush(&mut self) -> Result<()> {
+//!#     fn flush(&mut self) -> std::io::Result<()> {
 //!#         Ok(())
 //!#     }
 //!# }
@@ -173,15 +173,15 @@
 //!use parsec_interface::requests::{Request, ProviderID, BodyType, AuthType, Opcode};
 //!use parsec_interface::requests::request::{RequestHeader, RequestAuth};
 //!use parsec_interface::operations_protobuf::ProtobufConverter;
-//!use parsec_interface::operations::OpPing;
+//!use parsec_interface::operations::ping::Operation;
 //!
 //!let converter = ProtobufConverter {};
-//!let operation = NativeOperation::Ping(OpPing {});
+//!let operation = NativeOperation::Ping(Operation {});
 //!let request = Request {
 //!    header: RequestHeader {
 //!        version_maj: 1,
 //!        version_min: 0,
-//!        provider: ProviderID::CoreProvider,
+//!        provider: ProviderID::Core,
 //!        session: 0,
 //!        content_type: BodyType::Protobuf,
 //!        accept_type: BodyType::Protobuf,
@@ -200,14 +200,14 @@
 //! * use the `body_to_result` method to parse the result body into a `NativeResult`
 //!
 //!```
-//!# use std::io::{Read, Result};
+//!# use std::io::Read;
 //!#
 //!# pub struct MockRead {
 //!#     pub buffer: Vec<u8>,
 //!# }
 //!#
 //!# impl Read for MockRead {
-//!#     fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
+//!#     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
 //!#         for val in buf.iter_mut() {
 //!#             *val = self.buffer.remove(0);
 //!#         }

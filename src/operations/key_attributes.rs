@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -14,250 +14,74 @@
 // limitations under the License.
 //! Key attributes module
 
-use num_derive::FromPrimitive;
-
-/// Enumeration of possible algorithm definitions that can be attached to
-/// cryptographic keys.
-///
-/// Each variant of the enum contains a main algorithm type (which is required for
-/// that variant), as well as configuration fields as allowed by each algorithm in
-/// part.
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum AlgorithmInner {
-    Cipher(CipherAlgorithm),
-    AsymmetricEncryption(AsymmetricEncryptionAlgorithm, Option<HashAlgorithm>),
-    Mac(MacAlgorithm, Option<HashAlgorithm>, Option<u32>),
-    Aead(AeadAlgorithm, Option<u32>),
-    Sign(SignAlgorithm, Option<HashAlgorithm>),
-    KeyAgreement(
-        KeyAgreementAlgorithm,
-        KeyDerivationFunction,
-        Option<HashAlgorithm>,
-    ),
-    KeyDerivation(KeyDerivationFunction, Option<HashAlgorithm>),
-    Hash(HashAlgorithm),
-}
-
-/// Wrapper around `AlgorithmInner`, used to statically ensure that any algorithm used
-/// in `KeyAttributes` is a valid combination of algorithms and options.
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub struct Algorithm(AlgorithmInner);
-
-impl Algorithm {
-    pub fn cipher(cipher: CipherAlgorithm) -> Algorithm {
-        Algorithm(AlgorithmInner::Cipher(cipher))
-    }
-
-    pub fn asymmetric_encryption(
-        enc: AsymmetricEncryptionAlgorithm,
-        hash: Option<HashAlgorithm>,
-    ) -> Algorithm {
-        Algorithm(AlgorithmInner::AsymmetricEncryption(enc, hash))
-    }
-
-    pub fn mac(mac: MacAlgorithm, hash: Option<HashAlgorithm>, tag_len: Option<u32>) -> Algorithm {
-        Algorithm(AlgorithmInner::Mac(mac, hash, tag_len))
-    }
-
-    pub fn aead(aead: AeadAlgorithm, tag_len: Option<u32>) -> Algorithm {
-        Algorithm(AlgorithmInner::Aead(aead, tag_len))
-    }
-
-    pub fn sign(sign: SignAlgorithm, hash: Option<HashAlgorithm>) -> Algorithm {
-        Algorithm(AlgorithmInner::Sign(sign, hash))
-    }
-
-    pub fn key_derivation(
-        key_derivation: KeyDerivationFunction,
-        hash: Option<HashAlgorithm>,
-    ) -> Algorithm {
-        Algorithm(AlgorithmInner::KeyDerivation(key_derivation, hash))
-    }
-
-    pub fn key_agreement(
-        key_agreement: KeyAgreementAlgorithm,
-        key_derivation: KeyDerivationFunction,
-        hash: Option<HashAlgorithm>,
-    ) -> Algorithm {
-        Algorithm(AlgorithmInner::KeyAgreement(
-            key_agreement,
-            key_derivation,
-            hash,
-        ))
-    }
-
-    pub fn hash(hash: HashAlgorithm) -> Algorithm {
-        Algorithm(AlgorithmInner::Hash(hash))
-    }
-
-    pub fn inner(&self) -> &AlgorithmInner {
-        &self.0
-    }
-}
+use crate::operations::algorithm::Algorithm;
 
 /// Native definition of the attributes needed to fully describe
 /// a cryptographic key.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct KeyAttributes {
     pub key_type: KeyType,
-    pub ecc_curve: Option<EccCurve>,
-    pub algorithm: Algorithm,
-    pub key_size: u32,
-    pub permit_export: bool,
-    pub permit_encrypt: bool,
-    pub permit_decrypt: bool,
-    pub permit_sign: bool,
-    pub permit_verify: bool,
-    pub permit_derive: bool,
+    pub key_bits: u32,
+    pub key_policy: KeyPolicy,
 }
 
 /// Enumeration of key types supported.
-#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
-#[repr(i32)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum KeyType {
-    HmacKey = 0,
-    DeriveKey = 1,
-    AesKey = 2,
-    DesKey = 3,
-    CamelliaKey = 4,
-    Arc4Key = 5,
-    RsaPublicKey = 6,
-    RsaKeypair = 7,
-    DsaPublicKey = 8,
-    DsaKeypair = 9,
-    EccPublicKey = 10,
-    EccKeypair = 11,
+    RawData,
+    Hmac,
+    Derive,
+    Aes,
+    Des,
+    Camellia,
+    Arc4,
+    Chacha20,
+    RsaPublicKey,
+    RsaKeyPair,
+    EccKeyPair { curve_family: EccFamily },
+    EccPublicKey { curve_family: EccFamily },
+    DhKeyPair { group_family: DhFamily },
+    DhPublicKey { group_family: DhFamily },
 }
 
-/// Enumeration of elliptic curves supported.
-///
-/// Should only be used for keys with `key_type` either `EccPublicKey`
-/// or `EccKeypair`.
-#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
-#[repr(i32)]
-pub enum EccCurve {
-    Sect163k1 = 1,
-    Sect163r1 = 2,
-    Sect163r2 = 3,
-    Sect193r1 = 4,
-    Sect193r2 = 5,
-    Sect233k1 = 6,
-    Sect233r1 = 7,
-    Sect239k1 = 8,
-    Sect283k1 = 9,
-    Sect283r1 = 10,
-    Sect409k1 = 11,
-    Sect409r1 = 12,
-    Sect571k1 = 13,
-    Sect571r1 = 14,
-    Secp160k1 = 15,
-    Secp160r1 = 16,
-    Secp160r2 = 17,
-    Secp192k1 = 18,
-    Secp192r1 = 19,
-    Secp224k1 = 20,
-    Secp224r1 = 21,
-    Secp256k1 = 22,
-    Secp256r1 = 23,
-    Secp384r1 = 24,
-    Secp521r1 = 25,
-    BrainpoolP256r1 = 26,
-    BrainpoolP384r1 = 27,
-    BrainpoolP512r1 = 28,
-    Curve25519 = 29,
-    Curve448 = 30,
+/// Enumeration of elliptic curve families supported.
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum EccFamily {
+    SecpK1,
+    SecpR1,
+    SecpR2,
+    SectK1,
+    SectR1,
+    SectR2,
+    BrainpoolPR1,
+    Frp,
+    Montgomery,
 }
 
-/// Enumeration of symmetric encryption algorithms supported.
-///
-/// Includes both specific algorithms (ARC4) and modes of operation
-/// for algorithms defined through the key type (e.g. `AesKey`).
-#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
-#[repr(i32)]
-pub enum CipherAlgorithm {
-    Arc4 = 0,
-    Ctr = 1,
-    Cfb = 2,
-    Ofb = 3,
-    Xts = 4,
-    CbcNoPadding = 5,
-    CbcPkcs7 = 6,
+/// Enumeration of Diffie Hellman group families supported.
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum DhFamily {
+    Rfc7919,
 }
 
-/// Enumeration of asymmetric encryption algorithms supported.
-#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
-#[repr(i32)]
-pub enum AsymmetricEncryptionAlgorithm {
-    RsaPkcs1v15Crypt = 0,
-    RsaOaep = 1,
+/// Definition of the key policy, what is permitted to do with the key.
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct KeyPolicy {
+    pub key_usage_flags: UsageFlags,
+    pub key_algorithm: Algorithm,
 }
 
-/// Enumeration of message authentication code algorithms supported.
-#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
-#[repr(i32)]
-pub enum MacAlgorithm {
-    Hmac = 0,
-    CbcMac = 1,
-    Cmac = 2,
-    Gmac = 3,
-}
-
-/// Enumeration of authenticated encryption with additional data algorithms
-/// supported.
-#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
-#[repr(i32)]
-pub enum AeadAlgorithm {
-    Ccm = 0,
-    Gcm = 1,
-}
-
-/// Enumeration of asymmetric signing algorithms supported.
-#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
-#[repr(i32)]
-pub enum SignAlgorithm {
-    RsaPkcs1v15Sign = 0,
-    RsaPss = 1,
-    Dsa = 2,
-    DeterministicDsa = 3,
-    Ecdsa = 4,
-    DeterministicEcdsa = 5,
-}
-
-/// Enumeration of key agreement algorithms supported.
-#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
-#[repr(i32)]
-pub enum KeyAgreementAlgorithm {
-    Ffdh = 0,
-    Ecdh = 1,
-}
-
-/// Enumeration of hash algorithms supported.
-#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
-#[repr(i32)]
-pub enum HashAlgorithm {
-    Md2 = 1,
-    Md4 = 2,
-    Md5 = 3,
-    Ripemd160 = 4,
-    Sha1 = 5,
-    Sha224 = 6,
-    Sha256 = 7,
-    Sha384 = 8,
-    Sha512 = 9,
-    Sha512224 = 10,
-    Sha512256 = 11,
-    Sha3224 = 12,
-    Sha3256 = 13,
-    Sha3384 = 14,
-    Sha3512 = 15,
-}
-
-/// Enumeration of key derivation functions supported.
-#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
-#[repr(i32)]
-pub enum KeyDerivationFunction {
-    Hkdf = 0,
-    Tls12Prf = 1,
-    Tls12PskToMs = 2,
-    SelectRaw = 3,
+/// Definition of the usage flags.
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct UsageFlags {
+    pub export: bool,
+    pub copy: bool,
+    pub cache: bool,
+    pub encrypt: bool,
+    pub decrypt: bool,
+    pub sign_message: bool,
+    pub verify_message: bool,
+    pub sign_hash: bool,
+    pub verify_hash: bool,
+    pub derive: bool,
 }

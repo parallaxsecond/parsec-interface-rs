@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -12,12 +12,14 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+use crate::operations::algorithm::AsymmetricSignature;
 
 /// Native object for asymmetric sign operations.
 #[derive(Debug)]
-pub struct OpAsymSign {
+pub struct Operation {
     /// Defines which key should be used for the signing operation.
     pub key_name: String,
+    pub alg: AsymmetricSignature,
     /// This value must either be a short message (length dependend on the size of
     /// the key), or the result of a hashing operation. Thus, if a hash-and-sign is
     /// required, the hash must be computed before this operation is called. The length
@@ -29,7 +31,7 @@ pub struct OpAsymSign {
 
 /// Native object for asymmetric sign result.
 #[derive(Debug)]
-pub struct ResultAsymSign {
+pub struct Result {
     /// The `signature` field contains the resulting bytes from the signing operation. The format of
     /// the signature is as specified by the provider doing the signing.
     pub signature: Vec<u8>,

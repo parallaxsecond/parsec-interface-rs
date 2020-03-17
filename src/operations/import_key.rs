@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -16,21 +16,21 @@ use super::key_attributes::KeyAttributes;
 
 /// Native object for cryptographic key importing operation.
 #[derive(Clone, Debug)]
-pub struct OpImportKey {
+pub struct Operation {
     /// `key_name` specifies a name by which the service will identify the key. Key
     /// name must be unique per application.
     pub key_name: String,
     /// `key_attributes` specifies the parameters
     /// to be associated with the key.
-    pub key_attributes: KeyAttributes,
+    pub attributes: KeyAttributes,
     /// `key_data` contains the bytes for the key,
     /// formatted in accordance with the requirements of the provider for the key type
     /// specified in `key_attributes`.
-    pub key_data: Vec<u8>,
+    pub data: Vec<u8>,
 }
 
 /// Native object for the result of a cryptographic key import operation.
 ///
 /// The true result is sent in the `status` field of the response header.
 #[derive(Copy, Clone, Debug)]
-pub struct ResultImportKey;
+pub struct Result;

@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,7 +15,7 @@
 
 /// Native object for public key exporting operation.
 #[derive(Debug)]
-pub struct OpExportPublicKey {
+pub struct Operation {
     /// `key_name` identifies the key for which the public
     /// part will be exported. The specified key must be an asymmetric keypair.
     pub key_name: String,
@@ -23,8 +23,8 @@ pub struct OpExportPublicKey {
 
 /// Native object for result of public key export operation.
 #[derive(Debug)]
-pub struct ResultExportPublicKey {
-    /// `key_data` holds the bytes defining the public key, formatted as specified
+pub struct Result {
+    /// `data` holds the bytes defining the public key, formatted as specified
     /// by the provider for which the request was made.
-    pub key_data: Vec<u8>,
+    pub data: Vec<u8>,
 }

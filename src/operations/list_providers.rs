@@ -1,4 +1,4 @@
-// Copyright (c) 2019, Arm Limited, All Rights Reserved
+// Copyright (c) 2019-2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -30,11 +30,11 @@ pub struct ProviderInfo {
 
 /// Native object for provider listing operation.
 #[derive(Copy, Clone, Debug)]
-pub struct OpListProviders;
+pub struct Operation;
 
 /// Native object for provider listing result.
 #[derive(Debug)]
-pub struct ResultListProviders {
+pub struct Result {
     /// A list of `ProviderInfo` structures, one for each provider available in
     /// the service.
     pub providers: Vec<ProviderInfo>,

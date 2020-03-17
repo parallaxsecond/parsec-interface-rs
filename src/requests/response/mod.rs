@@ -18,7 +18,6 @@ use super::request::RequestHeader;
 use super::ResponseStatus;
 use super::Result;
 use log::error;
-use response_header::RawResponseHeader;
 use std::convert::{TryFrom, TryInto};
 use std::io::{Read, Write};
 
@@ -31,7 +30,7 @@ pub use response_body::ResponseBody;
 pub use response_header::ResponseHeader;
 
 #[cfg(feature = "testing")]
-pub use response_header::RawResponseHeader as RawHeader;
+pub use response_header::Raw as RawHeader;
 
 /// Native representation of the response wire format.
 #[derive(PartialEq, Debug)]
@@ -82,7 +81,7 @@ impl Response {
     /// - if encoding any of the fields in the header fails, then
     /// `ResponseStatus::InvalidEncoding` is returned.
     pub fn write_to_stream(self, stream: &mut impl Write) -> Result<()> {
-        let mut raw_header: RawResponseHeader = self.header.into();
+        let mut raw_header: response_header::Raw = self.header.into();
         raw_header.body_len = u32::try_from(self.body.len())?;
 
         raw_header.write_to_stream(stream)?;
@@ -102,7 +101,7 @@ impl Response {
     /// - if the request body size specified in the header is larger than the limit passed as
     /// a parameter, `BodySizeExceedsLimit` will be returned.
     pub fn read_from_stream(stream: &mut impl Read, body_len_limit: usize) -> Result<Response> {
-        let raw_header = RawResponseHeader::read_from_stream(stream)?;
+        let raw_header = response_header::Raw::read_from_stream(stream)?;
         let body_len = usize::try_from(raw_header.body_len)?;
         if body_len > body_len_limit {
             error!(
@@ -122,7 +121,7 @@ impl Response {
 
 #[cfg(test)]
 mod tests {
-    use super::super::utils::test_utils;
+    use super::super::utils::tests as test_utils;
     use super::super::{BodyType, Opcode, ProviderID, ResponseStatus};
     use super::*;
 
@@ -203,7 +202,7 @@ mod tests {
         let header = ResponseHeader {
             version_maj: 0x01,
             version_min: 0x00,
-            provider: ProviderID::CoreProvider,
+            provider: ProviderID::Core,
             session: 0x11_22_33_44_55_66_77_88,
             content_type: BodyType::Protobuf,
             opcode: Opcode::Ping,
