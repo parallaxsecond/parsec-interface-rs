@@ -12,11 +12,12 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use super::generated_ops::verify_hash::{Operation as OperationProto, Result as ResultProto};
-use crate::operations::verify_hash::{Operation, Result};
+use super::generated_ops::psa_export_public_key::{
+    Operation as OperationProto, Result as ResultProto,
+};
+use crate::operations::psa_export_public_key::{Operation, Result};
 use crate::requests::ResponseStatus;
-use log::error;
-use std::convert::{TryFrom, TryInto};
+use std::convert::TryFrom;
 
 impl TryFrom<OperationProto> for Operation {
     type Error = ResponseStatus;
@@ -24,15 +25,6 @@ impl TryFrom<OperationProto> for Operation {
     fn try_from(proto_op: OperationProto) -> std::result::Result<Self, Self::Error> {
         Ok(Operation {
             key_name: proto_op.key_name,
-            alg: proto_op
-                .alg
-                .ok_or_else(|| {
-                    error!("alg field of verify_hash::Operation message is empty.");
-                    ResponseStatus::InvalidEncoding
-                })?
-                .try_into()?,
-            hash: proto_op.hash,
-            signature: proto_op.signature,
         })
     }
 }
@@ -43,9 +35,6 @@ impl TryFrom<Operation> for OperationProto {
     fn try_from(op: Operation) -> std::result::Result<Self, Self::Error> {
         Ok(OperationProto {
             key_name: op.key_name,
-            alg: Some(op.alg.try_into()?),
-            hash: op.hash,
-            signature: op.signature,
         })
     }
 }
@@ -53,119 +42,109 @@ impl TryFrom<Operation> for OperationProto {
 impl TryFrom<ResultProto> for Result {
     type Error = ResponseStatus;
 
-    fn try_from(_proto_result: ResultProto) -> std::result::Result<Self, Self::Error> {
-        Ok(Result {})
+    fn try_from(proto_op: ResultProto) -> std::result::Result<Self, Self::Error> {
+        Ok(Result {
+            data: proto_op.data,
+        })
     }
 }
 
 impl TryFrom<Result> for ResultProto {
     type Error = ResponseStatus;
 
-    fn try_from(_result: Result) -> std::result::Result<Self, Self::Error> {
-        Ok(ResultProto {})
+    fn try_from(op: Result) -> std::result::Result<Self, Self::Error> {
+        Ok(ResultProto { data: op.data })
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::super::generated_ops::algorithm as algorithm_proto;
-    use super::super::generated_ops::verify_hash::{
+    use super::super::generated_ops::psa_export_public_key::{
         Operation as OperationProto, Result as ResultProto,
     };
     use super::super::{Convert, ProtobufConverter};
-    use crate::operations::algorithm::AsymmetricSignature;
-    use crate::operations::verify_hash::{Operation, Result};
-    use crate::operations::{NativeOperation, NativeResult};
+    use crate::operations::{
+        psa_export_public_key::Operation, psa_export_public_key::Result, NativeOperation,
+        NativeResult,
+    };
     use crate::requests::{request::RequestBody, response::ResponseBody, Opcode};
     use std::convert::TryInto;
 
     static CONVERTER: ProtobufConverter = ProtobufConverter {};
 
     #[test]
-    fn asym_proto_to_op() {
+    fn export_pk_proto_to_op() {
         let mut proto: OperationProto = Default::default();
-        let hash = vec![0x11, 0x22, 0x33];
         let key_name = "test name".to_string();
-        let signature = vec![0x11, 0x22, 0x33];
-        proto.hash = hash.clone();
-        proto.alg = Some(algorithm_proto::algorithm::AsymmetricSignature {
-            variant: Some(
-                algorithm_proto::algorithm::asymmetric_signature::Variant::RsaPkcs1v15Sign(
-                    algorithm_proto::algorithm::asymmetric_signature::RsaPkcs1v15Sign {
-                        hash_alg: algorithm_proto::algorithm::Hash::Sha1.into(),
-                    },
-                ),
-            ),
-        });
         proto.key_name = key_name.clone();
-        proto.signature = signature.clone();
 
         let op: Operation = proto.try_into().expect("Failed to convert");
 
-        assert_eq!(op.hash, hash);
         assert_eq!(op.key_name, key_name);
-        assert_eq!(op.signature, signature);
     }
 
     #[test]
     fn asym_op_to_proto() {
-        let hash = vec![0x11, 0x22, 0x33];
         let key_name = "test name".to_string();
-        let signature = vec![0x11, 0x22, 0x33];
 
         let op = Operation {
-            hash: hash.clone(),
-            alg: AsymmetricSignature::RsaPkcs1v15SignRaw,
             key_name: key_name.clone(),
-            signature: signature.clone(),
         };
 
         let proto: OperationProto = op.try_into().expect("Failed to convert");
 
-        assert_eq!(proto.hash, hash);
         assert_eq!(proto.key_name, key_name);
-        assert_eq!(proto.signature, signature);
     }
 
     #[test]
     fn asym_proto_to_resp() {
-        let proto: ResultProto = Default::default();
+        let mut proto: ResultProto = Default::default();
+        let key_data = vec![0x11, 0x22, 0x33];
+        proto.data = key_data.clone();
 
-        let _result: Result = proto.try_into().expect("Failed to convert");
+        let result: Result = proto.try_into().expect("Failed to convert");
+
+        assert_eq!(result.data, key_data);
     }
 
     #[test]
     fn asym_resp_to_proto() {
-        let result = Result {};
+        let key_data = vec![0x11, 0x22, 0x33];
+        let result = Result {
+            data: key_data.clone(),
+        };
 
-        let _proto: ResultProto = result.try_into().expect("Failed to convert");
+        let proto: ResultProto = result.try_into().expect("Failed to convert");
+
+        assert_eq!(proto.data, key_data);
     }
 
     #[test]
-    fn op_asym_sign_e2e() {
+    fn op_export_pk_e2e() {
         let op = Operation {
-            hash: vec![0x11, 0x22, 0x33],
-            alg: AsymmetricSignature::RsaPkcs1v15SignRaw,
             key_name: "test name".to_string(),
-            signature: vec![0x11, 0x22, 0x33],
         };
         let body = CONVERTER
-            .operation_to_body(NativeOperation::VerifyHash(op))
+            .operation_to_body(NativeOperation::PsaExportPublicKey(op))
             .expect("Failed to convert request");
 
         assert!(CONVERTER
-            .body_to_operation(body, Opcode::VerifyHash)
+            .body_to_operation(body, Opcode::PsaExportPublicKey)
             .is_ok());
     }
 
     #[test]
-    fn resp_asym_sign_e2e() {
-        let result = Result {};
+    fn resp_export_pk_e2e() {
+        let result = Result {
+            data: vec![0x11, 0x22, 0x33],
+        };
         let body = CONVERTER
-            .result_to_body(NativeResult::VerifyHash(result))
+            .result_to_body(NativeResult::PsaExportPublicKey(result))
             .expect("Failed to convert request");
 
-        assert!(CONVERTER.body_to_result(body, Opcode::VerifyHash).is_ok());
+        assert!(CONVERTER
+            .body_to_result(body, Opcode::PsaExportPublicKey)
+            .is_ok());
     }
 
     #[test]
@@ -173,7 +152,7 @@ mod test {
         let resp_body =
             ResponseBody::from_bytes(vec![0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88]);
         assert!(CONVERTER
-            .body_to_result(resp_body, Opcode::VerifyHash)
+            .body_to_result(resp_body, Opcode::PsaExportPublicKey)
             .is_err());
     }
 
@@ -183,7 +162,7 @@ mod test {
             RequestBody::from_bytes(vec![0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88]);
 
         assert!(CONVERTER
-            .body_to_operation(req_body, Opcode::VerifyHash)
+            .body_to_operation(req_body, Opcode::PsaExportPublicKey)
             .is_err());
     }
 }

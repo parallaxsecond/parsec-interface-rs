@@ -17,7 +17,7 @@
 //! The key attributes are used for some key management operations and also on cryptographic
 //! operations to make sure that the key has the correct policy.
 
-use crate::operations::algorithm::Algorithm;
+use crate::operations::psa_algorithm::Algorithm;
 
 /// Native definition of the attributes needed to fully describe
 /// a cryptographic key.

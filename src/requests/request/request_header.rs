@@ -55,6 +55,9 @@ pub struct Raw {
 }
 
 impl Raw {
+    /// Create a new raw request header.
+    ///
+    /// For use in testing only.
     #[cfg(feature = "testing")]
     #[allow(clippy::new_without_default)]
     pub fn new() -> Raw {
@@ -153,7 +156,7 @@ impl RequestHeader {
         RequestHeader {
             version_maj: 0,
             version_min: 0,
-            provider: ProviderID::CoreProvider,
+            provider: ProviderID::Core,
             session: 0,
             content_type: BodyType::Protobuf,
             accept_type: BodyType::Protobuf,

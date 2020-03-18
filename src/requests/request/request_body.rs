@@ -66,6 +66,9 @@ impl RequestBody {
         self.bytes.is_empty()
     }
 
+    /// Create a `RequestBody` from the provided bytes.
+    ///
+    /// Must only be used for testing purposes.
     #[cfg(feature = "testing")]
     pub fn _from_bytes(bytes: Vec<u8>) -> RequestBody {
         RequestBody { bytes }

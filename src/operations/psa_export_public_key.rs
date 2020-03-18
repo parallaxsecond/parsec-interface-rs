@@ -12,24 +12,22 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//! # GenerateKey operation
+//! # PsaExportPublicKey operation
 //!
-//! Generate a key or a key pair.
+//! Export a key in binary format. See the book for the format description.
 
-use super::key_attributes::KeyAttributes;
-
-/// Native object for creating a cryptographic key.
-#[derive(Clone, Debug)]
+/// Native object for public key exporting operation.
+#[derive(Debug)]
 pub struct Operation {
-    /// `key_name` specifies a name by which the service will identify the key. Key
-    /// name must be unique per application.
+    /// `key_name` identifies the key for which the public
+    /// part will be exported. The specified key must be an asymmetric keypair.
     pub key_name: String,
-    /// `attributes` specifies the parameters to be associated with the key.
-    pub attributes: KeyAttributes,
 }
 
-/// Native object for the result of creating a cryptographic key.
-///
-/// The true result is returned in the `status` field of the response.
-#[derive(Copy, Clone, Debug)]
-pub struct Result;
+/// Native object for result of public key export operation.
+#[derive(Debug)]
+pub struct Result {
+    /// `data` holds the bytes defining the public key, formatted as specified
+    /// by the provider for which the request was made.
+    pub data: Vec<u8>,
+}

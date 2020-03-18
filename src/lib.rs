@@ -116,13 +116,13 @@
 //!#     }
 //!# }
 //!# let mut stream = MockWrite { buffer: Vec::new() };
-//!use parsec_interface::operations::{Convert, NativeResult, generate_key::Result};
+//!use parsec_interface::operations::{Convert, NativeResult, psa_generate_key::Result};
 //!use parsec_interface::requests::{ProviderID, Opcode, BodyType, Response, ResponseStatus};
 //!use parsec_interface::requests::response::ResponseHeader;
 //!use parsec_interface::operations_protobuf::ProtobufConverter;
 //!
 //!let converter = ProtobufConverter {};
-//!let result = NativeResult::GenerateKey(Result {});
+//!let result = NativeResult::PsaGenerateKey(Result {});
 //!let result_body = converter.result_to_body(result).unwrap();
 //!let response = Response {
 //!    header: ResponseHeader {
@@ -131,7 +131,7 @@
 //!        provider: ProviderID::MbedCrypto,
 //!        session: 0,
 //!        content_type: BodyType::Protobuf,
-//!        opcode: Opcode::GenerateKey,
+//!        opcode: Opcode::PsaGenerateKey,
 //!        status: ResponseStatus::Success,
 //!    },
 //!    body: result_body,

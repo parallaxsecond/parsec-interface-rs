@@ -15,15 +15,15 @@
 //! # Protobuf converter
 //!
 //! This module exposes the `ProtobufConverter` struct that implements the `Convert` trait.
-mod convert_algorithm;
+mod convert_psa_algorithm;
 mod convert_ping;
-mod convert_generate_key;
-mod convert_key_attributes;
-mod convert_import_key;
-mod convert_export_public_key;
-mod convert_destroy_key;
-mod convert_sign_hash;
-mod convert_verify_hash;
+mod convert_psa_generate_key;
+mod convert_psa_key_attributes;
+mod convert_psa_import_key;
+mod convert_psa_export_public_key;
+mod convert_psa_destroy_key;
+mod convert_psa_sign_hash;
+mod convert_psa_verify_hash;
 mod convert_list_providers;
 mod convert_list_opcodes;
 
@@ -40,32 +40,32 @@ mod generated_ops {
         };
     }
 
-    include_protobuf_as_module!(sign_hash);
-    include_protobuf_as_module!(verify_hash);
-    include_protobuf_as_module!(generate_key);
-    include_protobuf_as_module!(destroy_key);
-    include_protobuf_as_module!(export_public_key);
-    include_protobuf_as_module!(import_key);
+    include_protobuf_as_module!(psa_sign_hash);
+    include_protobuf_as_module!(psa_verify_hash);
+    include_protobuf_as_module!(psa_generate_key);
+    include_protobuf_as_module!(psa_destroy_key);
+    include_protobuf_as_module!(psa_export_public_key);
+    include_protobuf_as_module!(psa_import_key);
     include_protobuf_as_module!(list_opcodes);
     include_protobuf_as_module!(list_providers);
     include_protobuf_as_module!(ping);
-    include_protobuf_as_module!(key_attributes);
-    include_protobuf_as_module!(algorithm);
+    include_protobuf_as_module!(psa_key_attributes);
+    include_protobuf_as_module!(psa_algorithm);
 }
 
 use crate::operations::{Convert, NativeOperation, NativeResult};
 use crate::requests::{
     request::RequestBody, response::ResponseBody, Opcode, ResponseStatus, Result,
 };
-use generated_ops::destroy_key as destroy_key_proto;
-use generated_ops::export_public_key as export_public_key_proto;
-use generated_ops::generate_key as generate_key_proto;
-use generated_ops::import_key as import_key_proto;
 use generated_ops::list_opcodes as list_opcodes_proto;
 use generated_ops::list_providers as list_providers_proto;
 use generated_ops::ping as ping_proto;
-use generated_ops::sign_hash as sign_hash_proto;
-use generated_ops::verify_hash as verify_hash_proto;
+use generated_ops::psa_destroy_key as psa_destroy_key_proto;
+use generated_ops::psa_export_public_key as psa_export_public_key_proto;
+use generated_ops::psa_generate_key as psa_generate_key_proto;
+use generated_ops::psa_import_key as psa_import_key_proto;
+use generated_ops::psa_sign_hash as psa_sign_hash_proto;
+use generated_ops::psa_verify_hash as psa_verify_hash_proto;
 use prost::Message;
 use std::convert::TryInto;
 
@@ -110,29 +110,29 @@ impl Convert for ProtobufConverter {
                 body.bytes(),
                 ping_proto::Operation
             ))),
-            Opcode::GenerateKey => Ok(NativeOperation::GenerateKey(wire_to_native!(
+            Opcode::PsaGenerateKey => Ok(NativeOperation::PsaGenerateKey(wire_to_native!(
                 body.bytes(),
-                generate_key_proto::Operation
+                psa_generate_key_proto::Operation
             ))),
-            Opcode::ImportKey => Ok(NativeOperation::ImportKey(wire_to_native!(
+            Opcode::PsaImportKey => Ok(NativeOperation::PsaImportKey(wire_to_native!(
                 body.bytes(),
-                import_key_proto::Operation
+                psa_import_key_proto::Operation
             ))),
-            Opcode::ExportPublicKey => Ok(NativeOperation::ExportPublicKey(wire_to_native!(
+            Opcode::PsaExportPublicKey => Ok(NativeOperation::PsaExportPublicKey(wire_to_native!(
                 body.bytes(),
-                export_public_key_proto::Operation
+                psa_export_public_key_proto::Operation
             ))),
-            Opcode::DestroyKey => Ok(NativeOperation::DestroyKey(wire_to_native!(
+            Opcode::PsaDestroyKey => Ok(NativeOperation::PsaDestroyKey(wire_to_native!(
                 body.bytes(),
-                destroy_key_proto::Operation
+                psa_destroy_key_proto::Operation
             ))),
-            Opcode::SignHash => Ok(NativeOperation::SignHash(wire_to_native!(
+            Opcode::PsaSignHash => Ok(NativeOperation::PsaSignHash(wire_to_native!(
                 body.bytes(),
-                sign_hash_proto::Operation
+                psa_sign_hash_proto::Operation
             ))),
-            Opcode::VerifyHash => Ok(NativeOperation::VerifyHash(wire_to_native!(
+            Opcode::PsaVerifyHash => Ok(NativeOperation::PsaVerifyHash(wire_to_native!(
                 body.bytes(),
-                verify_hash_proto::Operation
+                psa_verify_hash_proto::Operation
             ))),
         }
     }
@@ -149,28 +149,24 @@ impl Convert for ProtobufConverter {
                 operation,
                 ping_proto::Operation
             ))),
-            NativeOperation::GenerateKey(operation) => Ok(RequestBody::from_bytes(
-                native_to_wire!(operation, generate_key_proto::Operation),
+            NativeOperation::PsaGenerateKey(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_generate_key_proto::Operation),
             )),
-            NativeOperation::ImportKey(operation) => Ok(RequestBody::from_bytes(native_to_wire!(
-                operation,
-                import_key_proto::Operation
-            ))),
-            NativeOperation::ExportPublicKey(operation) => Ok(RequestBody::from_bytes(
-                native_to_wire!(operation, export_public_key_proto::Operation),
+            NativeOperation::PsaImportKey(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_import_key_proto::Operation),
             )),
-            NativeOperation::DestroyKey(operation) => Ok(RequestBody::from_bytes(native_to_wire!(
-                operation,
-                destroy_key_proto::Operation
-            ))),
-            NativeOperation::SignHash(operation) => Ok(RequestBody::from_bytes(native_to_wire!(
-                operation,
-                sign_hash_proto::Operation
-            ))),
-            NativeOperation::VerifyHash(operation) => Ok(RequestBody::from_bytes(native_to_wire!(
-                operation,
-                verify_hash_proto::Operation
-            ))),
+            NativeOperation::PsaExportPublicKey(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_export_public_key_proto::Operation),
+            )),
+            NativeOperation::PsaDestroyKey(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_destroy_key_proto::Operation),
+            )),
+            NativeOperation::PsaSignHash(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_sign_hash_proto::Operation),
+            )),
+            NativeOperation::PsaVerifyHash(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_verify_hash_proto::Operation),
+            )),
         }
     }
 
@@ -188,29 +184,29 @@ impl Convert for ProtobufConverter {
                 body.bytes(),
                 ping_proto::Result
             ))),
-            Opcode::GenerateKey => Ok(NativeResult::GenerateKey(wire_to_native!(
+            Opcode::PsaGenerateKey => Ok(NativeResult::PsaGenerateKey(wire_to_native!(
                 body.bytes(),
-                generate_key_proto::Result
+                psa_generate_key_proto::Result
             ))),
-            Opcode::ImportKey => Ok(NativeResult::ImportKey(wire_to_native!(
+            Opcode::PsaImportKey => Ok(NativeResult::PsaImportKey(wire_to_native!(
                 body.bytes(),
-                import_key_proto::Result
+                psa_import_key_proto::Result
             ))),
-            Opcode::ExportPublicKey => Ok(NativeResult::ExportPublicKey(wire_to_native!(
+            Opcode::PsaExportPublicKey => Ok(NativeResult::PsaExportPublicKey(wire_to_native!(
                 body.bytes(),
-                export_public_key_proto::Result
+                psa_export_public_key_proto::Result
             ))),
-            Opcode::DestroyKey => Ok(NativeResult::DestroyKey(wire_to_native!(
+            Opcode::PsaDestroyKey => Ok(NativeResult::PsaDestroyKey(wire_to_native!(
                 body.bytes(),
-                destroy_key_proto::Result
+                psa_destroy_key_proto::Result
             ))),
-            Opcode::SignHash => Ok(NativeResult::SignHash(wire_to_native!(
+            Opcode::PsaSignHash => Ok(NativeResult::PsaSignHash(wire_to_native!(
                 body.bytes(),
-                sign_hash_proto::Result
+                psa_sign_hash_proto::Result
             ))),
-            Opcode::VerifyHash => Ok(NativeResult::VerifyHash(wire_to_native!(
+            Opcode::PsaVerifyHash => Ok(NativeResult::PsaVerifyHash(wire_to_native!(
                 body.bytes(),
-                verify_hash_proto::Result
+                psa_verify_hash_proto::Result
             ))),
         }
     }
@@ -229,29 +225,28 @@ impl Convert for ProtobufConverter {
                 result,
                 ping_proto::Result
             ))),
-            NativeResult::GenerateKey(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+            NativeResult::PsaGenerateKey(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
-                generate_key_proto::Result
+                psa_generate_key_proto::Result
             ))),
-            NativeResult::ImportKey(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+            NativeResult::PsaImportKey(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
-                import_key_proto::Result
+                psa_import_key_proto::Result
             ))),
-            NativeResult::ExportPublicKey(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+            NativeResult::PsaExportPublicKey(result) => Ok(ResponseBody::from_bytes(
+                native_to_wire!(result, psa_export_public_key_proto::Result),
+            )),
+            NativeResult::PsaDestroyKey(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
-                export_public_key_proto::Result
+                psa_destroy_key_proto::Result
             ))),
-            NativeResult::DestroyKey(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+            NativeResult::PsaSignHash(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
-                destroy_key_proto::Result
+                psa_sign_hash_proto::Result
             ))),
-            NativeResult::SignHash(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+            NativeResult::PsaVerifyHash(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
-                sign_hash_proto::Result
-            ))),
-            NativeResult::VerifyHash(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
-                result,
-                verify_hash_proto::Result
+                psa_verify_hash_proto::Result
             ))),
         }
     }

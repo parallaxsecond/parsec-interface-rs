@@ -13,15 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // Protobuf imports
-use super::generated_ops::key_attributes::key_type;
-use super::generated_ops::key_attributes::{
+use super::generated_ops::psa_key_attributes::key_type;
+use super::generated_ops::psa_key_attributes::{
     key_type::DhFamily as DhFamilyProto, key_type::EccFamily as EccFamilyProto,
     KeyAttributes as KeyAttributesProto, KeyPolicy as KeyPolicyProto, KeyType as KeyTypeProto,
     UsageFlags as UsageFlagsProto,
 };
 // Native imports
-use crate::operations::algorithm::Algorithm;
-use crate::operations::key_attributes::{
+use crate::operations::psa_algorithm::Algorithm;
+use crate::operations::psa_key_attributes::{
     DhFamily, EccFamily, KeyAttributes, KeyPolicy, KeyType, UsageFlags,
 };
 
@@ -314,18 +314,18 @@ impl TryFrom<KeyAttributes> for KeyAttributesProto {
 #[cfg(test)]
 mod test {
     #![allow(deprecated)]
-    use super::super::generated_ops::algorithm::{self as algorithm_proto};
-    use super::super::generated_ops::key_attributes::{
+    use super::super::generated_ops::psa_algorithm::{self as algorithm_proto};
+    use super::super::generated_ops::psa_key_attributes::{
         self as key_attributes_proto, KeyAttributes as KeyAttributesProto,
     };
-    use crate::operations::algorithm::{Algorithm, AsymmetricSignature, Hash};
-    use crate::operations::key_attributes::{self, KeyAttributes, KeyPolicy, UsageFlags};
+    use crate::operations::psa_algorithm::{Algorithm, AsymmetricSignature, Hash};
+    use crate::operations::psa_key_attributes::{self, KeyAttributes, KeyPolicy, UsageFlags};
     use std::convert::TryInto;
 
     #[test]
     fn key_attrs_to_proto() {
         let key_attrs = KeyAttributes {
-            key_type: key_attributes::KeyType::RsaKeyPair,
+            key_type: psa_key_attributes::KeyType::RsaKeyPair,
             key_bits: 1024,
             key_policy: KeyPolicy {
                 key_usage_flags: UsageFlags {
@@ -414,7 +414,7 @@ mod test {
         let key_attrs: KeyAttributes = key_attrs_proto.try_into().unwrap();
 
         let key_attrs_expected = KeyAttributes {
-            key_type: key_attributes::KeyType::RsaKeyPair,
+            key_type: psa_key_attributes::KeyType::RsaKeyPair,
             key_bits: 1024,
             key_policy: KeyPolicy {
                 key_usage_flags: UsageFlags {
