@@ -12,6 +12,9 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//! # ExportPublicKey operation
+//!
+//! Export a key in binary format. See the book for the format description.
 
 /// Native object for public key exporting operation.
 #[derive(Debug)]

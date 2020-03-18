@@ -26,47 +26,89 @@ use std::fmt;
 #[derive(Copy, Clone, Debug, PartialEq, FromPrimitive)]
 #[repr(u16)]
 pub enum ResponseStatus {
+    /// Successful operation
     Success = 0,
+    /// Requested provider ID does not match that of the backend
     WrongProviderID = 1,
+    /// Requested content type is not supported by the backend
     ContentTypeNotSupported = 2,
+    /// Requested accept type is not supported by the backend
     AcceptTypeNotSupported = 3,
+    /// Requested version is not supported by the backend
     WireProtocolVersionNotSupported = 4,
+    /// No provider registered for the requested provider ID
     ProviderNotRegistered = 5,
+    /// No provider defined for requested provider ID
     ProviderDoesNotExist = 6,
+    /// Failed to deserialize the body of the message
     DeserializingBodyFailed = 7,
+    /// Failed to serialize the body of the message
     SerializingBodyFailed = 8,
+    /// Requested operation is not defined
     OpcodeDoesNotExist = 9,
+    /// Response size exceeds allowed limits
     ResponseTooLarge = 10,
+    /// Authentication failed
     AuthenticationError = 11,
+    /// Authenticator not supported
     AuthenticatorDoesNotExist = 12,
+    /// Authenticator not supported
     AuthenticatorNotRegistered = 13,
+    /// Internal error in the Key ID Manager
     KeyIDManagerError = 14,
+    /// Generic input/output error
     ConnectionError = 15,
+    /// Invalid value for this data type
     InvalidEncoding = 16,
+    /// Constant fields in header are invalid
     InvalidHeader = 17,
+    /// The UUID vector needs to only contain 16 bytes
     WrongProviderUuid = 18,
+    /// Request did not provide a required authentication
     NotAuthenticated = 19,
+    /// Request length specified in the header is above defined limit
     BodySizeExceedsLimit = 20,
+    /// An error occurred that does not correspond to any defined failure cause
     PsaErrorGenericError = 1132,
+    /// The requested operation or a parameter is not supported by this implementation
     PsaErrorNotSupported = 1134,
+    /// The requested action is denied by a policy
     PsaErrorNotPermitted = 1133,
+    /// An output buffer is too small
     PsaErrorBufferTooSmall = 1138,
+    /// Asking for an item that already exists
     PsaErrorAlreadyExists = 1139,
+    /// Asking for an item that doesn't exist
     PsaErrorDoesNotExist = 1140,
+    /// The requested action cannot be performed in the current state
     PsaErrorBadState = 1137,
+    /// The parameters passed to the function are invalid
     PsaErrorInvalidArgument = 1135,
+    /// There is not enough runtime memory
     PsaErrorInsufficientMemory = 1141,
+    /// There is not enough persistent storage
     PsaErrorInsufficientStorage = 1142,
+    /// There was a communication failure inside the implementation
     PsaErrorCommunicationFailure = 1145,
+    /// There was a storage failure that may have led to data loss
     PsaErrorStorageFailure = 1146,
+    /// Stored data has been corrupted
     PsaErrorDataCorrupt = 1152,
+    /// Data read from storage is not valid for the implementation
     PsaErrorDataInvalid = 1153,
+    /// A hardware failure was detected
     PsaErrorHardwareFailure = 1147,
+    /// A tampering attempt was detected
     PsaErrorCorruptionDetected = 1151,
+    /// There is not enough entropy to generate random data needed for the requested action
     PsaErrorInsufficientEntropy = 1148,
+    /// The signature, MAC or hash is incorrect
     PsaErrorInvalidSignature = 1149,
+    /// The decrypted padding is incorrect
     PsaErrorInvalidPadding = 1150,
+    /// Insufficient data when attempting to read from a resource
     PsaErrorInssuficientData = 1143,
+    /// The key handle is not valid
     PsaErrorInvalidHandle = 1136,
 }
 

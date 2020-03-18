@@ -35,6 +35,7 @@ pub use response_header::Raw as RawHeader;
 /// Native representation of the response wire format.
 #[derive(PartialEq, Debug)]
 pub struct Response {
+    /// Header of the response, containing the response status.
     pub header: ResponseHeader,
     /// Response body consists of an opaque vector of bytes. Interpretation of said bytes
     /// is deferred to the a converter which can handle the `content_type` defined in the

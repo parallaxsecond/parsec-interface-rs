@@ -125,9 +125,11 @@ impl TryFrom<i32> for EccFamily {
             }
             EccFamilyProto::SecpK1 => Ok(EccFamily::SecpK1),
             EccFamilyProto::SecpR1 => Ok(EccFamily::SecpR1),
+            #[allow(deprecated)]
             EccFamilyProto::SecpR2 => Ok(EccFamily::SecpR2),
             EccFamilyProto::SectK1 => Ok(EccFamily::SectK1),
             EccFamilyProto::SectR1 => Ok(EccFamily::SectR1),
+            #[allow(deprecated)]
             EccFamilyProto::SectR2 => Ok(EccFamily::SectR2),
             EccFamilyProto::BrainpoolPR1 => Ok(EccFamily::BrainpoolPR1),
             EccFamilyProto::Frp => Ok(EccFamily::Frp),
@@ -141,9 +143,11 @@ fn ecc_family_to_i32(ecc_family: EccFamily) -> i32 {
     match ecc_family {
         EccFamily::SecpK1 => EccFamilyProto::SecpK1.into(),
         EccFamily::SecpR1 => EccFamilyProto::SecpR1.into(),
+        #[allow(deprecated)]
         EccFamily::SecpR2 => EccFamilyProto::SecpR2.into(),
         EccFamily::SectK1 => EccFamilyProto::SectK1.into(),
         EccFamily::SectR1 => EccFamilyProto::SectR1.into(),
+        #[allow(deprecated)]
         EccFamily::SectR2 => EccFamilyProto::SectR2.into(),
         EccFamily::BrainpoolPR1 => EccFamilyProto::BrainpoolPR1.into(),
         EccFamily::Frp => EccFamilyProto::Frp.into(),
@@ -309,6 +313,7 @@ impl TryFrom<KeyAttributes> for KeyAttributesProto {
 
 #[cfg(test)]
 mod test {
+    #![allow(deprecated)]
     use super::super::generated_ops::algorithm::{self as algorithm_proto};
     use super::super::generated_ops::key_attributes::{
         self as key_attributes_proto, KeyAttributes as KeyAttributesProto,

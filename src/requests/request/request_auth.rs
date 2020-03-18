@@ -62,7 +62,7 @@ impl RequestAuth {
         self.bytes.len()
     }
 
-    // Check if auth field is empty.
+    /// Check if auth field is empty.
     pub fn is_empty(&self) -> bool {
         self.bytes.is_empty()
     }

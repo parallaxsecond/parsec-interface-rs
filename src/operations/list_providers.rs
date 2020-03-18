@@ -12,6 +12,9 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//! # ListProviders operation
+//!
+//! List the providers available in the service, with some information.
 use crate::requests::ProviderID;
 use uuid::Uuid;
 
@@ -19,12 +22,19 @@ use uuid::Uuid;
 /// the service for client discovery.
 #[derive(Debug, Clone)]
 pub struct ProviderInfo {
+    /// Unique, permanent, identifier of the provider.
     pub uuid: Uuid,
+    /// Short description of the provider.
     pub description: String,
+    /// Provider vendor.
     pub vendor: String,
+    /// Provider implementation version major.
     pub version_maj: u32,
+    /// Provider implementation version minor.
     pub version_min: u32,
+    /// Provider implementation version revision number.
     pub version_rev: u32,
+    /// Provider ID to use on the wire protocol to communicate with this provider.
     pub id: ProviderID,
 }
 

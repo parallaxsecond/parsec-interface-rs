@@ -30,15 +30,27 @@ use std::io::{Read, Write};
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct Raw {
+    /// Wire protocol major version number
+    /// Only 1 is a supported value for that field currently.
     pub version_maj: u8,
+    /// Wire protocol minor version number
+    /// Only 0 is a supported value for that field currently.
     pub version_min: u8,
+    /// Provider ID value
     pub provider: u8,
+    /// Session handle
     pub session: u64,
+    /// Content type: defines how the request body should be processed.
     pub content_type: u8,
+    /// Accept type: defines how the service should provide its response.
     pub accept_type: u8,
+    /// Authentication type.
     pub auth_type: u8,
+    /// Number of bytes of content.
     pub body_len: u32,
+    /// Number of bytes of authentication.
     pub auth_len: u16,
+    /// Opcode of the operation to perform.
     pub opcode: u16,
 }
 
@@ -113,15 +125,23 @@ impl Raw {
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct RequestHeader {
+    /// Wire protocol major version number
     /// Only 1 is a supported value for that field currently.
     pub version_maj: u8,
+    /// Wire protocol minor version number
     /// Only 0 is a supported value for that field currently.
     pub version_min: u8,
+    /// Provider ID value
     pub provider: ProviderID,
+    /// Session handle
     pub session: u64,
+    /// Content type: defines how the request body should be processed.
     pub content_type: BodyType,
+    /// Accept type: defines how the service should provide its response.
     pub accept_type: BodyType,
+    /// Authentication type.
     pub auth_type: AuthType,
+    /// Opcode of the operation to perform.
     pub opcode: Opcode,
 }
 

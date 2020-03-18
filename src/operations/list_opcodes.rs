@@ -12,6 +12,10 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//! # ListOpcodes operation
+//!
+//! List the opcodes supported by the provider.
+
 use crate::requests::Opcode;
 use std::collections::HashSet;
 

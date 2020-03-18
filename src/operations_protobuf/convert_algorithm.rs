@@ -48,10 +48,14 @@ impl TryFrom<i32> for Hash {
                 error!("The None value of Hash enumeration is not allowed.");
                 Err(ResponseStatus::InvalidEncoding)
             }
+            #[allow(deprecated)]
             HashProto::Md2 => Ok(Hash::Md2),
+            #[allow(deprecated)]
             HashProto::Md4 => Ok(Hash::Md4),
+            #[allow(deprecated)]
             HashProto::Md5 => Ok(Hash::Md5),
             HashProto::Ripemd160 => Ok(Hash::Ripemd160),
+            #[allow(deprecated)]
             HashProto::Sha1 => Ok(Hash::Sha1),
             HashProto::Sha224 => Ok(Hash::Sha224),
             HashProto::Sha256 => Ok(Hash::Sha256),
@@ -71,10 +75,14 @@ impl TryFrom<i32> for Hash {
 // Hash algorithms: from native to protobuf
 fn hash_to_i32(hash: Hash) -> i32 {
     match hash {
+        #[allow(deprecated)]
         Hash::Md2 => HashProto::Md2.into(),
+        #[allow(deprecated)]
         Hash::Md4 => HashProto::Md4.into(),
+        #[allow(deprecated)]
         Hash::Md5 => HashProto::Md5.into(),
         Hash::Ripemd160 => HashProto::Ripemd160.into(),
+        #[allow(deprecated)]
         Hash::Sha1 => HashProto::Sha1.into(),
         Hash::Sha224 => HashProto::Sha224.into(),
         Hash::Sha256 => HashProto::Sha256.into(),
@@ -631,6 +639,8 @@ impl TryFrom<Algorithm> for AlgorithmProto {
 
 #[cfg(test)]
 mod test {
+    #![allow(deprecated)]
+
     use super::super::generated_ops::algorithm::{
         self as algorithm_proto, Algorithm as AlgorithmProto,
     };
