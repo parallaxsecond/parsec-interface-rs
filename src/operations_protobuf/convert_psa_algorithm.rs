@@ -1,28 +1,28 @@
 // Copyright (c) 2020, Arm Limited, All Rights Reserved
 // SPDX-License-Identifier: Apache-2.0
 // Protobuf imports
-use super::generated_ops::algorithm::algorithm;
-use super::generated_ops::algorithm::algorithm::aead;
-use super::generated_ops::algorithm::algorithm::aead::AeadWithDefaultLengthTag as AeadWithDefaultLengthTagProto;
-use super::generated_ops::algorithm::algorithm::asymmetric_encryption;
-use super::generated_ops::algorithm::algorithm::asymmetric_signature;
-use super::generated_ops::algorithm::algorithm::key_agreement;
-use super::generated_ops::algorithm::algorithm::key_agreement::Raw as RawKeyAgreementProto;
-use super::generated_ops::algorithm::algorithm::key_derivation;
-use super::generated_ops::algorithm::algorithm::Aead as AeadProto;
-use super::generated_ops::algorithm::algorithm::AsymmetricEncryption as AsymmetricEncryptionProto;
-use super::generated_ops::algorithm::algorithm::AsymmetricSignature as AsymmetricSignatureProto;
-use super::generated_ops::algorithm::algorithm::Cipher as CipherProto;
-use super::generated_ops::algorithm::algorithm::Hash as HashProto;
-use super::generated_ops::algorithm::algorithm::KeyAgreement as KeyAgreementProto;
-use super::generated_ops::algorithm::algorithm::KeyDerivation as KeyDerivationProto;
-use super::generated_ops::algorithm::algorithm::Mac as MacProto;
-use super::generated_ops::algorithm::algorithm::None as NoneProto;
-use super::generated_ops::algorithm::algorithm::{mac, mac::FullLength as FullLengthMacProto};
-use super::generated_ops::algorithm::Algorithm as AlgorithmProto;
+use super::generated_ops::psa_algorithm::algorithm;
+use super::generated_ops::psa_algorithm::algorithm::aead;
+use super::generated_ops::psa_algorithm::algorithm::aead::AeadWithDefaultLengthTag as AeadWithDefaultLengthTagProto;
+use super::generated_ops::psa_algorithm::algorithm::asymmetric_encryption;
+use super::generated_ops::psa_algorithm::algorithm::asymmetric_signature;
+use super::generated_ops::psa_algorithm::algorithm::key_agreement;
+use super::generated_ops::psa_algorithm::algorithm::key_agreement::Raw as RawKeyAgreementProto;
+use super::generated_ops::psa_algorithm::algorithm::key_derivation;
+use super::generated_ops::psa_algorithm::algorithm::Aead as AeadProto;
+use super::generated_ops::psa_algorithm::algorithm::AsymmetricEncryption as AsymmetricEncryptionProto;
+use super::generated_ops::psa_algorithm::algorithm::AsymmetricSignature as AsymmetricSignatureProto;
+use super::generated_ops::psa_algorithm::algorithm::Cipher as CipherProto;
+use super::generated_ops::psa_algorithm::algorithm::Hash as HashProto;
+use super::generated_ops::psa_algorithm::algorithm::KeyAgreement as KeyAgreementProto;
+use super::generated_ops::psa_algorithm::algorithm::KeyDerivation as KeyDerivationProto;
+use super::generated_ops::psa_algorithm::algorithm::Mac as MacProto;
+use super::generated_ops::psa_algorithm::algorithm::None as NoneProto;
+use super::generated_ops::psa_algorithm::algorithm::{mac, mac::FullLength as FullLengthMacProto};
+use super::generated_ops::psa_algorithm::Algorithm as AlgorithmProto;
 
 // Native imports
-use crate::operations::algorithm::{
+use crate::operations::psa_algorithm::{
     Aead, AeadWithDefaultLengthTag, Algorithm, AsymmetricEncryption, AsymmetricSignature, Cipher,
     FullLengthMac, Hash, KeyAgreement, KeyDerivation, Mac, RawKeyAgreement,
 };
@@ -640,11 +640,10 @@ impl TryFrom<Algorithm> for AlgorithmProto {
 #[cfg(test)]
 mod test {
     #![allow(deprecated)]
-
-    use super::super::generated_ops::algorithm::{
+    use super::super::generated_ops::psa_algorithm::{
         self as algorithm_proto, Algorithm as AlgorithmProto,
     };
-    use crate::operations::algorithm::{Algorithm, AsymmetricSignature, Hash};
+    use crate::operations::psa_algorithm::{Algorithm, AsymmetricSignature, Hash};
     use std::convert::TryInto;
 
     #[test]

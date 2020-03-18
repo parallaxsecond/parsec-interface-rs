@@ -22,14 +22,14 @@
 //! [document](https://developer.arm.com/architectures/security-architectures/platform-security-architecture/documentation)
 //! and the book for more details.
 pub mod ping;
-pub mod key_attributes;
-pub mod algorithm;
-pub mod generate_key;
-pub mod import_key;
-pub mod export_public_key;
-pub mod destroy_key;
-pub mod sign_hash;
-pub mod verify_hash;
+pub mod psa_key_attributes;
+pub mod psa_algorithm;
+pub mod psa_generate_key;
+pub mod psa_import_key;
+pub mod psa_export_public_key;
+pub mod psa_destroy_key;
+pub mod psa_sign_hash;
+pub mod psa_verify_hash;
 pub mod list_opcodes;
 pub mod list_providers;
 
@@ -45,18 +45,18 @@ pub enum NativeOperation {
     ListOpcodes(list_opcodes::Operation),
     /// Ping operation
     Ping(ping::Operation),
-    /// GenerateKey operation
-    GenerateKey(generate_key::Operation),
-    /// ImportKey operation
-    ImportKey(import_key::Operation),
-    /// ExportPublicKey operation
-    ExportPublicKey(export_public_key::Operation),
-    /// DestroyKey operation
-    DestroyKey(destroy_key::Operation),
-    /// SignHash operation
-    SignHash(sign_hash::Operation),
-    /// VerifyHash operation
-    VerifyHash(verify_hash::Operation),
+    /// PsaGenerateKey operation
+    PsaGenerateKey(psa_generate_key::Operation),
+    /// PsaImportKey operation
+    PsaImportKey(psa_import_key::Operation),
+    /// PsaExportPublicKey operation
+    PsaExportPublicKey(psa_export_public_key::Operation),
+    /// PsaDestroyKey operation
+    PsaDestroyKey(psa_destroy_key::Operation),
+    /// PsaSignHash operation
+    PsaSignHash(psa_sign_hash::Operation),
+    /// PsaVerifyHash operation
+    PsaVerifyHash(psa_verify_hash::Operation),
 }
 
 impl NativeOperation {
@@ -64,12 +64,12 @@ impl NativeOperation {
     pub fn opcode(&self) -> Opcode {
         match self {
             NativeOperation::Ping(_) => Opcode::Ping,
-            NativeOperation::GenerateKey(_) => Opcode::GenerateKey,
-            NativeOperation::DestroyKey(_) => Opcode::DestroyKey,
-            NativeOperation::SignHash(_) => Opcode::SignHash,
-            NativeOperation::VerifyHash(_) => Opcode::VerifyHash,
-            NativeOperation::ImportKey(_) => Opcode::ImportKey,
-            NativeOperation::ExportPublicKey(_) => Opcode::ExportPublicKey,
+            NativeOperation::PsaGenerateKey(_) => Opcode::PsaGenerateKey,
+            NativeOperation::PsaDestroyKey(_) => Opcode::PsaDestroyKey,
+            NativeOperation::PsaSignHash(_) => Opcode::PsaSignHash,
+            NativeOperation::PsaVerifyHash(_) => Opcode::PsaVerifyHash,
+            NativeOperation::PsaImportKey(_) => Opcode::PsaImportKey,
+            NativeOperation::PsaExportPublicKey(_) => Opcode::PsaExportPublicKey,
             NativeOperation::ListOpcodes(_) => Opcode::ListOpcodes,
             NativeOperation::ListProviders(_) => Opcode::ListProviders,
         }
@@ -86,18 +86,18 @@ pub enum NativeResult {
     ListOpcodes(list_opcodes::Result),
     /// Ping result
     Ping(ping::Result),
-    /// GenerateKey result
-    GenerateKey(generate_key::Result),
-    /// ImportKey result
-    ImportKey(import_key::Result),
-    /// ExportPublicKey result
-    ExportPublicKey(export_public_key::Result),
-    /// DestroyKey result
-    DestroyKey(destroy_key::Result),
-    /// SignHash result
-    SignHash(sign_hash::Result),
-    /// VerifyHash result
-    VerifyHash(verify_hash::Result),
+    /// PsaGenerateKey result
+    PsaGenerateKey(psa_generate_key::Result),
+    /// PsaImportKey result
+    PsaImportKey(psa_import_key::Result),
+    /// PsaExportPublicKey result
+    PsaExportPublicKey(psa_export_public_key::Result),
+    /// PsaDestroyKey result
+    PsaDestroyKey(psa_destroy_key::Result),
+    /// PsaSignHash result
+    PsaSignHash(psa_sign_hash::Result),
+    /// PsaVerifyHash result
+    PsaVerifyHash(psa_verify_hash::Result),
 }
 
 impl NativeResult {
@@ -105,12 +105,12 @@ impl NativeResult {
     pub fn opcode(&self) -> Opcode {
         match self {
             NativeResult::Ping(_) => Opcode::Ping,
-            NativeResult::GenerateKey(_) => Opcode::GenerateKey,
-            NativeResult::DestroyKey(_) => Opcode::DestroyKey,
-            NativeResult::SignHash(_) => Opcode::SignHash,
-            NativeResult::VerifyHash(_) => Opcode::VerifyHash,
-            NativeResult::ImportKey(_) => Opcode::ImportKey,
-            NativeResult::ExportPublicKey(_) => Opcode::ExportPublicKey,
+            NativeResult::PsaGenerateKey(_) => Opcode::PsaGenerateKey,
+            NativeResult::PsaDestroyKey(_) => Opcode::PsaDestroyKey,
+            NativeResult::PsaSignHash(_) => Opcode::PsaSignHash,
+            NativeResult::PsaVerifyHash(_) => Opcode::PsaVerifyHash,
+            NativeResult::PsaImportKey(_) => Opcode::PsaImportKey,
+            NativeResult::PsaExportPublicKey(_) => Opcode::PsaExportPublicKey,
             NativeResult::ListOpcodes(_) => Opcode::ListOpcodes,
             NativeResult::ListProviders(_) => Opcode::ListProviders,
         }

@@ -12,28 +12,19 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//! # ImportKey operation
+//! # PsaDestroyKey operation
 //!
-//! Import a key in binary format.
+//! Destroy a key.
 
-use super::key_attributes::KeyAttributes;
-
-/// Native object for cryptographic key importing operation.
-#[derive(Clone, Debug)]
+/// Native object for cryptographic key destruction.
+#[derive(Debug, Clone)]
 pub struct Operation {
-    /// `key_name` specifies a name by which the service will identify the key. Key
-    /// name must be unique per application.
+    /// `key_name` identifies the key to be destroyed.
     pub key_name: String,
-    /// `attributes` specifies the attributes for the new key.
-    pub attributes: KeyAttributes,
-    /// `data` contains the bytes for the key,
-    /// formatted in accordance with the requirements of the provider for the key type
-    /// specified in `attributes`.
-    pub data: Vec<u8>,
 }
 
-/// Native object for the result of a cryptographic key import operation.
+/// Native object for result of cryptographic key destruction.
 ///
-/// The true result is sent in the `status` field of the response header.
+/// True result of operation is returned in the response `status`.
 #[derive(Copy, Clone, Debug)]
 pub struct Result;

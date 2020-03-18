@@ -46,6 +46,9 @@ pub struct Raw {
 }
 
 impl Raw {
+    /// Create a new raw response header.
+    ///
+    /// For use in testing only.
     #[cfg(feature = "testing")]
     #[allow(clippy::new_without_default)]
     pub fn new() -> Raw {
