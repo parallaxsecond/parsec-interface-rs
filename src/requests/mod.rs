@@ -86,14 +86,23 @@ pub enum BodyType {
 #[derive(FromPrimitive, Copy, Clone, PartialEq, Debug, Hash, Eq)]
 #[repr(u16)]
 pub enum Opcode {
+    /// Ping operation
     Ping = 1,
+    /// GenerateKey operation
     GenerateKey = 2,
+    /// DestroyKey operation
     DestroyKey = 3,
+    /// SignHash operation
     SignHash = 4,
+    /// VerifyHash operation
     VerifyHash = 5,
+    /// ImportKey operation
     ImportKey = 6,
+    /// ExportPublicKey operation
     ExportPublicKey = 7,
+    /// ListProviders operation
     ListProviders = 8,
+    /// ListOpcodes operation
     ListOpcodes = 9,
 }
 

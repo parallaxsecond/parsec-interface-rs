@@ -65,6 +65,8 @@ impl TryFrom<ResultProto> for Result {
 
 #[cfg(test)]
 mod test {
+    #![allow(deprecated)]
+
     use super::super::generated_ops::algorithm::{
         self as algorithm_proto, Algorithm as AlgorithmProto,
     };

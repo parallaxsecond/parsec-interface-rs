@@ -17,6 +17,10 @@
 //! Rust native representation of the language neutral operations described in the
 //! [Operations](https://parallaxsecond.github.io/parsec-book/parsec_client/operations/index.html)
 //! page in the book.
+//! Some of the doc comments have directly been taken from the PSA Crypto API document version
+//! 1.0.0. Please check that
+//! [document](https://developer.arm.com/architectures/security-architectures/platform-security-architecture/documentation)
+//! and the book for more details.
 pub mod ping;
 pub mod key_attributes;
 pub mod algorithm;
@@ -35,18 +39,28 @@ use crate::requests::{request::RequestBody, response::ResponseBody, Opcode, Resu
 /// to be passed in/out of a converter.
 #[derive(Debug)]
 pub enum NativeOperation {
+    /// ListProviders operation
     ListProviders(list_providers::Operation),
+    /// ListOpcodes operation
     ListOpcodes(list_opcodes::Operation),
+    /// Ping operation
     Ping(ping::Operation),
+    /// GenerateKey operation
     GenerateKey(generate_key::Operation),
+    /// ImportKey operation
     ImportKey(import_key::Operation),
+    /// ExportPublicKey operation
     ExportPublicKey(export_public_key::Operation),
+    /// DestroyKey operation
     DestroyKey(destroy_key::Operation),
+    /// SignHash operation
     SignHash(sign_hash::Operation),
+    /// VerifyHash operation
     VerifyHash(verify_hash::Operation),
 }
 
 impl NativeOperation {
+    /// Return the opcode of the operation associated.
     pub fn opcode(&self) -> Opcode {
         match self {
             NativeOperation::Ping(_) => Opcode::Ping,
@@ -66,18 +80,28 @@ impl NativeOperation {
 /// passed in/out of the converter.
 #[derive(Debug)]
 pub enum NativeResult {
+    /// ListProviders result
     ListProviders(list_providers::Result),
+    /// ListOpcodes result
     ListOpcodes(list_opcodes::Result),
+    /// Ping result
     Ping(ping::Result),
+    /// GenerateKey result
     GenerateKey(generate_key::Result),
+    /// ImportKey result
     ImportKey(import_key::Result),
+    /// ExportPublicKey result
     ExportPublicKey(export_public_key::Result),
+    /// DestroyKey result
     DestroyKey(destroy_key::Result),
+    /// SignHash result
     SignHash(sign_hash::Result),
+    /// VerifyHash result
     VerifyHash(verify_hash::Result),
 }
 
 impl NativeResult {
+    /// Return the opcode of the operation associated.
     pub fn opcode(&self) -> Opcode {
         match self {
             NativeResult::Ping(_) => Opcode::Ping,

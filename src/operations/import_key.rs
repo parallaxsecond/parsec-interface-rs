@@ -12,6 +12,10 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//! # ImportKey operation
+//!
+//! Import a key in binary format.
+
 use super::key_attributes::KeyAttributes;
 
 /// Native object for cryptographic key importing operation.
@@ -20,12 +24,11 @@ pub struct Operation {
     /// `key_name` specifies a name by which the service will identify the key. Key
     /// name must be unique per application.
     pub key_name: String,
-    /// `key_attributes` specifies the parameters
-    /// to be associated with the key.
+    /// `attributes` specifies the attributes for the new key.
     pub attributes: KeyAttributes,
-    /// `key_data` contains the bytes for the key,
+    /// `data` contains the bytes for the key,
     /// formatted in accordance with the requirements of the provider for the key type
-    /// specified in `key_attributes`.
+    /// specified in `attributes`.
     pub data: Vec<u8>,
 }
 

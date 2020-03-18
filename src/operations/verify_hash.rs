@@ -12,6 +12,9 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//! # VerifyHash operation
+//!
+//! Verify the signature of a hash or short message using a public key.
 use crate::operations::algorithm::AsymmetricSignature;
 
 /// Native object for asymmetric verification of signatures.
@@ -19,12 +22,13 @@ use crate::operations::algorithm::AsymmetricSignature;
 pub struct Operation {
     /// `key_name` specifies the key to be used for verification.
     pub key_name: String,
+    /// An asymmetric signature algorithm that separates the hash and sign operations, that is
+    /// compatible with the type of key.
     pub alg: AsymmetricSignature,
     /// The `hash` contains a short message or hash value as described for the
     /// asymmetric signing operation.
     pub hash: Vec<u8>,
-    /// `signature` contains the bytes of the signature which requires validation and must
-    /// follow any format requirements imposed by the provider.
+    /// Buffer containing the signature to verify.
     pub signature: Vec<u8>,
 }
 

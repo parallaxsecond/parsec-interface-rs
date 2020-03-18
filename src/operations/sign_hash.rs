@@ -12,6 +12,10 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//! # SignHash operation
+//!
+//! Sign an already-calculated hash with a private key.
+
 use crate::operations::algorithm::AsymmetricSignature;
 
 /// Native object for asymmetric sign operations.
@@ -19,13 +23,10 @@ use crate::operations::algorithm::AsymmetricSignature;
 pub struct Operation {
     /// Defines which key should be used for the signing operation.
     pub key_name: String,
+    /// An asymmetric signature algorithm that separates the hash and sign operations, that is
+    /// compatible with the type of key.
     pub alg: AsymmetricSignature,
-    /// This value must either be a short message (length dependend on the size of
-    /// the key), or the result of a hashing operation. Thus, if a hash-and-sign is
-    /// required, the hash must be computed before this operation is called. The length
-    /// of the hash must be equal to the length of the hash specified on the key algorithm.
-    /// This field must also follow any formatting conventions dictated by the provider for
-    /// which the request was made.
+    /// The input whose signature is to be verified. This is usually the hash of a message.
     pub hash: Vec<u8>,
 }
 

@@ -61,7 +61,7 @@ impl RequestBody {
         self.bytes.len()
     }
 
-    // Check if body is empty.
+    /// Check if body is empty.
     pub fn is_empty(&self) -> bool {
         self.bytes.is_empty()
     }
