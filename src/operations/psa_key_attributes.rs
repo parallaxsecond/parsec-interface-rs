@@ -17,11 +17,12 @@
 //! The key attributes are used for some key management operations and also on cryptographic
 //! operations to make sure that the key has the correct policy.
 
-use crate::operations::psa_algorithm::Algorithm;
+use crate::operations::psa_algorithm::{Algorithm, Cipher};
+use serde::{Deserialize, Serialize};
 
 /// Native definition of the attributes needed to fully describe
 /// a cryptographic key.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct KeyAttributes {
     /// Intrinsic category and type of a key
     pub key_type: KeyType,
@@ -31,8 +32,146 @@ pub struct KeyAttributes {
     pub key_policy: KeyPolicy,
 }
 
+impl KeyAttributes {
+    /// Check if a key has permission to be exported
+    pub fn can_export(self) -> bool {
+        self.key_policy.key_usage_flags.export
+    }
+
+    /// Check if a key has permission to sign a message hash
+    pub fn can_sign_hash(self) -> bool {
+        self.key_policy.key_usage_flags.sign_hash
+    }
+
+    /// Check if a key has permission to verify a message hash
+    pub fn can_verify_hash(self) -> bool {
+        self.key_policy.key_usage_flags.verify_hash
+    }
+
+    /// Check if the alg given for a cryptographic operation is permitted to be used with the key
+    pub fn permits_alg(self, alg: Algorithm) -> bool {
+        match self.key_policy.key_algorithm {
+            Algorithm::None => false,
+            Algorithm::Hash(hash_policy) => {
+                if let Algorithm::Hash(hash_alg) = alg {
+                    hash_policy.permits_alg(hash_alg)
+                } else {
+                    false
+                }
+            }
+            Algorithm::Mac(mac_policy) => {
+                if let Algorithm::Mac(mac_alg) = alg {
+                    mac_policy.permits_alg(mac_alg)
+                } else {
+                    false
+                }
+            }
+            Algorithm::AsymmetricSignature(asymmetric_signature_alg_policy) => {
+                if let Algorithm::AsymmetricSignature(asymmetric_signature_alg) = alg {
+                    asymmetric_signature_alg_policy.permits_alg(asymmetric_signature_alg)
+                } else {
+                    false
+                }
+            }
+            Algorithm::AsymmetricEncryption(asymmetric_encryption_alg_policy) => {
+                if let Algorithm::AsymmetricEncryption(asymmetric_encryption_alg) = alg {
+                    asymmetric_encryption_alg_policy.permits_alg(asymmetric_encryption_alg)
+                } else {
+                    false
+                }
+            }
+            Algorithm::KeyDerivation(key_derivation_alg_policy) => {
+                if let Algorithm::KeyDerivation(key_derivation_alg) = alg {
+                    key_derivation_alg_policy.permits_alg(key_derivation_alg)
+                } else {
+                    false
+                }
+            }
+            Algorithm::KeyAgreement(key_agreement_alg_policy) => {
+                if let Algorithm::KeyAgreement(key_agreement_alg) = alg {
+                    key_agreement_alg_policy.permits_alg(key_agreement_alg)
+                } else {
+                    false
+                }
+            }
+            // These ones can not be wildcard algorithms: it is sufficient to just check for
+            // equality.
+            Algorithm::Cipher(_) | Algorithm::Aead(_) => self.key_policy.key_algorithm == alg,
+        }
+    }
+
+    /// Check if the alg given for a cryptographic operation is compatible with the type of the
+    /// key
+    pub fn is_compatible_with_alg(self, alg: Algorithm) -> bool {
+        match self.key_type {
+            KeyType::RawData => false,
+            KeyType::Hmac => alg.is_hmac(),
+            KeyType::Derive => {
+                if let Algorithm::KeyDerivation(_) = alg {
+                    true
+                } else {
+                    false
+                }
+            }
+            KeyType::Aes | KeyType::Camellia => {
+                if let Algorithm::Mac(mac_alg) = alg {
+                    mac_alg.needs_block_cipher()
+                } else if let Algorithm::Cipher(cipher_alg) = alg {
+                    cipher_alg.is_block_cipher_mode()
+                } else if let Algorithm::Aead(aead_alg) = alg {
+                    aead_alg.needs_block_cipher()
+                } else {
+                    false
+                }
+            }
+            KeyType::Des => {
+                if let Algorithm::Mac(mac_alg) = alg {
+                    mac_alg.needs_block_cipher()
+                } else if let Algorithm::Cipher(cipher_alg) = alg {
+                    cipher_alg.is_block_cipher_mode()
+                } else {
+                    false
+                }
+            }
+            KeyType::Arc4 => alg == Algorithm::Cipher(Cipher::StreamCipher),
+            KeyType::Chacha20 => {
+                if alg == Algorithm::Cipher(Cipher::StreamCipher) {
+                    true
+                } else if let Algorithm::Aead(aead_alg) = alg {
+                    aead_alg.is_chacha20_poly1305_alg()
+                } else {
+                    false
+                }
+            }
+            KeyType::RsaPublicKey | KeyType::RsaKeyPair => {
+                if let Algorithm::AsymmetricSignature(sign_alg) = alg {
+                    sign_alg.is_rsa_alg()
+                } else if let Algorithm::AsymmetricEncryption(_) = alg {
+                    true
+                } else {
+                    false
+                }
+            }
+            KeyType::EccKeyPair { .. } | KeyType::EccPublicKey { .. } => {
+                if let Algorithm::AsymmetricSignature(sign_alg) = alg {
+                    sign_alg.is_ecc_alg()
+                } else {
+                    false
+                }
+            }
+            KeyType::DhKeyPair { .. } | KeyType::DhPublicKey { .. } => {
+                if let Algorithm::KeyAgreement(_) = alg {
+                    true
+                } else {
+                    false
+                }
+            }
+        }
+    }
+}
+
 /// Enumeration of key types supported.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum KeyType {
     /// Not a valid key type for any cryptographic operation but can be used to store arbitrary
     /// data in the key store.
@@ -77,10 +216,44 @@ pub enum KeyType {
     },
 }
 
+impl KeyType {
+    /// Checks if a key type is ECC key pair with any curve family inside.
+    pub fn is_ecc_key_pair(self) -> bool {
+        match self {
+            KeyType::EccKeyPair { .. } => true,
+            _ => false,
+        }
+    }
+
+    /// Checks if a key type is ECC public key with any curve family inside.
+    pub fn is_ecc_public_key(self) -> bool {
+        match self {
+            KeyType::EccPublicKey { .. } => true,
+            _ => false,
+        }
+    }
+
+    /// Checks if a key type is DH public key with any group family inside.
+    pub fn is_dh_public_key(self) -> bool {
+        match self {
+            KeyType::DhPublicKey { .. } => true,
+            _ => false,
+        }
+    }
+
+    /// Checks if a key type is DH key pair with any group family inside.
+    pub fn is_dh_key_pair(self) -> bool {
+        match self {
+            KeyType::DhKeyPair { .. } => true,
+            _ => false,
+        }
+    }
+}
+
 /// Enumeration of elliptic curve families supported. They are needed to create an ECC key.
 /// The specific curve used for each family is given by the `key_bits` field of the key attributes.
 /// See the book for more details.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum EccFamily {
     /// SEC Koblitz curves over prime fields.
     /// This family comprises the following curves:
@@ -145,7 +318,7 @@ pub enum EccFamily {
 }
 
 /// Enumeration of Diffie Hellman group families supported.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum DhFamily {
     /// Diffie-Hellman groups defined in RFC 7919 Appendix A.
     /// This family includes groups with the following `key_bits`: 2048, 3072, 4096, 6144, 8192.
@@ -154,7 +327,7 @@ pub enum DhFamily {
 }
 
 /// Definition of the key policy, what is permitted to do with the key.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct KeyPolicy {
     /// Usage flags for the key.
     pub key_usage_flags: UsageFlags,
@@ -163,7 +336,7 @@ pub struct KeyPolicy {
 }
 
 /// Definition of the usage flags. They encode what kind of operations are permitted on the key.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct UsageFlags {
     /// Permission to export the key.
     pub export: bool,
@@ -185,4 +358,338 @@ pub struct UsageFlags {
     pub verify_hash: bool,
     /// Permission to derive other keys from this key.
     pub derive: bool,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{KeyAttributes, KeyPolicy, KeyType, UsageFlags};
+    use crate::operations::psa_algorithm::{
+        Aead, AeadWithDefaultLengthTag, Algorithm, AsymmetricSignature, Cipher, FullLengthMac,
+        Hash, Mac,
+    };
+
+    #[test]
+    fn usage_flags() {
+        let permitted_alg = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
+            hash_alg: Hash::Sha256,
+        });
+        let mut attributes = KeyAttributes {
+            key_type: KeyType::RsaKeyPair,
+            key_bits: 1024,
+            key_policy: KeyPolicy {
+                key_usage_flags: UsageFlags {
+                    export: false,
+                    copy: false,
+                    cache: false,
+                    encrypt: false,
+                    decrypt: false,
+                    sign_message: false,
+                    verify_message: false,
+                    sign_hash: false,
+                    verify_hash: false,
+                    derive: false,
+                },
+                key_algorithm: permitted_alg,
+            },
+        };
+
+        assert!(!attributes.can_export());
+        assert!(!attributes.can_sign_hash());
+        assert!(!attributes.can_verify_hash());
+        attributes.key_policy.key_usage_flags.export = true;
+        assert!(attributes.can_export());
+        assert!(!attributes.can_sign_hash());
+        assert!(!attributes.can_verify_hash());
+        attributes.key_policy.key_usage_flags.sign_hash = true;
+        assert!(attributes.can_export());
+        assert!(attributes.can_sign_hash());
+        assert!(!attributes.can_verify_hash());
+        attributes.key_policy.key_usage_flags.verify_hash = true;
+        assert!(attributes.can_export());
+        assert!(attributes.can_sign_hash());
+        assert!(attributes.can_verify_hash());
+    }
+
+    #[test]
+    fn permits_good_alg() {
+        let permitted_alg = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
+            hash_alg: Hash::Sha256,
+        });
+        let alg = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
+            hash_alg: Hash::Sha256,
+        });
+        let key_attributes = KeyAttributes {
+            key_type: KeyType::Hmac,
+            key_bits: 1024,
+            key_policy: KeyPolicy {
+                key_usage_flags: UsageFlags {
+                    export: false,
+                    copy: false,
+                    cache: false,
+                    encrypt: false,
+                    decrypt: false,
+                    sign_message: false,
+                    verify_message: false,
+                    sign_hash: true,
+                    verify_hash: false,
+                    derive: false,
+                },
+                key_algorithm: permitted_alg,
+            },
+        };
+        assert!(key_attributes.permits_alg(alg));
+    }
+
+    #[test]
+    fn permits_bad_alg() {
+        let permitted_alg = Algorithm::Mac(Mac::FullLength(FullLengthMac::Hmac {
+            hash_alg: Hash::Sha1,
+        }));
+        let alg = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
+            hash_alg: Hash::Sha1,
+        });
+        let key_attributes = KeyAttributes {
+            key_type: KeyType::Hmac,
+            key_bits: 1024,
+            key_policy: KeyPolicy {
+                key_usage_flags: UsageFlags {
+                    export: false,
+                    copy: false,
+                    cache: false,
+                    encrypt: false,
+                    decrypt: false,
+                    sign_message: false,
+                    verify_message: false,
+                    sign_hash: true,
+                    verify_hash: false,
+                    derive: false,
+                },
+                key_algorithm: permitted_alg,
+            },
+        };
+        assert!(!key_attributes.permits_alg(alg));
+    }
+
+    #[test]
+    fn permits_wildcard_alg() {
+        let permitted_alg = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
+            hash_alg: Hash::Any,
+        });
+        let alg = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
+            hash_alg: Hash::Sha1,
+        });
+        let key_attributes = KeyAttributes {
+            key_type: KeyType::Hmac,
+            key_bits: 1024,
+            key_policy: KeyPolicy {
+                key_usage_flags: UsageFlags {
+                    export: false,
+                    copy: false,
+                    cache: false,
+                    encrypt: false,
+                    decrypt: false,
+                    sign_message: false,
+                    verify_message: false,
+                    sign_hash: true,
+                    verify_hash: false,
+                    derive: false,
+                },
+                key_algorithm: permitted_alg,
+            },
+        };
+        assert!(key_attributes.permits_alg(alg));
+    }
+
+    #[test]
+    fn permits_bad_wildcard_alg() {
+        let permitted_alg = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
+            hash_alg: Hash::Sha256,
+        });
+        let alg = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
+            hash_alg: Hash::Any,
+        });
+        let key_attributes = KeyAttributes {
+            key_type: KeyType::Hmac,
+            key_bits: 1024,
+            key_policy: KeyPolicy {
+                key_usage_flags: UsageFlags {
+                    export: false,
+                    copy: false,
+                    cache: false,
+                    encrypt: false,
+                    decrypt: false,
+                    sign_message: false,
+                    verify_message: false,
+                    sign_hash: true,
+                    verify_hash: false,
+                    derive: false,
+                },
+                key_algorithm: permitted_alg,
+            },
+        };
+        assert!(!key_attributes.permits_alg(alg));
+    }
+
+    #[test]
+    fn compat_rsa() {
+        let permitted_alg = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
+            hash_alg: Hash::Sha256,
+        });
+        let alg = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
+            hash_alg: Hash::Sha256,
+        });
+        let mut key_attributes = KeyAttributes {
+            key_type: KeyType::RsaKeyPair,
+            key_bits: 1024,
+            key_policy: KeyPolicy {
+                key_usage_flags: UsageFlags {
+                    export: false,
+                    copy: false,
+                    cache: false,
+                    encrypt: false,
+                    decrypt: false,
+                    sign_message: false,
+                    verify_message: false,
+                    sign_hash: false,
+                    verify_hash: false,
+                    derive: false,
+                },
+                key_algorithm: permitted_alg,
+            },
+        };
+
+        assert!(key_attributes.is_compatible_with_alg(alg));
+        key_attributes.key_type = KeyType::RsaPublicKey;
+        assert!(key_attributes.is_compatible_with_alg(alg));
+    }
+
+    #[test]
+    fn compat_raw_data() {
+        let permitted_alg = Algorithm::None;
+        let alg = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
+            hash_alg: Hash::Sha256,
+        });
+        let key_attributes = KeyAttributes {
+            key_type: KeyType::RawData,
+            key_bits: 1024,
+            key_policy: KeyPolicy {
+                key_usage_flags: UsageFlags {
+                    export: false,
+                    copy: false,
+                    cache: false,
+                    encrypt: false,
+                    decrypt: false,
+                    sign_message: false,
+                    verify_message: false,
+                    sign_hash: false,
+                    verify_hash: false,
+                    derive: false,
+                },
+                key_algorithm: permitted_alg,
+            },
+        };
+
+        assert!(!key_attributes.is_compatible_with_alg(alg));
+    }
+
+    #[test]
+    fn compat_block_cipher() {
+        let permitted_alg = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
+            hash_alg: Hash::Sha256,
+        });
+        let mut alg = Algorithm::Cipher(Cipher::Ofb);
+        let mut key_attributes = KeyAttributes {
+            key_type: KeyType::Aes,
+            key_bits: 1024,
+            key_policy: KeyPolicy {
+                key_usage_flags: UsageFlags {
+                    export: false,
+                    copy: false,
+                    cache: false,
+                    encrypt: false,
+                    decrypt: false,
+                    sign_message: false,
+                    verify_message: false,
+                    sign_hash: false,
+                    verify_hash: false,
+                    derive: false,
+                },
+                key_algorithm: permitted_alg,
+            },
+        };
+
+        assert!(key_attributes.is_compatible_with_alg(alg));
+        key_attributes.key_type = KeyType::Des;
+        assert!(key_attributes.is_compatible_with_alg(alg));
+        key_attributes.key_type = KeyType::Camellia;
+        assert!(key_attributes.is_compatible_with_alg(alg));
+        alg = Algorithm::Aead(Aead::AeadWithDefaultLengthTag(
+            AeadWithDefaultLengthTag::Ccm,
+        ));
+        assert!(key_attributes.is_compatible_with_alg(alg));
+        key_attributes.key_type = KeyType::Des;
+        assert!(!key_attributes.is_compatible_with_alg(alg));
+    }
+
+    #[test]
+    fn compat_chacha() {
+        let permitted_alg = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
+            hash_alg: Hash::Sha256,
+        });
+        let alg = Algorithm::Aead(Aead::AeadWithDefaultLengthTag(
+            AeadWithDefaultLengthTag::Chacha20Poly1305,
+        ));
+        let key_attributes = KeyAttributes {
+            key_type: KeyType::Chacha20,
+            key_bits: 1024,
+            key_policy: KeyPolicy {
+                key_usage_flags: UsageFlags {
+                    export: false,
+                    copy: false,
+                    cache: false,
+                    encrypt: false,
+                    decrypt: false,
+                    sign_message: false,
+                    verify_message: false,
+                    sign_hash: false,
+                    verify_hash: false,
+                    derive: false,
+                },
+                key_algorithm: permitted_alg,
+            },
+        };
+
+        assert!(key_attributes.is_compatible_with_alg(alg));
+    }
+
+    #[test]
+    fn bad_compat() {
+        let permitted_alg = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
+            hash_alg: Hash::Sha256,
+        });
+        let alg = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
+            hash_alg: Hash::Sha256,
+        });
+        let key_attributes = KeyAttributes {
+            key_type: KeyType::Hmac,
+            key_bits: 1024,
+            key_policy: KeyPolicy {
+                key_usage_flags: UsageFlags {
+                    export: false,
+                    copy: false,
+                    cache: false,
+                    encrypt: false,
+                    decrypt: false,
+                    sign_message: false,
+                    verify_message: false,
+                    sign_hash: false,
+                    verify_hash: false,
+                    derive: false,
+                },
+                key_algorithm: permitted_alg,
+            },
+        };
+
+        assert!(!key_attributes.is_compatible_with_alg(alg));
+    }
 }

@@ -144,3 +144,111 @@ pub trait Convert {
     /// - if serialization fails, `ResponseStatus::SerializingBodyFailed` is returned
     fn result_to_body(&self, result: NativeResult) -> Result<ResponseBody>;
 }
+
+impl From<list_providers::Operation> for NativeOperation {
+    fn from(op: list_providers::Operation) -> Self {
+        NativeOperation::ListProviders(op)
+    }
+}
+
+impl From<list_opcodes::Operation> for NativeOperation {
+    fn from(op: list_opcodes::Operation) -> Self {
+        NativeOperation::ListOpcodes(op)
+    }
+}
+
+impl From<ping::Operation> for NativeOperation {
+    fn from(op: ping::Operation) -> Self {
+        NativeOperation::Ping(op)
+    }
+}
+
+impl From<psa_generate_key::Operation> for NativeOperation {
+    fn from(op: psa_generate_key::Operation) -> Self {
+        NativeOperation::PsaGenerateKey(op)
+    }
+}
+
+impl From<psa_import_key::Operation> for NativeOperation {
+    fn from(op: psa_import_key::Operation) -> Self {
+        NativeOperation::PsaImportKey(op)
+    }
+}
+
+impl From<psa_export_public_key::Operation> for NativeOperation {
+    fn from(op: psa_export_public_key::Operation) -> Self {
+        NativeOperation::PsaExportPublicKey(op)
+    }
+}
+
+impl From<psa_destroy_key::Operation> for NativeOperation {
+    fn from(op: psa_destroy_key::Operation) -> Self {
+        NativeOperation::PsaDestroyKey(op)
+    }
+}
+
+impl From<psa_sign_hash::Operation> for NativeOperation {
+    fn from(op: psa_sign_hash::Operation) -> Self {
+        NativeOperation::PsaSignHash(op)
+    }
+}
+
+impl From<psa_verify_hash::Operation> for NativeOperation {
+    fn from(op: psa_verify_hash::Operation) -> Self {
+        NativeOperation::PsaVerifyHash(op)
+    }
+}
+
+impl From<list_providers::Result> for NativeResult {
+    fn from(op: list_providers::Result) -> Self {
+        NativeResult::ListProviders(op)
+    }
+}
+
+impl From<list_opcodes::Result> for NativeResult {
+    fn from(op: list_opcodes::Result) -> Self {
+        NativeResult::ListOpcodes(op)
+    }
+}
+
+impl From<ping::Result> for NativeResult {
+    fn from(op: ping::Result) -> Self {
+        NativeResult::Ping(op)
+    }
+}
+
+impl From<psa_generate_key::Result> for NativeResult {
+    fn from(op: psa_generate_key::Result) -> Self {
+        NativeResult::PsaGenerateKey(op)
+    }
+}
+
+impl From<psa_import_key::Result> for NativeResult {
+    fn from(op: psa_import_key::Result) -> Self {
+        NativeResult::PsaImportKey(op)
+    }
+}
+
+impl From<psa_export_public_key::Result> for NativeResult {
+    fn from(op: psa_export_public_key::Result) -> Self {
+        NativeResult::PsaExportPublicKey(op)
+    }
+}
+
+impl From<psa_destroy_key::Result> for NativeResult {
+    fn from(op: psa_destroy_key::Result) -> Self {
+        NativeResult::PsaDestroyKey(op)
+    }
+}
+
+impl From<psa_sign_hash::Result> for NativeResult {
+    fn from(op: psa_sign_hash::Result) -> Self {
+        NativeResult::PsaSignHash(op)
+    }
+}
+
+impl From<psa_verify_hash::Result> for NativeResult {
+    fn from(op: psa_verify_hash::Result) -> Self {
+        NativeResult::PsaVerifyHash(op)
+    }
+}

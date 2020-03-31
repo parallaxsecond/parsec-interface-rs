@@ -41,6 +41,8 @@
 )]
 // This one is hard to avoid.
 #![allow(clippy::multiple_crate_versions)]
+// This crate declares deprecated values for legacy reasons.
+#![allow(deprecated)]
 //! # Parsec Rust Interface
 //!
 //! The Parsec Rust Interface provides methods to communicate easily with the Parsec service using

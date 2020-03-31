@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 //! Algorithm module
 
+use serde::{Deserialize, Serialize};
+
 /// Enumeration of possible algorithm definitions that can be attached to
 /// cryptographic keys.
 /// Each variant of the enum contains a main algorithm type (which is required for
 /// that variant).
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Algorithm {
     /// An invalid algorithm identifier value.
     /// `None` does not allow any cryptographic operation with the key. The key can still be
@@ -30,8 +32,19 @@ pub enum Algorithm {
     KeyDerivation(KeyDerivation),
 }
 
+impl Algorithm {
+    /// Check if the algorithm is a HMAC algorithm, truncated or not
+    pub fn is_hmac(self) -> bool {
+        match self {
+            Algorithm::Mac(mac_alg) => mac_alg.is_hmac(),
+            _ => false,
+        }
+    }
+}
+
 /// Enumeration of hash algorithms supported.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[allow(deprecated)]
 pub enum Hash {
     /// MD2
     #[deprecated = "The MD2 hash is weak and deprecated and is only recommended for use in legacy protocols."]
@@ -73,8 +86,24 @@ pub enum Hash {
     Any,
 }
 
+impl Hash {
+    /// Check if the hash alg given for a cryptographic operation is permitted to be used with this
+    /// algorithm as a policy
+    pub fn permits_alg(self, alg: Hash) -> bool {
+        if alg == Hash::Any {
+            // Any is only authorised in key policies
+            false
+        } else if self == Hash::Any {
+            // Any in a policy permits any hash algorithm
+            true
+        } else {
+            self == alg
+        }
+    }
+}
+
 /// Enumeration of untruncated MAC algorithms.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum FullLengthMac {
     /// HMAC algorithm
     Hmac {
@@ -87,8 +116,28 @@ pub enum FullLengthMac {
     Cmac,
 }
 
+impl FullLengthMac {
+    /// Check if the alg given for a cryptographic operation is permitted to be used with this
+    /// algorithm as a policy
+    pub fn permits_alg(self, alg: FullLengthMac) -> bool {
+        match self {
+            FullLengthMac::Hmac {
+                hash_alg: hash_policy,
+            } => {
+                if let FullLengthMac::Hmac { hash_alg } = alg {
+                    hash_policy.permits_alg(hash_alg)
+                } else {
+                    false
+                }
+            }
+            // These ones can not be wildcard algorithms
+            mac_alg => mac_alg == alg,
+        }
+    }
+}
+
 /// Enumeration of message authentication code algorithms supported.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Mac {
     /// Untruncated MAC algorithm
     FullLength(FullLengthMac),
@@ -101,8 +150,67 @@ pub enum Mac {
     },
 }
 
+impl Mac {
+    /// Check if the MAC alg given for a cryptographic operation is permitted to be used with this
+    /// algorithm as a policy
+    pub fn permits_alg(self, alg: Mac) -> bool {
+        match self {
+            Mac::FullLength(full_length_mac_alg_policy) => {
+                if let Mac::FullLength(full_length_mac_alg) = alg {
+                    full_length_mac_alg_policy.permits_alg(full_length_mac_alg)
+                } else {
+                    false
+                }
+            }
+            Mac::Truncated {
+                mac_alg: mac_alg_policy,
+                mac_length: mac_length_policy,
+            } => {
+                if let Mac::Truncated {
+                    mac_alg,
+                    mac_length,
+                } = alg
+                {
+                    mac_alg_policy.permits_alg(mac_alg) && mac_length_policy == mac_length
+                } else {
+                    false
+                }
+            }
+        }
+    }
+
+    /// Check if the MAC algorithm is a HMAC algorithm, truncated or not
+    pub fn is_hmac(self) -> bool {
+        match self {
+            Mac::FullLength(FullLengthMac::Hmac { .. })
+            | Mac::Truncated {
+                mac_alg: FullLengthMac::Hmac { .. },
+                ..
+            } => true,
+            _ => false,
+        }
+    }
+
+    /// Check if the MAC algorithm is a construction over a block cipher
+    pub fn needs_block_cipher(self) -> bool {
+        match self {
+            Mac::FullLength(FullLengthMac::CbcMac)
+            | Mac::FullLength(FullLengthMac::Cmac)
+            | Mac::Truncated {
+                mac_alg: FullLengthMac::CbcMac,
+                ..
+            }
+            | Mac::Truncated {
+                mac_alg: FullLengthMac::Cmac,
+                ..
+            } => true,
+            _ => false,
+        }
+    }
+}
+
 /// Enumeration of symmetric encryption algorithms supported.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 // StreamCipher contains "Cipher" to differentiate with the other ones that are block cipher modes.
 #[allow(clippy::pub_enum_variant_names)]
 pub enum Cipher {
@@ -124,7 +232,23 @@ pub enum Cipher {
     CbcPkcs7,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+impl Cipher {
+    /// Check is the cipher algorithm is a mode of a block cipher.
+    pub fn is_block_cipher_mode(self) -> bool {
+        match self {
+            Cipher::Ctr
+            | Cipher::Cfb
+            | Cipher::Ofb
+            | Cipher::Xts
+            | Cipher::EcbNoPadding
+            | Cipher::CbcNoPadding
+            | Cipher::CbcPkcs7 => true,
+            _ => false,
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 /// AEAD algorithm with default length tag enumeration
 pub enum AeadWithDefaultLengthTag {
     /// The CCM authenticated encryption algorithm.
@@ -137,7 +261,7 @@ pub enum AeadWithDefaultLengthTag {
 
 /// Enumeration of authenticated encryption with additional data algorithms
 /// supported.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Aead {
     /// AEAD algorithm with a default length tag
     AeadWithDefaultLengthTag(AeadWithDefaultLengthTag),
@@ -150,8 +274,39 @@ pub enum Aead {
     },
 }
 
+impl Aead {
+    /// Check if the Aead algorithm needs a block cipher
+    pub fn needs_block_cipher(self) -> bool {
+        match self {
+            Aead::AeadWithDefaultLengthTag(AeadWithDefaultLengthTag::Ccm)
+            | Aead::AeadWithDefaultLengthTag(AeadWithDefaultLengthTag::Gcm)
+            | Aead::AeadWithShortenedTag {
+                aead_alg: AeadWithDefaultLengthTag::Ccm,
+                ..
+            }
+            | Aead::AeadWithShortenedTag {
+                aead_alg: AeadWithDefaultLengthTag::Gcm,
+                ..
+            } => true,
+            _ => false,
+        }
+    }
+
+    /// Check if this AEAD algorithm is the (truncated or not) Chacha20-Poly1305 AEAD algorithm.
+    pub fn is_chacha20_poly1305_alg(self) -> bool {
+        match self {
+            Aead::AeadWithDefaultLengthTag(AeadWithDefaultLengthTag::Chacha20Poly1305)
+            | Aead::AeadWithShortenedTag {
+                aead_alg: AeadWithDefaultLengthTag::Chacha20Poly1305,
+                ..
+            } => true,
+            _ => false,
+        }
+    }
+}
+
 /// Enumeration of asymmetric signing algorithms supported.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum AsymmetricSignature {
     /// RSA PKCS#1 v1.5 signature with hashing.
     RsaPkcs1v15Sign {
@@ -179,8 +334,75 @@ pub enum AsymmetricSignature {
     },
 }
 
+impl AsymmetricSignature {
+    /// Check if the alg given for a cryptographic operation is permitted to be used with this
+    /// algorithm as a policy
+    pub fn permits_alg(self, alg: AsymmetricSignature) -> bool {
+        match self {
+            AsymmetricSignature::RsaPkcs1v15Sign {
+                hash_alg: hash_policy,
+            } => {
+                if let AsymmetricSignature::RsaPkcs1v15Sign { hash_alg } = alg {
+                    hash_policy.permits_alg(hash_alg)
+                } else {
+                    false
+                }
+            }
+            AsymmetricSignature::RsaPss {
+                hash_alg: hash_policy,
+            } => {
+                if let AsymmetricSignature::RsaPss { hash_alg } = alg {
+                    hash_policy.permits_alg(hash_alg)
+                } else {
+                    false
+                }
+            }
+            AsymmetricSignature::Ecdsa {
+                hash_alg: hash_policy,
+            } => {
+                if let AsymmetricSignature::Ecdsa { hash_alg } = alg {
+                    hash_policy.permits_alg(hash_alg)
+                } else {
+                    false
+                }
+            }
+            AsymmetricSignature::DeterministicEcdsa {
+                hash_alg: hash_policy,
+            } => {
+                if let AsymmetricSignature::DeterministicEcdsa { hash_alg } = alg {
+                    hash_policy.permits_alg(hash_alg)
+                } else {
+                    false
+                }
+            }
+            // These ones can not be wildcard algorithms
+            asymmetric_signature_alg => asymmetric_signature_alg == alg,
+        }
+    }
+
+    /// Check if this is a RSA algorithm
+    pub fn is_rsa_alg(self) -> bool {
+        match self {
+            AsymmetricSignature::RsaPkcs1v15Sign { .. }
+            | AsymmetricSignature::RsaPkcs1v15SignRaw
+            | AsymmetricSignature::RsaPss { .. } => true,
+            _ => false,
+        }
+    }
+
+    /// Check if this is an ECC algorithm
+    pub fn is_ecc_alg(self) -> bool {
+        match self {
+            AsymmetricSignature::Ecdsa { .. }
+            | AsymmetricSignature::EcdsaAny
+            | AsymmetricSignature::DeterministicEcdsa { .. } => true,
+            _ => false,
+        }
+    }
+}
+
 /// Enumeration of asymmetric encryption algorithms supported.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum AsymmetricEncryption {
     /// RSA PKCS#1 v1.5 encryption.
     RsaPkcs1v15Crypt,
@@ -191,8 +413,28 @@ pub enum AsymmetricEncryption {
     },
 }
 
+impl AsymmetricEncryption {
+    /// Check if the alg given for a cryptographic operation is permitted to be used with this
+    /// algorithm as a policy
+    pub fn permits_alg(self, alg: AsymmetricEncryption) -> bool {
+        match self {
+            AsymmetricEncryption::RsaOaep {
+                hash_alg: hash_policy,
+            } => {
+                if let AsymmetricEncryption::RsaOaep { hash_alg } = alg {
+                    hash_policy.permits_alg(hash_alg)
+                } else {
+                    false
+                }
+            }
+            // These ones can not be wildcard algorithms
+            asymmetric_encryption_alg => asymmetric_encryption_alg == alg,
+        }
+    }
+}
+
 /// Key agreement algorithm enumeration.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum RawKeyAgreement {
     /// The finite-field Diffie-Hellman (DH) key agreement algorithm.
     Ffdh,
@@ -201,7 +443,7 @@ pub enum RawKeyAgreement {
 }
 
 /// Enumeration of key agreement algorithms supported.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum KeyAgreement {
     /// Key agreement only algorithm.
     Raw(RawKeyAgreement),
@@ -214,8 +456,29 @@ pub enum KeyAgreement {
     },
 }
 
+impl KeyAgreement {
+    /// Check if the alg given for a cryptographic operation is permitted to be used with this
+    /// algorithm as a policy
+    pub fn permits_alg(self, alg: KeyAgreement) -> bool {
+        match self {
+            KeyAgreement::WithKeyDerivation {
+                ka_alg: ka_alg_policy,
+                kdf_alg: kdf_alg_policy,
+            } => {
+                if let KeyAgreement::WithKeyDerivation { ka_alg, kdf_alg } = alg {
+                    kdf_alg_policy.permits_alg(kdf_alg) && ka_alg_policy == ka_alg
+                } else {
+                    false
+                }
+            }
+            // These ones can not be wildcard algorithms
+            key_agreement_alg => key_agreement_alg == alg,
+        }
+    }
+}
+
 /// Enumeration of key derivation functions supported.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum KeyDerivation {
     /// HKDF algorithm.
     Hkdf {
@@ -232,4 +495,81 @@ pub enum KeyDerivation {
         /// A hash algorithm to use.
         hash_alg: Hash,
     },
+}
+
+impl KeyDerivation {
+    /// Check if the alg given for a cryptographic operation is permitted to be used with this
+    /// algorithm as a policy
+    pub fn permits_alg(self, alg: KeyDerivation) -> bool {
+        match self {
+            KeyDerivation::Hkdf {
+                hash_alg: hash_policy,
+            } => {
+                if let KeyDerivation::Hkdf { hash_alg } = alg {
+                    hash_policy.permits_alg(hash_alg)
+                } else {
+                    false
+                }
+            }
+            KeyDerivation::Tls12Prf {
+                hash_alg: hash_policy,
+            } => {
+                if let KeyDerivation::Tls12Prf { hash_alg } = alg {
+                    hash_policy.permits_alg(hash_alg)
+                } else {
+                    false
+                }
+            }
+            KeyDerivation::Tls12PskToMs {
+                hash_alg: hash_policy,
+            } => {
+                if let KeyDerivation::Tls12PskToMs { hash_alg } = alg {
+                    hash_policy.permits_alg(hash_alg)
+                } else {
+                    false
+                }
+            }
+        }
+    }
+}
+
+impl From<Hash> for Algorithm {
+    fn from(alg: Hash) -> Self {
+        Algorithm::Hash(alg)
+    }
+}
+impl From<Mac> for Algorithm {
+    fn from(alg: Mac) -> Self {
+        Algorithm::Mac(alg)
+    }
+}
+impl From<Cipher> for Algorithm {
+    fn from(alg: Cipher) -> Self {
+        Algorithm::Cipher(alg)
+    }
+}
+impl From<Aead> for Algorithm {
+    fn from(alg: Aead) -> Self {
+        Algorithm::Aead(alg)
+    }
+}
+impl From<AsymmetricSignature> for Algorithm {
+    fn from(alg: AsymmetricSignature) -> Self {
+        Algorithm::AsymmetricSignature(alg)
+    }
+}
+impl From<AsymmetricEncryption> for Algorithm {
+    fn from(alg: AsymmetricEncryption) -> Self {
+        Algorithm::AsymmetricEncryption(alg)
+    }
+}
+impl From<KeyAgreement> for Algorithm {
+    fn from(alg: KeyAgreement) -> Self {
+        Algorithm::KeyAgreement(alg)
+    }
+}
+impl From<KeyDerivation> for Algorithm {
+    fn from(alg: KeyDerivation) -> Self {
+        Algorithm::KeyDerivation(alg)
+    }
 }
