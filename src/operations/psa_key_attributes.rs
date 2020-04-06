@@ -18,6 +18,7 @@
 //! operations to make sure that the key has the correct policy.
 
 use crate::operations::psa_algorithm::{Algorithm, Cipher};
+use log::warn;
 use serde::{Deserialize, Serialize};
 
 /// Native definition of the attributes needed to fully describe
@@ -166,6 +167,26 @@ impl KeyAttributes {
                     false
                 }
             }
+        }
+    }
+
+    /// Check if the alg given for a cryptographic operation is permitted to be used with the key
+    /// and is compatible with the key type
+    pub fn permits_and_compatible_with_alg(self, alg: Algorithm) -> bool {
+        if !self.permits_alg(alg) {
+            warn!(
+                "Algorithm ({:?}) not permitted. Algorithm permitted: {:?}.",
+                alg, self.key_policy.key_algorithm
+            );
+            false
+        } else if !self.is_compatible_with_alg(alg) {
+            warn!(
+                "Algorithm ({:?}) not compatible with key type {:?}.",
+                alg, self.key_type
+            );
+            false
+        } else {
+            true
         }
     }
 }
