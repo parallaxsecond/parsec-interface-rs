@@ -18,7 +18,8 @@
 //! operations to make sure that the key has the correct policy.
 
 use crate::operations::psa_algorithm::{Algorithm, Cipher};
-use log::warn;
+use crate::requests::{ResponseStatus, Result};
+use log::error;
 use serde::{Deserialize, Serialize};
 
 /// Native definition of the attributes needed to fully describe
@@ -35,62 +36,92 @@ pub struct KeyAttributes {
 
 impl KeyAttributes {
     /// Check if a key has permission to be exported
-    pub fn can_export(self) -> bool {
+    pub fn is_exportable(self) -> bool {
         self.key_policy.key_usage_flags.export
     }
 
+    /// Check export in a faillible way
+    pub fn can_export(self) -> Result<()> {
+        if self.is_exportable() {
+            Ok(())
+        } else {
+            error!("Key attributes do not permit exporting key.");
+            Err(ResponseStatus::PsaErrorNotPermitted)
+        }
+    }
+
     /// Check if a key has permission to sign a message hash
-    pub fn can_sign_hash(self) -> bool {
+    pub fn is_hash_signable(self) -> bool {
         self.key_policy.key_usage_flags.sign_hash
     }
 
+    /// Check hash signing permission in a faillible way
+    pub fn can_sign_hash(self) -> Result<()> {
+        if self.is_hash_signable() {
+            Ok(())
+        } else {
+            error!("Key attributes do not permit signing hashes.");
+            Err(ResponseStatus::PsaErrorNotPermitted)
+        }
+    }
+
     /// Check if a key has permission to verify a message hash
-    pub fn can_verify_hash(self) -> bool {
+    pub fn is_hash_verifiable(self) -> bool {
         self.key_policy.key_usage_flags.verify_hash
     }
 
+    /// Check hash signing permission in a faillible way
+    pub fn can_verify_hash(self) -> Result<()> {
+        if self.is_hash_verifiable() {
+            Ok(())
+        } else {
+            error!("Key attributes do not permit verifying hashes.");
+            Err(ResponseStatus::PsaErrorNotPermitted)
+        }
+    }
+
     /// Check if the alg given for a cryptographic operation is permitted to be used with the key
-    pub fn permits_alg(self, alg: Algorithm) -> bool {
+    pub fn is_alg_permitted(self, alg: Algorithm) -> bool {
         match self.key_policy.key_algorithm {
             Algorithm::None => false,
             Algorithm::Hash(hash_policy) => {
                 if let Algorithm::Hash(hash_alg) = alg {
-                    hash_policy.permits_alg(hash_alg)
+                    hash_policy.is_alg_permitted(hash_alg)
                 } else {
                     false
                 }
             }
             Algorithm::Mac(mac_policy) => {
                 if let Algorithm::Mac(mac_alg) = alg {
-                    mac_policy.permits_alg(mac_alg)
+                    mac_policy.is_alg_permitted(mac_alg)
                 } else {
                     false
                 }
             }
             Algorithm::AsymmetricSignature(asymmetric_signature_alg_policy) => {
                 if let Algorithm::AsymmetricSignature(asymmetric_signature_alg) = alg {
-                    asymmetric_signature_alg_policy.permits_alg(asymmetric_signature_alg)
+                    asymmetric_signature_alg_policy.is_alg_permitted(asymmetric_signature_alg)
                 } else {
                     false
                 }
             }
             Algorithm::AsymmetricEncryption(asymmetric_encryption_alg_policy) => {
                 if let Algorithm::AsymmetricEncryption(asymmetric_encryption_alg) = alg {
-                    asymmetric_encryption_alg_policy.permits_alg(asymmetric_encryption_alg)
+                    asymmetric_encryption_alg_policy.is_alg_permitted(asymmetric_encryption_alg)
                 } else {
                     false
                 }
             }
             Algorithm::KeyDerivation(key_derivation_alg_policy) => {
                 if let Algorithm::KeyDerivation(key_derivation_alg) = alg {
-                    key_derivation_alg_policy.permits_alg(key_derivation_alg)
+                    key_derivation_alg_policy.is_alg_permitted(key_derivation_alg)
                 } else {
                     false
                 }
             }
             Algorithm::KeyAgreement(key_agreement_alg_policy) => {
                 if let Algorithm::KeyAgreement(key_agreement_alg) = alg {
-                    key_agreement_alg_policy.permits_alg(key_agreement_alg)
+                    key_agreement_alg_policy.is_alg_permitted(key_agreement_alg)
                 } else {
                     false
                 }
@@ -98,6 +129,16 @@ impl KeyAttributes {
             // These ones can not be wildcard algorithms: it is sufficient to just check for
             // equality.
             Algorithm::Cipher(_) | Algorithm::Aead(_) => self.key_policy.key_algorithm == alg,
+        }
+    }
+
+    /// Check if alg is permitted in a faillible way
+    pub fn permits_alg(self, alg: Algorithm) -> Result<()> {
+        if self.is_alg_permitted(alg) {
+            Ok(())
+        } else {
+            error!("Key attributes do not permit specified algorithm.");
+            Err(ResponseStatus::PsaErrorNotPermitted)
         }
     }
 
@@ -116,18 +157,18 @@ impl KeyAttributes {
             }
             KeyType::Aes | KeyType::Camellia => {
                 if let Algorithm::Mac(mac_alg) = alg {
-                    mac_alg.needs_block_cipher()
+                    mac_alg.is_block_cipher_needed()
                 } else if let Algorithm::Cipher(cipher_alg) = alg {
                     cipher_alg.is_block_cipher_mode()
                 } else if let Algorithm::Aead(aead_alg) = alg {
-                    aead_alg.needs_block_cipher()
+                    aead_alg.is_block_cipher_needed()
                 } else {
                     false
                 }
             }
             KeyType::Des => {
                 if let Algorithm::Mac(mac_alg) = alg {
-                    mac_alg.needs_block_cipher()
+                    mac_alg.is_block_cipher_needed()
                 } else if let Algorithm::Cipher(cipher_alg) = alg {
                     cipher_alg.is_block_cipher_mode()
                 } else {
@@ -170,23 +211,13 @@ impl KeyAttributes {
         }
     }
 
-    /// Check if the alg given for a cryptographic operation is permitted to be used with the key
-    /// and is compatible with the key type
-    pub fn permits_and_compatible_with_alg(self, alg: Algorithm) -> bool {
-        if !self.permits_alg(alg) {
-            warn!(
-                "Algorithm ({:?}) not permitted. Algorithm permitted: {:?}.",
-                alg, self.key_policy.key_algorithm
-            );
-            false
-        } else if !self.is_compatible_with_alg(alg) {
-            warn!(
-                "Algorithm ({:?}) not compatible with key type {:?}.",
-                alg, self.key_type
-            );
-            false
+    /// Check if alg is compatible in a faillible way
+    pub fn compatible_with_alg(self, alg: Algorithm) -> Result<()> {
+        if self.is_compatible_with_alg(alg) {
+            Ok(())
         } else {
-            true
+            error!("Key attributes are not compatible with specified algorithm.");
+            Err(ResponseStatus::PsaErrorNotPermitted)
         }
     }
 }
@@ -414,21 +445,21 @@ mod tests {
             },
         };
 
-        assert!(!attributes.can_export());
-        assert!(!attributes.can_sign_hash());
-        assert!(!attributes.can_verify_hash());
+        assert!(!attributes.is_exportable());
+        assert!(!attributes.is_hash_signable());
+        assert!(!attributes.is_hash_verifiable());
         attributes.key_policy.key_usage_flags.export = true;
-        assert!(attributes.can_export());
-        assert!(!attributes.can_sign_hash());
-        assert!(!attributes.can_verify_hash());
+        assert!(attributes.is_exportable());
+        assert!(!attributes.is_hash_signable());
+        assert!(!attributes.is_hash_verifiable());
         attributes.key_policy.key_usage_flags.sign_hash = true;
-        assert!(attributes.can_export());
-        assert!(attributes.can_sign_hash());
-        assert!(!attributes.can_verify_hash());
+        assert!(attributes.is_exportable());
+        assert!(attributes.is_hash_signable());
+        assert!(!attributes.is_hash_verifiable());
         attributes.key_policy.key_usage_flags.verify_hash = true;
-        assert!(attributes.can_export());
-        assert!(attributes.can_sign_hash());
-        assert!(attributes.can_verify_hash());
+        assert!(attributes.is_exportable());
+        assert!(attributes.is_hash_signable());
+        assert!(attributes.is_hash_verifiable());
     }
 
     #[test]
@@ -458,7 +489,7 @@ mod tests {
                 key_algorithm: permitted_alg,
             },
         };
-        assert!(key_attributes.permits_alg(alg));
+        assert!(key_attributes.is_alg_permitted(alg));
     }
 
     #[test]
@@ -488,7 +519,7 @@ mod tests {
                 key_algorithm: permitted_alg,
             },
         };
-        assert!(!key_attributes.permits_alg(alg));
+        assert!(!key_attributes.is_alg_permitted(alg));
     }
 
     #[test]
@@ -518,7 +549,7 @@ mod tests {
                 key_algorithm: permitted_alg,
             },
         };
-        assert!(key_attributes.permits_alg(alg));
+        assert!(key_attributes.is_alg_permitted(alg));
     }
 
     #[test]
@@ -548,7 +579,7 @@ mod tests {
                 key_algorithm: permitted_alg,
             },
         };
-        assert!(!key_attributes.permits_alg(alg));
+        assert!(!key_attributes.is_alg_permitted(alg));
     }
 
     #[test]

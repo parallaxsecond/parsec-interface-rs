@@ -89,7 +89,7 @@ pub enum Hash {
 impl Hash {
     /// Check if the hash alg given for a cryptographic operation is permitted to be used with this
     /// algorithm as a policy
-    pub fn permits_alg(self, alg: Hash) -> bool {
+    pub fn is_alg_permitted(self, alg: Hash) -> bool {
         if alg == Hash::Any {
             // Any is only authorised in key policies
             false
@@ -119,13 +119,13 @@ pub enum FullLengthMac {
 impl FullLengthMac {
     /// Check if the alg given for a cryptographic operation is permitted to be used with this
     /// algorithm as a policy
-    pub fn permits_alg(self, alg: FullLengthMac) -> bool {
+    pub fn is_alg_permitted(self, alg: FullLengthMac) -> bool {
         match self {
             FullLengthMac::Hmac {
                 hash_alg: hash_policy,
             } => {
                 if let FullLengthMac::Hmac { hash_alg } = alg {
-                    hash_policy.permits_alg(hash_alg)
+                    hash_policy.is_alg_permitted(hash_alg)
                 } else {
                     false
                 }
@@ -153,11 +153,11 @@ pub enum Mac {
 impl Mac {
     /// Check if the MAC alg given for a cryptographic operation is permitted to be used with this
     /// algorithm as a policy
-    pub fn permits_alg(self, alg: Mac) -> bool {
+    pub fn is_alg_permitted(self, alg: Mac) -> bool {
         match self {
             Mac::FullLength(full_length_mac_alg_policy) => {
                 if let Mac::FullLength(full_length_mac_alg) = alg {
-                    full_length_mac_alg_policy.permits_alg(full_length_mac_alg)
+                    full_length_mac_alg_policy.is_alg_permitted(full_length_mac_alg)
                 } else {
                     false
                 }
@@ -171,7 +171,7 @@ impl Mac {
                     mac_length,
                 } = alg
                 {
-                    mac_alg_policy.permits_alg(mac_alg) && mac_length_policy == mac_length
+                    mac_alg_policy.is_alg_permitted(mac_alg) && mac_length_policy == mac_length
                 } else {
                     false
                 }
@@ -192,7 +192,7 @@ impl Mac {
     }
 
     /// Check if the MAC algorithm is a construction over a block cipher
-    pub fn needs_block_cipher(self) -> bool {
+    pub fn is_block_cipher_needed(self) -> bool {
         match self {
             Mac::FullLength(FullLengthMac::CbcMac)
             | Mac::FullLength(FullLengthMac::Cmac)
@@ -276,7 +276,7 @@ pub enum Aead {
 
 impl Aead {
     /// Check if the Aead algorithm needs a block cipher
-    pub fn needs_block_cipher(self) -> bool {
+    pub fn is_block_cipher_needed(self) -> bool {
         match self {
             Aead::AeadWithDefaultLengthTag(AeadWithDefaultLengthTag::Ccm)
             | Aead::AeadWithDefaultLengthTag(AeadWithDefaultLengthTag::Gcm)
@@ -337,13 +337,13 @@ pub enum AsymmetricSignature {
 impl AsymmetricSignature {
     /// Check if the alg given for a cryptographic operation is permitted to be used with this
     /// algorithm as a policy
-    pub fn permits_alg(self, alg: AsymmetricSignature) -> bool {
+    pub fn is_alg_permitted(self, alg: AsymmetricSignature) -> bool {
         match self {
             AsymmetricSignature::RsaPkcs1v15Sign {
                 hash_alg: hash_policy,
             } => {
                 if let AsymmetricSignature::RsaPkcs1v15Sign { hash_alg } = alg {
-                    hash_policy.permits_alg(hash_alg)
+                    hash_policy.is_alg_permitted(hash_alg)
                 } else {
                     false
                 }
@@ -352,7 +352,7 @@ impl AsymmetricSignature {
                 hash_alg: hash_policy,
             } => {
                 if let AsymmetricSignature::RsaPss { hash_alg } = alg {
-                    hash_policy.permits_alg(hash_alg)
+                    hash_policy.is_alg_permitted(hash_alg)
                 } else {
                     false
                 }
@@ -361,7 +361,7 @@ impl AsymmetricSignature {
                 hash_alg: hash_policy,
             } => {
                 if let AsymmetricSignature::Ecdsa { hash_alg } = alg {
-                    hash_policy.permits_alg(hash_alg)
+                    hash_policy.is_alg_permitted(hash_alg)
                 } else {
                     false
                 }
@@ -370,7 +370,7 @@ impl AsymmetricSignature {
                 hash_alg: hash_policy,
             } => {
                 if let AsymmetricSignature::DeterministicEcdsa { hash_alg } = alg {
-                    hash_policy.permits_alg(hash_alg)
+                    hash_policy.is_alg_permitted(hash_alg)
                 } else {
                     false
                 }
@@ -416,13 +416,13 @@ pub enum AsymmetricEncryption {
 impl AsymmetricEncryption {
     /// Check if the alg given for a cryptographic operation is permitted to be used with this
     /// algorithm as a policy
-    pub fn permits_alg(self, alg: AsymmetricEncryption) -> bool {
+    pub fn is_alg_permitted(self, alg: AsymmetricEncryption) -> bool {
         match self {
             AsymmetricEncryption::RsaOaep {
                 hash_alg: hash_policy,
             } => {
                 if let AsymmetricEncryption::RsaOaep { hash_alg } = alg {
-                    hash_policy.permits_alg(hash_alg)
+                    hash_policy.is_alg_permitted(hash_alg)
                 } else {
                     false
                 }
@@ -459,14 +459,14 @@ pub enum KeyAgreement {
 impl KeyAgreement {
     /// Check if the alg given for a cryptographic operation is permitted to be used with this
     /// algorithm as a policy
-    pub fn permits_alg(self, alg: KeyAgreement) -> bool {
+    pub fn is_alg_permitted(self, alg: KeyAgreement) -> bool {
         match self {
             KeyAgreement::WithKeyDerivation {
                 ka_alg: ka_alg_policy,
                 kdf_alg: kdf_alg_policy,
             } => {
                 if let KeyAgreement::WithKeyDerivation { ka_alg, kdf_alg } = alg {
-                    kdf_alg_policy.permits_alg(kdf_alg) && ka_alg_policy == ka_alg
+                    kdf_alg_policy.is_alg_permitted(kdf_alg) && ka_alg_policy == ka_alg
                 } else {
                     false
                 }
@@ -500,13 +500,13 @@ pub enum KeyDerivation {
 impl KeyDerivation {
     /// Check if the alg given for a cryptographic operation is permitted to be used with this
     /// algorithm as a policy
-    pub fn permits_alg(self, alg: KeyDerivation) -> bool {
+    pub fn is_alg_permitted(self, alg: KeyDerivation) -> bool {
         match self {
             KeyDerivation::Hkdf {
                 hash_alg: hash_policy,
             } => {
                 if let KeyDerivation::Hkdf { hash_alg } = alg {
-                    hash_policy.permits_alg(hash_alg)
+                    hash_policy.is_alg_permitted(hash_alg)
                 } else {
                     false
                 }
@@ -515,7 +515,7 @@ impl KeyDerivation {
                 hash_alg: hash_policy,
             } => {
                 if let KeyDerivation::Tls12Prf { hash_alg } = alg {
-                    hash_policy.permits_alg(hash_alg)
+                    hash_policy.is_alg_permitted(hash_alg)
                 } else {
                     false
                 }
@@ -524,7 +524,7 @@ impl KeyDerivation {
                 hash_alg: hash_policy,
             } => {
                 if let KeyDerivation::Tls12PskToMs { hash_alg } = alg {
-                    hash_policy.permits_alg(hash_alg)
+                    hash_policy.is_alg_permitted(hash_alg)
                 } else {
                     false
                 }
