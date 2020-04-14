@@ -16,12 +16,15 @@
 //!
 //! List the opcodes supported by the provider.
 
-use crate::requests::Opcode;
+use crate::requests::{Opcode, ProviderID};
 use std::collections::HashSet;
 
 /// Native object for opcode listing operation.
 #[derive(Copy, Clone, Debug)]
-pub struct Operation;
+pub struct Operation {
+    /// Provider for which the supported opcodes are requsted.
+    pub provider_id: ProviderID,
+}
 
 /// Native object for opcode listing result.
 #[derive(Debug)]
