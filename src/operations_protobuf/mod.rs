@@ -55,7 +55,7 @@ mod generated_ops {
 
 use crate::operations::{Convert, NativeOperation, NativeResult};
 use crate::requests::{
-    request::RequestBody, response::ResponseBody, Opcode, ResponseStatus, Result,
+    request::RequestBody, response::ResponseBody, BodyType, Opcode, ResponseStatus, Result,
 };
 use generated_ops::list_opcodes as list_opcodes_proto;
 use generated_ops::list_providers as list_providers_proto;
@@ -96,6 +96,10 @@ macro_rules! native_to_wire {
 pub struct ProtobufConverter;
 
 impl Convert for ProtobufConverter {
+    fn body_type(&self) -> BodyType {
+        BodyType::Protobuf
+    }
+
     fn body_to_operation(&self, body: RequestBody, opcode: Opcode) -> Result<NativeOperation> {
         match opcode {
             Opcode::ListProviders => Ok(NativeOperation::ListProviders(wire_to_native!(
