@@ -128,8 +128,6 @@
 //!let result_body = converter.result_to_body(result).unwrap();
 //!let response = Response {
 //!    header: ResponseHeader {
-//!        version_maj: 1,
-//!        version_min: 0,
 //!        provider: ProviderID::MbedCrypto,
 //!        session: 0,
 //!        content_type: BodyType::Protobuf,
@@ -180,8 +178,6 @@
 //!let operation = NativeOperation::Ping(Operation {});
 //!let request = Request {
 //!    header: RequestHeader {
-//!        version_maj: 1,
-//!        version_min: 0,
 //!        provider: ProviderID::Core,
 //!        session: 0,
 //!        content_type: BodyType::Protobuf,
