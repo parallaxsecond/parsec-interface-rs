@@ -23,8 +23,6 @@ use log::error;
 use std::convert::{TryFrom, TryInto};
 use std::io::{Read, Write};
 
-const REQUEST_HDR_SIZE: u16 = 22;
-
 mod request_auth;
 mod request_body;
 mod request_header;
@@ -128,8 +126,6 @@ impl Default for Request {
 impl From<RequestHeader> for ResponseHeader {
     fn from(req_hdr: RequestHeader) -> ResponseHeader {
         ResponseHeader {
-            version_maj: req_hdr.version_maj,
-            version_min: req_hdr.version_min,
             provider: req_hdr.provider,
             session: req_hdr.session,
             content_type: req_hdr.accept_type,
@@ -203,8 +199,6 @@ mod tests {
         let resp_hdr: ResponseHeader = req_hdr.into();
 
         let mut resp_hdr_exp = ResponseHeader::new();
-        resp_hdr_exp.version_maj = 0x01;
-        resp_hdr_exp.version_min = 0x00;
         resp_hdr_exp.provider = ProviderID::Core;
         resp_hdr_exp.session = 0x11_22_33_44_55_66_77_88;
         resp_hdr_exp.content_type = BodyType::Protobuf;
@@ -237,8 +231,6 @@ mod tests {
         let body = RequestBody::from_bytes(vec![0x70, 0x80, 0x90]);
         let auth = RequestAuth::from_bytes(vec![0xa0, 0xb0, 0xc0]);
         let header = RequestHeader {
-            version_maj: 0x01,
-            version_min: 0x00,
             provider: ProviderID::Core,
             session: 0x11_22_33_44_55_66_77_88,
             content_type: BodyType::Protobuf,

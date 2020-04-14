@@ -201,8 +201,6 @@ mod tests {
     fn get_response() -> Response {
         let body = ResponseBody::from_bytes(vec![0x70, 0x80, 0x90]);
         let header = ResponseHeader {
-            version_maj: 0x01,
-            version_min: 0x00,
             provider: ProviderID::Core,
             session: 0x11_22_33_44_55_66_77_88,
             content_type: BodyType::Protobuf,

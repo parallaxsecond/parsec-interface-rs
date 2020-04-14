@@ -14,6 +14,8 @@
 // limitations under the License.
 use super::RESPONSE_HDR_SIZE;
 use crate::requests::{BodyType, Opcode, ProviderID, ResponseStatus, Result, MAGIC_NUMBER};
+use crate::requests::{WIRE_PROTOCOL_VERSION_MAJ, WIRE_PROTOCOL_VERSION_MIN};
+use log::error;
 use num::FromPrimitive;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
@@ -25,12 +27,6 @@ use std::io::{Read, Write};
 /// wire format (i.e. little-endian, native encoding).
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct Raw {
-    /// Wire protocol major version number
-    /// Only 1 is a supported value for that field currently.
-    pub version_maj: u8,
-    /// Wire protocol minor version number
-    /// Only 0 is a supported value for that field currently.
-    pub version_min: u8,
     /// Provider ID value
     pub provider: u8,
     /// Session handle
@@ -53,8 +49,6 @@ impl Raw {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Raw {
         Raw {
-            version_maj: 0,
-            version_min: 0,
             provider: 0,
             session: 0,
             content_type: 0,
@@ -77,6 +71,9 @@ impl Raw {
 
         stream.write_all(&bincode::serialize(&RESPONSE_HDR_SIZE)?)?;
 
+        stream.write_all(&bincode::serialize(&WIRE_PROTOCOL_VERSION_MAJ)?)?;
+        stream.write_all(&bincode::serialize(&WIRE_PROTOCOL_VERSION_MIN)?)?;
+
         stream.write_all(&bincode::serialize(&self)?)?;
 
         Ok(())
@@ -96,19 +93,36 @@ impl Raw {
     /// - if the wire protocol version used is different than 1.0
     pub fn read_from_stream(mut stream: &mut impl Read) -> Result<Raw> {
         let magic_number = get_from_stream!(stream, u32);
-        let hdr_size = get_from_stream!(stream, u16);
-        if magic_number != MAGIC_NUMBER || hdr_size != RESPONSE_HDR_SIZE {
+        if magic_number != MAGIC_NUMBER {
+            error!(
+                "Expected magic number {}, got {}",
+                MAGIC_NUMBER, magic_number
+            );
             return Err(ResponseStatus::InvalidHeader);
         }
+
+        let hdr_size = get_from_stream!(stream, u16);
         let mut bytes = vec![0_u8; usize::try_from(hdr_size)?];
         stream.read_exact(&mut bytes)?;
-
-        let raw_response: Raw = bincode::deserialize(&bytes)?;
-        if raw_response.version_maj != 1 || raw_response.version_min != 0 {
-            Err(ResponseStatus::WireProtocolVersionNotSupported)
-        } else {
-            Ok(raw_response)
+        if hdr_size != RESPONSE_HDR_SIZE {
+            error!(
+                "Expected response header size {}, got {}",
+                RESPONSE_HDR_SIZE, hdr_size
+            );
+            return Err(ResponseStatus::InvalidHeader);
         }
+
+        let version_maj = bytes.remove(0); // first byte after hdr length is version maj
+        let version_min = bytes.remove(0); // second byte after hdr length is version min
+        if version_maj != WIRE_PROTOCOL_VERSION_MAJ || version_min != WIRE_PROTOCOL_VERSION_MIN {
+            error!(
+                "Expected wire protocol version {}.{}, got {}.{} instead",
+                WIRE_PROTOCOL_VERSION_MAJ, WIRE_PROTOCOL_VERSION_MIN, version_maj, version_min
+            );
+            return Err(ResponseStatus::WireProtocolVersionNotSupported);
+        }
+
+        Ok(bincode::deserialize(&bytes)?)
     }
 }
 
@@ -118,12 +132,6 @@ impl Raw {
 /// not copied across from the raw header.
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct ResponseHeader {
-    /// Wire protocol major version number
-    /// Only 1 is a supported value for that field currently.
-    pub version_maj: u8,
-    /// Wire protocol minor version number
-    /// Only 0 is a supported value for that field currently.
-    pub version_min: u8,
     /// Provider ID value
     pub provider: ProviderID,
     /// Session handle
@@ -140,8 +148,6 @@ impl ResponseHeader {
     /// Create a new response header with default field values.
     pub(crate) fn new() -> ResponseHeader {
         ResponseHeader {
-            version_maj: 1,
-            version_min: 0,
             provider: ProviderID::Core,
             session: 0,
             content_type: BodyType::Protobuf,
@@ -179,8 +185,6 @@ impl TryFrom<Raw> for ResponseHeader {
         };
 
         Ok(ResponseHeader {
-            version_maj: header.version_maj,
-            version_min: header.version_min,
             provider,
             session: header.session,
             content_type,
@@ -197,8 +201,6 @@ impl TryFrom<Raw> for ResponseHeader {
 impl From<ResponseHeader> for Raw {
     fn from(header: ResponseHeader) -> Self {
         Raw {
-            version_maj: header.version_maj,
-            version_min: header.version_min,
             provider: header.provider as u8,
             session: header.session,
             content_type: header.content_type as u8,
