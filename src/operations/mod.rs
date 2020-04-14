@@ -33,7 +33,7 @@ pub mod psa_verify_hash;
 pub mod list_opcodes;
 pub mod list_providers;
 
-use crate::requests::{request::RequestBody, response::ResponseBody, Opcode, Result};
+use crate::requests::{request::RequestBody, response::ResponseBody, BodyType, Opcode, Result};
 
 /// Container type for operation conversion values, holding a native operation object
 /// to be passed in/out of a converter.
@@ -120,6 +120,9 @@ impl NativeResult {
 /// Definition of the operations converters must implement to allow usage of a specific
 /// `BodyType`.
 pub trait Convert {
+    /// Get the `BodyType` associated with this converter.
+    fn body_type(&self) -> BodyType;
+
     /// Create a native operation object from a request body.
     ///
     /// # Errors
