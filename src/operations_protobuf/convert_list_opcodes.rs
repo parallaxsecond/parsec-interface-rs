@@ -15,6 +15,7 @@
 use super::generated_ops::list_opcodes::{Operation as OperationProto, Result as ResultProto};
 use crate::operations::list_opcodes::{Operation, Result};
 use crate::requests::{Opcode, ResponseStatus};
+use log::error;
 use num::FromPrimitive;
 use std::collections::HashSet;
 use std::convert::TryFrom;
@@ -22,16 +23,24 @@ use std::convert::TryFrom;
 impl TryFrom<OperationProto> for Operation {
     type Error = ResponseStatus;
 
-    fn try_from(_proto_op: OperationProto) -> std::result::Result<Self, Self::Error> {
-        Ok(Operation {})
+    fn try_from(proto_op: OperationProto) -> std::result::Result<Self, Self::Error> {
+        match FromPrimitive::from_u32(proto_op.provider_id) {
+            None => {
+                error!("Invalid provider ID: {}", proto_op.provider_id);
+                Err(ResponseStatus::ProviderDoesNotExist)
+            }
+            Some(provider_id) => Ok(Operation { provider_id }),
+        }
     }
 }
 
 impl TryFrom<Operation> for OperationProto {
     type Error = ResponseStatus;
 
-    fn try_from(_op: Operation) -> std::result::Result<Self, Self::Error> {
-        Ok(Default::default())
+    fn try_from(op: Operation) -> std::result::Result<Self, Self::Error> {
+        Ok(OperationProto {
+            provider_id: op.provider_id as u32,
+        })
     }
 }
 
@@ -73,7 +82,7 @@ mod test {
     use crate::operations::{
         list_opcodes::Operation, list_opcodes::Result, NativeOperation, NativeResult,
     };
-    use crate::requests::{request::RequestBody, response::ResponseBody, Opcode};
+    use crate::requests::{request::RequestBody, response::ResponseBody, Opcode, ProviderID};
     use std::collections::HashSet;
     use std::convert::TryInto;
 
@@ -111,7 +120,9 @@ mod test {
 
     #[test]
     fn op_list_opcodes_from_native() {
-        let list_opcodes = Operation {};
+        let list_opcodes = Operation {
+            provider_id: ProviderID::Core,
+        };
         let body = CONVERTER
             .operation_to_body(NativeOperation::ListOpcodes(list_opcodes))
             .expect("Failed to convert request");
@@ -120,7 +131,9 @@ mod test {
 
     #[test]
     fn op_list_opcodes_e2e() {
-        let list_opcodes = Operation {};
+        let list_opcodes = Operation {
+            provider_id: ProviderID::Pkcs11,
+        };
         let req_body = CONVERTER
             .operation_to_body(NativeOperation::ListOpcodes(list_opcodes))
             .expect("Failed to convert request");
