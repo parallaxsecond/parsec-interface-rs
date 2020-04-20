@@ -42,8 +42,8 @@ pub enum ResponseStatus {
     AuthenticatorDoesNotExist = 12,
     /// Authenticator not supported
     AuthenticatorNotRegistered = 13,
-    /// Internal error in the Key ID Manager
-    KeyIDManagerError = 14,
+    /// Internal error in the Key Info Manager
+    KeyInfoManagerError = 14,
     /// Generic input/output error
     ConnectionError = 15,
     /// Invalid value for this data type
@@ -154,8 +154,8 @@ impl fmt::Display for ResponseStatus {
             ResponseStatus::AuthenticatorNotRegistered => {
                 write!(f, "authenticator not supported")
             }
-            ResponseStatus::KeyIDManagerError => {
-                write!(f, "internal error in the Key ID Manager")
+            ResponseStatus::KeyInfoManagerError => {
+                write!(f, "internal error in the Key Info Manager")
             }
             ResponseStatus::ConnectionError => {
                 write!(f, "generic input/output error")
