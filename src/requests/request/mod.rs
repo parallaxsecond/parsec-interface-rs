@@ -3,6 +3,7 @@
 //! # Request definition
 //!
 //! A `Request` is to the service to execute one operation.
+use super::common::wire_header_1_0::WireHeader as Raw;
 use super::response::ResponseHeader;
 use crate::requests::{ResponseStatus, Result};
 #[cfg(feature = "fuzz")]
@@ -20,7 +21,7 @@ pub use request_body::RequestBody;
 pub use request_header::RequestHeader;
 
 #[cfg(feature = "testing")]
-pub use request_header::Raw as RawHeader;
+pub use super::common::wire_header_1_0::WireHeader as RawHeader;
 
 /// Representation of the request wire format.
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]
@@ -59,7 +60,7 @@ impl Request {
     /// - if encoding any of the fields in the header fails, `ResponseStatus::InvalidEncoding`
     /// is returned.
     pub fn write_to_stream(self, stream: &mut impl Write) -> Result<()> {
-        let mut raw_header: request_header::Raw = self.header.into();
+        let mut raw_header: Raw = self.header.into();
         raw_header.body_len = u32::try_from(self.body.len())?;
         raw_header.auth_len = u16::try_from(self.auth.len())?;
         raw_header.write_to_stream(stream)?;
@@ -82,7 +83,7 @@ impl Request {
     /// - if the request body size specified in the header is larger than the limit passed as
     /// a parameter, `BodySizeExceedsLimit` will be returned.
     pub fn read_from_stream(stream: &mut impl Read, body_len_limit: usize) -> Result<Request> {
-        let raw_header = request_header::Raw::read_from_stream(stream)?;
+        let raw_header = Raw::read_from_stream(stream)?;
         let body_len = usize::try_from(raw_header.body_len)?;
         if body_len > body_len_limit {
             error!(
@@ -231,9 +232,9 @@ mod tests {
 
     fn get_request_bytes() -> Vec<u8> {
         vec![
-            0x10, 0xA7, 0xC0, 0x5E, 0x16, 0x00, 0x01, 0x00, 0x00, 0x88, 0x77, 0x66, 0x55, 0x44,
+            0x10, 0xA7, 0xC0, 0x5E, 0x18, 0x00, 0x01, 0x00, 0x00, 0x88, 0x77, 0x66, 0x55, 0x44,
             0x33, 0x22, 0x11, 0x00, 0x00, 0x01, 0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x01, 0x00,
-            0x70, 0x80, 0x90, 0xa0, 0xb0, 0xc0,
+            0x00, 0x00, 0x70, 0x80, 0x90, 0xa0, 0xb0, 0xc0,
         ]
     }
 }
