@@ -27,7 +27,7 @@ use std::io::{Read, Write};
 const WIRE_PROTOCOL_VERSION_MAJ: u8 = 1;
 const WIRE_PROTOCOL_VERSION_MIN: u8 = 0;
 
-const REQUEST_HDR_SIZE: u16 = 24;
+const REQUEST_HDR_SIZE: u16 = 30;
 
 /// Raw representation of a common request/response header, as defined for the wire format.
 ///
@@ -36,6 +36,8 @@ const REQUEST_HDR_SIZE: u16 = 24;
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct WireHeader {
+    /// Implementation-defined flags. Not used in Parsec currently. Must be present, but must be zero.
+    pub flags: u16,
     /// Provider ID value
     pub provider: u8,
     /// Session handle
@@ -51,9 +53,13 @@ pub struct WireHeader {
     /// Number of bytes of authentication.
     pub auth_len: u16,
     /// Opcode of the operation to perform.
-    pub opcode: u16,
+    pub opcode: u32,
     /// Response status of the request.
     pub status: u16,
+    /// Reserved byte. Currently unused. Must be present. Must be zero.
+    pub reserved1: u8,
+    /// Reserved byte. Currently unused. Must be present. Must be zero.
+    pub reserved2: u8,
 }
 
 impl WireHeader {
@@ -64,6 +70,7 @@ impl WireHeader {
     #[allow(clippy::new_without_default)]
     pub fn new() -> WireHeader {
         WireHeader {
+            flags: 0,
             provider: 0,
             session: 0,
             content_type: 0,
@@ -73,6 +80,8 @@ impl WireHeader {
             auth_len: 0,
             opcode: 0,
             status: 0,
+            reserved1: 0,
+            reserved2: 0,
         }
     }
 
