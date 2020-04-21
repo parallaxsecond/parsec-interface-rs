@@ -54,7 +54,7 @@ impl TryFrom<Raw> for ResponseHeader {
             None => return Err(ResponseStatus::ContentTypeNotSupported),
         };
 
-        let opcode: Opcode = match FromPrimitive::from_u16(header.opcode) {
+        let opcode: Opcode = match FromPrimitive::from_u32(header.opcode) {
             Some(opcode) => opcode,
             None => return Err(ResponseStatus::OpcodeDoesNotExist),
         };
@@ -81,6 +81,7 @@ impl TryFrom<Raw> for ResponseHeader {
 impl From<ResponseHeader> for Raw {
     fn from(header: ResponseHeader) -> Self {
         Raw {
+            flags: 0,
             provider: header.provider as u8,
             session: header.session,
             content_type: header.content_type as u8,
@@ -88,8 +89,10 @@ impl From<ResponseHeader> for Raw {
             auth_type: 0,
             auth_len: 0,
             body_len: 0,
-            opcode: header.opcode as u16,
+            opcode: header.opcode as u32,
             status: header.status as u16,
+            reserved1: 0,
+            reserved2: 0,
         }
     }
 }
