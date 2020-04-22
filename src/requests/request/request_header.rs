@@ -1,6 +1,5 @@
 // Copyright 2019 Contributors to the Parsec project.
 // SPDX-License-Identifier: Apache-2.0
-
 use crate::requests::common::wire_header_1_0::WireHeader as Raw;
 use crate::requests::ResponseStatus;
 use crate::requests::{AuthType, BodyType, Opcode, ProviderID};
