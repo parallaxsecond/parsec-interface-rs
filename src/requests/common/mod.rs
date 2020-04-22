@@ -1,4 +1,4 @@
-// Copyright 2019 Contributors to the Parsec project.
+// Copyright 2020 Contributors to the Parsec project.
 // SPDX-License-Identifier: Apache-2.0
 
 //! This module implements the raw wire protocol header frame for requests and responses in
