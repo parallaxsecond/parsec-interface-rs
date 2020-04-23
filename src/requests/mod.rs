@@ -71,7 +71,7 @@ pub enum BodyType {
 /// page of the book for more information.
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(FromPrimitive, Copy, Clone, PartialEq, Debug, Hash, Eq)]
-#[repr(u16)]
+#[repr(u32)]
 pub enum Opcode {
     /// Ping operation
     Ping = 1,
