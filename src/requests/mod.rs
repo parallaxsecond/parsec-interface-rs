@@ -9,6 +9,7 @@ use num_derive::FromPrimitive;
 mod response_status;
 
 pub mod utils;
+pub mod common;
 pub mod request;
 pub mod response;
 #[cfg(feature = "fuzz")]
@@ -17,11 +18,6 @@ pub use request::Request;
 pub use response::Response;
 pub use response_status::{ResponseStatus, Result};
 use std::convert::TryFrom;
-
-const MAGIC_NUMBER: u32 = 0x5EC0_A710;
-
-const WIRE_PROTOCOL_VERSION_MAJ: u8 = 1;
-const WIRE_PROTOCOL_VERSION_MIN: u8 = 0;
 
 /// Listing of provider types and their associated codes.
 ///
