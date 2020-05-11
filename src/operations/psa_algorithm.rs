@@ -100,6 +100,21 @@ impl Hash {
             self == alg
         }
     }
+
+    /// Get the digest size output by the hash algorithm
+    ///
+    /// Returns `None` for `Hash::Any`
+    pub fn digest_size(self) -> Option<usize> {
+        match self {
+            Hash::Md2 | Hash::Md4 | Hash::Md5 => Some(16),
+            Hash::Ripemd160 | Hash::Sha1 => Some(20),
+            Hash::Sha224 | Hash::Sha512_224 | Hash::Sha3_224 => Some(28),
+            Hash::Sha256 | Hash::Sha512_256 | Hash::Sha3_256 => Some(32),
+            Hash::Sha384 | Hash::Sha3_384 => Some(48),
+            Hash::Sha3_512 | Hash::Sha512 => Some(64),
+            Hash::Any => None,
+        }
+    }
 }
 
 /// Enumeration of untruncated MAC algorithms.
@@ -397,6 +412,20 @@ impl AsymmetricSignature {
             | AsymmetricSignature::EcdsaAny
             | AsymmetricSignature::DeterministicEcdsa { .. } => true,
             _ => false,
+        }
+    }
+
+    /// Determines if the given hash length is compatible with the asymmetric signature scheme
+    pub(crate) fn is_hash_len_permitted(self, hash_len: usize) -> bool {
+        match self {
+            AsymmetricSignature::EcdsaAny | AsymmetricSignature::RsaPkcs1v15SignRaw => true,
+            AsymmetricSignature::DeterministicEcdsa { hash_alg }
+            | AsymmetricSignature::RsaPkcs1v15Sign { hash_alg }
+            | AsymmetricSignature::Ecdsa { hash_alg }
+            | AsymmetricSignature::RsaPss { hash_alg } => hash_alg
+                .digest_size()
+                .map(|len| len == hash_len)
+                .unwrap_or(false),
         }
     }
 }
