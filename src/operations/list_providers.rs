@@ -4,11 +4,12 @@
 //!
 //! List the providers available in the service, with some information.
 use crate::requests::ProviderID;
+use std::cmp::Eq;
 use uuid::Uuid;
 
 /// Structure holding the basic information that defines the providers in
 /// the service for client discovery.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ProviderInfo {
     /// Unique, permanent, identifier of the provider.
     pub uuid: Uuid,
