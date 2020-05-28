@@ -6,6 +6,8 @@ use super::generated_ops::psa_algorithm::algorithm::aead;
 use super::generated_ops::psa_algorithm::algorithm::aead::AeadWithDefaultLengthTag as AeadWithDefaultLengthTagProto;
 use super::generated_ops::psa_algorithm::algorithm::asymmetric_encryption;
 use super::generated_ops::psa_algorithm::algorithm::asymmetric_signature;
+use super::generated_ops::psa_algorithm::algorithm::asymmetric_signature::sign_hash;
+use super::generated_ops::psa_algorithm::algorithm::asymmetric_signature::SignHash as SignHashProto;
 use super::generated_ops::psa_algorithm::algorithm::key_agreement;
 use super::generated_ops::psa_algorithm::algorithm::key_agreement::Raw as RawKeyAgreementProto;
 use super::generated_ops::psa_algorithm::algorithm::key_derivation;
@@ -24,7 +26,7 @@ use super::generated_ops::psa_algorithm::Algorithm as AlgorithmProto;
 // Native imports
 use crate::operations::psa_algorithm::{
     Aead, AeadWithDefaultLengthTag, Algorithm, AsymmetricEncryption, AsymmetricSignature, Cipher,
-    FullLengthMac, Hash, KeyAgreement, KeyDerivation, Mac, RawKeyAgreement,
+    FullLengthMac, Hash, KeyAgreement, KeyDerivation, Mac, RawKeyAgreement, SignHash,
 };
 
 use crate::requests::{ResponseStatus, Result};
@@ -32,17 +34,10 @@ use log::error;
 use std::convert::{TryFrom, TryInto};
 
 // Hash algorithms: from protobuf to native
-impl TryFrom<i32> for Hash {
+impl TryFrom<HashProto> for Hash {
     type Error = ResponseStatus;
 
-    fn try_from(hash_val: i32) -> Result<Self> {
-        let hash_val = HashProto::from_i32(hash_val).ok_or_else(|| {
-            error!(
-                "Value {} not recognised as a valid hash algorithm encoding.",
-                hash_val
-            );
-            ResponseStatus::InvalidEncoding
-        })?;
+    fn try_from(hash_val: HashProto) -> Result<Self> {
         match hash_val {
             HashProto::None => {
                 error!("The None value of Hash enumeration is not allowed.");
@@ -67,7 +62,6 @@ impl TryFrom<i32> for Hash {
             HashProto::Sha3256 => Ok(Hash::Sha3_256),
             HashProto::Sha3384 => Ok(Hash::Sha3_384),
             HashProto::Sha3512 => Ok(Hash::Sha3_512),
-            HashProto::AnyHash => Ok(Hash::Any),
         }
     }
 }
@@ -94,7 +88,35 @@ fn hash_to_i32(hash: Hash) -> i32 {
         Hash::Sha3_256 => HashProto::Sha3256.into(),
         Hash::Sha3_384 => HashProto::Sha3384.into(),
         Hash::Sha3_512 => HashProto::Sha3512.into(),
-        Hash::Any => HashProto::AnyHash.into(),
+    }
+}
+
+impl TryFrom<SignHashProto> for SignHash {
+    type Error = ResponseStatus;
+
+    fn try_from(sign_hash_val: SignHashProto) -> Result<Self> {
+        match sign_hash_val.variant.ok_or_else(|| {
+            error!("variant field of SignHash message is empty.");
+            ResponseStatus::InvalidEncoding
+        })? {
+            sign_hash::Variant::Any(_) => Ok(SignHash::Any),
+            sign_hash::Variant::Specific(hash_val) => Ok(SignHash::Specific(
+                HashProto::try_from(hash_val)?.try_into()?,
+            )),
+        }
+    }
+}
+
+impl From<SignHash> for SignHashProto {
+    fn from(sign_hash: SignHash) -> Self {
+        match sign_hash {
+            SignHash::Any => SignHashProto {
+                variant: Some(sign_hash::Variant::Any(sign_hash::Any {})),
+            },
+            SignHash::Specific(hash) => SignHashProto {
+                variant: Some(sign_hash::Variant::Specific(hash_to_i32(hash))),
+            },
+        }
     }
 }
 
@@ -108,7 +130,7 @@ impl TryFrom<FullLengthMacProto> for FullLengthMac {
             ResponseStatus::InvalidEncoding
         })? {
             mac::full_length::Variant::Hmac(hmac) => Ok(FullLengthMac::Hmac {
-                hash_alg: hmac.hash_alg.try_into()?,
+                hash_alg: HashProto::try_from(hmac.hash_alg)?.try_into()?,
             }),
             mac::full_length::Variant::CbcMac(_) => Ok(FullLengthMac::CbcMac),
             mac::full_length::Variant::Cmac(_) => Ok(FullLengthMac::Cmac),
@@ -192,17 +214,10 @@ impl TryFrom<Mac> for MacProto {
 }
 
 // Cipher algorithms: from protobuf to native
-impl TryFrom<i32> for Cipher {
+impl TryFrom<CipherProto> for Cipher {
     type Error = ResponseStatus;
 
-    fn try_from(cipher_val: i32) -> Result<Self> {
-        let cipher_val = CipherProto::from_i32(cipher_val).ok_or_else(|| {
-            error!(
-                "Value {} not recognised as a valid cipher algorithm encoding.",
-                cipher_val
-            );
-            ResponseStatus::InvalidEncoding
-        })?;
+    fn try_from(cipher_val: CipherProto) -> Result<Self> {
         match cipher_val {
             CipherProto::None => {
                 error!("The None value of Cipher enumeration is not allowed.");
@@ -235,14 +250,10 @@ fn cipher_to_i32(cipher: Cipher) -> i32 {
 }
 
 // AeadWithDefaultLengthTag algorithms: from protobuf to native
-impl TryFrom<i32> for AeadWithDefaultLengthTag {
+impl TryFrom<AeadWithDefaultLengthTagProto> for AeadWithDefaultLengthTag {
     type Error = ResponseStatus;
 
-    fn try_from(aead_val: i32) -> Result<Self> {
-        let aead_val = AeadWithDefaultLengthTagProto::from_i32(aead_val).ok_or_else(|| {
-            error!("Value {} not recognised as a valid AEAD with default length tag algorithm encoding.", aead_val);
-            ResponseStatus::InvalidEncoding
-        })?;
+    fn try_from(aead_val: AeadWithDefaultLengthTagProto) -> Result<Self> {
         match aead_val {
             AeadWithDefaultLengthTagProto::None => {
                 error!("The None value of AeadWithDefaultLengthTag enumeration is not allowed.");
@@ -277,9 +288,11 @@ impl TryFrom<AeadProto> for Aead {
             error!("variant field of Aead message is empty.");
             ResponseStatus::InvalidEncoding
         })? {
-            aead::Variant::AeadWithDefaultLengthTag(aead_with_default_length_tag) => Ok(Aead::AeadWithDefaultLengthTag(aead_with_default_length_tag.try_into()?)),
+            aead::Variant::AeadWithDefaultLengthTag(aead_with_default_length_tag) => {
+                Ok(Aead::AeadWithDefaultLengthTag(AeadWithDefaultLengthTagProto::try_from(aead_with_default_length_tag)?.try_into()?))
+            },
             aead::Variant::AeadWithShortenedTag(aead_with_shortened_tag) => Ok(Aead::AeadWithShortenedTag {
-                aead_alg: aead_with_shortened_tag.aead_alg.try_into()?,
+                aead_alg: AeadWithDefaultLengthTagProto::try_from(aead_with_shortened_tag.aead_alg)?.try_into()?,
                 tag_length: aead_with_shortened_tag.tag_length.try_into().or_else(|e| {
                         error!("tag_length field of aead::AeadWithShortenedTag can not be represented by an usize ({}).", e);
                         Err(ResponseStatus::InvalidEncoding)
@@ -322,22 +335,46 @@ impl TryFrom<AsymmetricSignatureProto> for AsymmetricSignature {
         })? {
             asymmetric_signature::Variant::RsaPkcs1v15Sign(rsa_pkcs1v15_sign) => {
                 Ok(AsymmetricSignature::RsaPkcs1v15Sign {
-                    hash_alg: rsa_pkcs1v15_sign.hash_alg.try_into()?,
+                    hash_alg: rsa_pkcs1v15_sign
+                        .hash_alg
+                        .ok_or_else(|| {
+                            error!("hash_alg field of RsaPkcs1v15Sign message is empty.");
+                            ResponseStatus::InvalidEncoding
+                        })?
+                        .try_into()?,
                 })
             }
             asymmetric_signature::Variant::RsaPkcs1v15SignRaw(_) => {
                 Ok(AsymmetricSignature::RsaPkcs1v15SignRaw)
             }
             asymmetric_signature::Variant::RsaPss(rsa_pss) => Ok(AsymmetricSignature::RsaPss {
-                hash_alg: rsa_pss.hash_alg.try_into()?,
+                hash_alg: rsa_pss
+                    .hash_alg
+                    .ok_or_else(|| {
+                        error!("hash_alg field of RsaPss message is empty.");
+                        ResponseStatus::InvalidEncoding
+                    })?
+                    .try_into()?,
             }),
             asymmetric_signature::Variant::Ecdsa(ecdsa) => Ok(AsymmetricSignature::Ecdsa {
-                hash_alg: ecdsa.hash_alg.try_into()?,
+                hash_alg: ecdsa
+                    .hash_alg
+                    .ok_or_else(|| {
+                        error!("hash_alg field of Ecdsa message is empty.");
+                        ResponseStatus::InvalidEncoding
+                    })?
+                    .try_into()?,
             }),
             asymmetric_signature::Variant::EcdsaAny(_) => Ok(AsymmetricSignature::EcdsaAny),
             asymmetric_signature::Variant::DeterministicEcdsa(deterministic_ecdsa) => {
                 Ok(AsymmetricSignature::DeterministicEcdsa {
-                    hash_alg: deterministic_ecdsa.hash_alg.try_into()?,
+                    hash_alg: deterministic_ecdsa
+                        .hash_alg
+                        .ok_or_else(|| {
+                            error!("hash_alg field of DeterministicEcdsa message is empty.");
+                            ResponseStatus::InvalidEncoding
+                        })?
+                        .try_into()?,
                 })
             }
         }
@@ -353,7 +390,7 @@ impl TryFrom<AsymmetricSignature> for AsymmetricSignatureProto {
             AsymmetricSignature::RsaPkcs1v15Sign { hash_alg } => Ok(AsymmetricSignatureProto {
                 variant: Some(asymmetric_signature::Variant::RsaPkcs1v15Sign(
                     asymmetric_signature::RsaPkcs1v15Sign {
-                        hash_alg: hash_to_i32(hash_alg),
+                        hash_alg: Some(hash_alg.into()),
                     },
                 )),
             }),
@@ -365,14 +402,14 @@ impl TryFrom<AsymmetricSignature> for AsymmetricSignatureProto {
             AsymmetricSignature::RsaPss { hash_alg } => Ok(AsymmetricSignatureProto {
                 variant: Some(asymmetric_signature::Variant::RsaPss(
                     asymmetric_signature::RsaPss {
-                        hash_alg: hash_to_i32(hash_alg),
+                        hash_alg: Some(hash_alg.into()),
                     },
                 )),
             }),
             AsymmetricSignature::Ecdsa { hash_alg } => Ok(AsymmetricSignatureProto {
                 variant: Some(asymmetric_signature::Variant::Ecdsa(
                     asymmetric_signature::Ecdsa {
-                        hash_alg: hash_to_i32(hash_alg),
+                        hash_alg: Some(hash_alg.into()),
                     },
                 )),
             }),
@@ -384,7 +421,7 @@ impl TryFrom<AsymmetricSignature> for AsymmetricSignatureProto {
             AsymmetricSignature::DeterministicEcdsa { hash_alg } => Ok(AsymmetricSignatureProto {
                 variant: Some(asymmetric_signature::Variant::DeterministicEcdsa(
                     asymmetric_signature::DeterministicEcdsa {
-                        hash_alg: hash_to_i32(hash_alg),
+                        hash_alg: Some(hash_alg.into()),
                     },
                 )),
             }),
@@ -406,7 +443,7 @@ impl TryFrom<AsymmetricEncryptionProto> for AsymmetricEncryption {
             }
             asymmetric_encryption::Variant::RsaOaep(rsa_oaep) => {
                 Ok(AsymmetricEncryption::RsaOaep {
-                    hash_alg: rsa_oaep.hash_alg.try_into()?,
+                    hash_alg: HashProto::try_from(rsa_oaep.hash_alg)?.try_into()?,
                 })
             }
         }
@@ -436,18 +473,10 @@ impl TryFrom<AsymmetricEncryption> for AsymmetricEncryptionProto {
 }
 
 // RawKeyAgreement algorithms: from protobuf to native
-impl TryFrom<i32> for RawKeyAgreement {
+impl TryFrom<RawKeyAgreementProto> for RawKeyAgreement {
     type Error = ResponseStatus;
 
-    fn try_from(raw_key_agreement_val: i32) -> Result<Self> {
-        let raw_key_agreement_val = RawKeyAgreementProto::from_i32(raw_key_agreement_val)
-            .ok_or_else(|| {
-                error!(
-                    "Value {} not recognised as a valid raw key agreement algorithm encoding.",
-                    raw_key_agreement_val
-                );
-                ResponseStatus::InvalidEncoding
-            })?;
+    fn try_from(raw_key_agreement_val: RawKeyAgreementProto) -> Result<Self> {
         match raw_key_agreement_val {
             RawKeyAgreementProto::None => {
                 error!("The None value of RawKeyAgreement enumeration is not allowed.");
@@ -476,9 +505,9 @@ impl TryFrom<KeyAgreementProto> for KeyAgreement {
             error!("variant field of KeyAgreement message is empty.");
             ResponseStatus::InvalidEncoding
         })? {
-            key_agreement::Variant::Raw(raw) => Ok(KeyAgreement::Raw(raw.try_into()?)),
+            key_agreement::Variant::Raw(raw) => Ok(KeyAgreement::Raw(RawKeyAgreementProto::try_from(raw)?.try_into()?)),
             key_agreement::Variant::WithKeyDerivation(with_key_derivation) => Ok(KeyAgreement::WithKeyDerivation {
-                ka_alg: with_key_derivation.ka_alg.try_into()?,
+                ka_alg: RawKeyAgreementProto::try_from(with_key_derivation.ka_alg)?.try_into()?,
                 kdf_alg: with_key_derivation.kdf_alg.ok_or_else(|| {
                     error!("kdf_alg field of key_agreement::WithKeyDerivation message is empty.");
                     ResponseStatus::InvalidEncoding
@@ -521,14 +550,14 @@ impl TryFrom<KeyDerivationProto> for KeyDerivation {
             ResponseStatus::InvalidEncoding
         })? {
             key_derivation::Variant::Hkdf(hkdf) => Ok(KeyDerivation::Hkdf {
-                hash_alg: hkdf.hash_alg.try_into()?,
+                hash_alg: HashProto::try_from(hkdf.hash_alg)?.try_into()?,
             }),
             key_derivation::Variant::Tls12Prf(tls12_prf) => Ok(KeyDerivation::Tls12Prf {
-                hash_alg: tls12_prf.hash_alg.try_into()?,
+                hash_alg: HashProto::try_from(tls12_prf.hash_alg)?.try_into()?,
             }),
             key_derivation::Variant::Tls12PskToMs(tls12_psk_to_ms) => {
                 Ok(KeyDerivation::Tls12PskToMs {
-                    hash_alg: tls12_psk_to_ms.hash_alg.try_into()?,
+                    hash_alg: HashProto::try_from(tls12_psk_to_ms.hash_alg)?.try_into()?,
                 })
             }
         }
@@ -574,9 +603,13 @@ impl TryFrom<AlgorithmProto> for Algorithm {
             ResponseStatus::InvalidEncoding
         })? {
             algorithm::Variant::None(_) => Ok(Algorithm::None),
-            algorithm::Variant::Hash(hash) => Ok(Algorithm::Hash(hash.try_into()?)),
+            algorithm::Variant::Hash(hash) => {
+                Ok(Algorithm::Hash(HashProto::try_from(hash)?.try_into()?))
+            }
             algorithm::Variant::Mac(mac) => Ok(Algorithm::Mac(mac.try_into()?)),
-            algorithm::Variant::Cipher(cipher) => Ok(Algorithm::Cipher(cipher.try_into()?)),
+            algorithm::Variant::Cipher(cipher) => Ok(Algorithm::Cipher(
+                CipherProto::try_from(cipher)?.try_into()?,
+            )),
             algorithm::Variant::Aead(aead) => Ok(Algorithm::Aead(aead.try_into()?)),
             algorithm::Variant::AsymmetricSignature(asymmetric_signature) => Ok(
                 Algorithm::AsymmetricSignature(asymmetric_signature.try_into()?),
@@ -641,7 +674,9 @@ impl TryFrom<Algorithm> for AlgorithmProto {
 mod test {
     #![allow(deprecated)]
     use super::super::generated_ops::psa_algorithm::{
-        self as algorithm_proto, Algorithm as AlgorithmProto,
+        self as algorithm_proto,
+        algorithm::asymmetric_signature::{sign_hash, SignHash as SignHashProto},
+        Algorithm as AlgorithmProto,
     };
     use crate::operations::psa_algorithm::{Algorithm, AsymmetricSignature, Hash};
     use std::convert::TryInto;
@@ -654,7 +689,11 @@ mod test {
                     variant: Some(
                         algorithm_proto::algorithm::asymmetric_signature::Variant::RsaPkcs1v15Sign(
                             algorithm_proto::algorithm::asymmetric_signature::RsaPkcs1v15Sign {
-                                hash_alg: algorithm_proto::algorithm::Hash::Sha1.into(),
+                                hash_alg: Some(SignHashProto {
+                                    variant: Some(sign_hash::Variant::Specific(
+                                        algorithm_proto::algorithm::Hash::Sha1.into(),
+                                    )),
+                                }),
                             },
                         ),
                     ),
@@ -664,7 +703,7 @@ mod test {
 
         let sign: Algorithm = proto_sign.try_into().unwrap();
         let sign_expected = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
-            hash_alg: Hash::Sha1,
+            hash_alg: Hash::Sha1.into(),
         });
 
         assert_eq!(sign, sign_expected);
@@ -673,7 +712,7 @@ mod test {
     #[test]
     fn sign_algo_to_proto() {
         let sign = Algorithm::AsymmetricSignature(AsymmetricSignature::RsaPkcs1v15Sign {
-            hash_alg: Hash::Sha1,
+            hash_alg: Hash::Sha1.into(),
         });
 
         let proto_sign: AlgorithmProto = sign.try_into().unwrap();
@@ -683,7 +722,11 @@ mod test {
                     variant: Some(
                         algorithm_proto::algorithm::asymmetric_signature::Variant::RsaPkcs1v15Sign(
                             algorithm_proto::algorithm::asymmetric_signature::RsaPkcs1v15Sign {
-                                hash_alg: algorithm_proto::algorithm::Hash::Sha1.into(),
+                                hash_alg: Some(SignHashProto {
+                                    variant: Some(sign_hash::Variant::Specific(
+                                        algorithm_proto::algorithm::Hash::Sha1.into(),
+                                    )),
+                                }),
                             },
                         ),
                     ),

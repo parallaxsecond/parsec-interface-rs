@@ -4,7 +4,7 @@
 //!
 //! Generate a key or a key pair.
 
-use super::psa_key_attributes::KeyAttributes;
+use super::psa_key_attributes::Attributes;
 
 /// Native object for creating a cryptographic key.
 #[derive(Clone, Debug)]
@@ -13,7 +13,7 @@ pub struct Operation {
     /// name must be unique per application.
     pub key_name: String,
     /// `attributes` specifies the parameters to be associated with the key.
-    pub attributes: KeyAttributes,
+    pub attributes: Attributes,
 }
 
 /// Native object for the result of creating a cryptographic key.

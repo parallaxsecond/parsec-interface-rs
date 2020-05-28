@@ -10,8 +10,6 @@
 //! [document](https://developer.arm.com/architectures/security-architectures/platform-security-architecture/documentation)
 //! and the book for more details.
 pub mod ping;
-pub mod psa_key_attributes;
-pub mod psa_algorithm;
 pub mod psa_generate_key;
 pub mod psa_import_key;
 pub mod psa_export_public_key;
@@ -20,6 +18,9 @@ pub mod psa_sign_hash;
 pub mod psa_verify_hash;
 pub mod list_opcodes;
 pub mod list_providers;
+
+pub use psa_crypto::types::algorithm as psa_algorithm;
+pub use psa_crypto::types::key as psa_key_attributes;
 
 use crate::requests::{request::RequestBody, response::ResponseBody, BodyType, Opcode, Result};
 

@@ -10,7 +10,7 @@ use super::generated_ops::psa_key_attributes::{
 // Native imports
 use crate::operations::psa_algorithm::Algorithm;
 use crate::operations::psa_key_attributes::{
-    DhFamily, EccFamily, KeyAttributes, KeyPolicy, KeyType, UsageFlags,
+    Attributes, DhFamily, EccFamily, Lifetime, Policy, Type, UsageFlags,
 };
 
 use crate::requests::{ResponseStatus, Result};
@@ -57,55 +57,48 @@ impl TryFrom<UsageFlags> for UsageFlagsProto {
     }
 }
 
-// KeyPolicy: from protobuf to native
-impl TryFrom<KeyPolicyProto> for KeyPolicy {
+// Policy: from protobuf to native
+impl TryFrom<KeyPolicyProto> for Policy {
     type Error = ResponseStatus;
 
     fn try_from(key_policy_proto: KeyPolicyProto) -> Result<Self> {
-        let key_algorithm: Algorithm = key_policy_proto
+        let permitted_algorithms: Algorithm = key_policy_proto
             .key_algorithm
             .ok_or_else(|| {
-                error!("key_algorithm field of KeyPolicy message is empty.");
+                error!("permitted_algorithms field of Policy message is empty.");
                 ResponseStatus::InvalidEncoding
             })?
             .try_into()?;
-        Ok(KeyPolicy {
-            key_usage_flags: key_policy_proto
+        Ok(Policy {
+            usage_flags: key_policy_proto
                 .key_usage_flags
                 .ok_or_else(|| {
-                    error!("key_usage_flags field of KeyPolicy message is empty.");
+                    error!("usage_flags field of Policy message is empty.");
                     ResponseStatus::InvalidEncoding
                 })?
                 .try_into()?,
-            key_algorithm,
+            permitted_algorithms,
         })
     }
 }
 
-// KeyPolicy: from native to protobuf
-impl TryFrom<KeyPolicy> for KeyPolicyProto {
+// Policy: from native to protobuf
+impl TryFrom<Policy> for KeyPolicyProto {
     type Error = ResponseStatus;
 
-    fn try_from(key_policy: KeyPolicy) -> Result<Self> {
+    fn try_from(key_policy: Policy) -> Result<Self> {
         Ok(KeyPolicyProto {
-            key_usage_flags: Some(key_policy.key_usage_flags.try_into()?),
-            key_algorithm: Some(key_policy.key_algorithm.try_into()?),
+            key_usage_flags: Some(key_policy.usage_flags.try_into()?),
+            key_algorithm: Some(key_policy.permitted_algorithms.try_into()?),
         })
     }
 }
 
 // EccFamily: from protobuf to native
-impl TryFrom<i32> for EccFamily {
+impl TryFrom<EccFamilyProto> for EccFamily {
     type Error = ResponseStatus;
 
-    fn try_from(ecc_family_val: i32) -> Result<Self> {
-        let ecc_family_val = EccFamilyProto::from_i32(ecc_family_val).ok_or_else(|| {
-            error!(
-                "Value {} not recognised as a valid ECC family encoding.",
-                ecc_family_val
-            );
-            ResponseStatus::InvalidEncoding
-        })?;
+    fn try_from(ecc_family_val: EccFamilyProto) -> Result<Self> {
         match ecc_family_val {
             EccFamilyProto::None => {
                 error!("The None value of EccFamily enumeration is not allowed.");
@@ -144,17 +137,10 @@ fn ecc_family_to_i32(ecc_family: EccFamily) -> i32 {
 }
 
 // DhFamily: from protobuf to native
-impl TryFrom<i32> for DhFamily {
+impl TryFrom<DhFamilyProto> for DhFamily {
     type Error = ResponseStatus;
 
-    fn try_from(dh_family_val: i32) -> Result<Self> {
-        let dh_family_val = DhFamilyProto::from_i32(dh_family_val).ok_or_else(|| {
-            error!(
-                "Value {} not recognised as a valid DH family encoding.",
-                dh_family_val
-            );
-            ResponseStatus::InvalidEncoding
-        })?;
+    fn try_from(dh_family_val: DhFamilyProto) -> Result<Self> {
         match dh_family_val {
             DhFamilyProto::Rfc7919 => Ok(DhFamily::Rfc7919),
         }
@@ -168,91 +154,91 @@ fn dh_family_to_i32(dh_family: DhFamily) -> i32 {
     }
 }
 
-impl TryFrom<KeyTypeProto> for KeyType {
+impl TryFrom<KeyTypeProto> for Type {
     type Error = ResponseStatus;
 
     fn try_from(key_type_proto: KeyTypeProto) -> Result<Self> {
         match key_type_proto.variant.ok_or_else(|| {
-            error!("variant field of KeyType message is empty.");
+            error!("variant field of Type message is empty.");
             ResponseStatus::InvalidEncoding
         })? {
-            key_type::Variant::RawData(_) => Ok(KeyType::RawData),
-            key_type::Variant::Hmac(_) => Ok(KeyType::Hmac),
-            key_type::Variant::Derive(_) => Ok(KeyType::Derive),
-            key_type::Variant::Aes(_) => Ok(KeyType::Aes),
-            key_type::Variant::Des(_) => Ok(KeyType::Des),
-            key_type::Variant::Camellia(_) => Ok(KeyType::Camellia),
-            key_type::Variant::Arc4(_) => Ok(KeyType::Arc4),
-            key_type::Variant::Chacha20(_) => Ok(KeyType::Chacha20),
-            key_type::Variant::RsaPublicKey(_) => Ok(KeyType::RsaPublicKey),
-            key_type::Variant::RsaKeyPair(_) => Ok(KeyType::RsaKeyPair),
-            key_type::Variant::EccKeyPair(ecc_key_pair) => Ok(KeyType::EccKeyPair {
-                curve_family: ecc_key_pair.curve_family.try_into()?,
+            key_type::Variant::RawData(_) => Ok(Type::RawData),
+            key_type::Variant::Hmac(_) => Ok(Type::Hmac),
+            key_type::Variant::Derive(_) => Ok(Type::Derive),
+            key_type::Variant::Aes(_) => Ok(Type::Aes),
+            key_type::Variant::Des(_) => Ok(Type::Des),
+            key_type::Variant::Camellia(_) => Ok(Type::Camellia),
+            key_type::Variant::Arc4(_) => Ok(Type::Arc4),
+            key_type::Variant::Chacha20(_) => Ok(Type::Chacha20),
+            key_type::Variant::RsaPublicKey(_) => Ok(Type::RsaPublicKey),
+            key_type::Variant::RsaKeyPair(_) => Ok(Type::RsaKeyPair),
+            key_type::Variant::EccKeyPair(ecc_key_pair) => Ok(Type::EccKeyPair {
+                curve_family: EccFamilyProto::try_from(ecc_key_pair.curve_family)?.try_into()?,
             }),
-            key_type::Variant::EccPublicKey(ecc_public_key) => Ok(KeyType::EccPublicKey {
-                curve_family: ecc_public_key.curve_family.try_into()?,
+            key_type::Variant::EccPublicKey(ecc_public_key) => Ok(Type::EccPublicKey {
+                curve_family: EccFamilyProto::try_from(ecc_public_key.curve_family)?.try_into()?,
             }),
-            key_type::Variant::DhKeyPair(dh_key_pair) => Ok(KeyType::DhKeyPair {
-                group_family: dh_key_pair.group_family.try_into()?,
+            key_type::Variant::DhKeyPair(dh_key_pair) => Ok(Type::DhKeyPair {
+                group_family: DhFamilyProto::try_from(dh_key_pair.group_family)?.try_into()?,
             }),
-            key_type::Variant::DhPublicKey(dh_public_key) => Ok(KeyType::DhPublicKey {
-                group_family: dh_public_key.group_family.try_into()?,
+            key_type::Variant::DhPublicKey(dh_public_key) => Ok(Type::DhPublicKey {
+                group_family: DhFamilyProto::try_from(dh_public_key.group_family)?.try_into()?,
             }),
         }
     }
 }
 
-impl TryFrom<KeyType> for KeyTypeProto {
+impl TryFrom<Type> for KeyTypeProto {
     type Error = ResponseStatus;
 
-    fn try_from(key_type: KeyType) -> Result<Self> {
+    fn try_from(key_type: Type) -> Result<Self> {
         match key_type {
-            KeyType::RawData => Ok(KeyTypeProto {
+            Type::RawData => Ok(KeyTypeProto {
                 variant: Some(key_type::Variant::RawData(key_type::RawData {})),
             }),
-            KeyType::Hmac => Ok(KeyTypeProto {
+            Type::Hmac => Ok(KeyTypeProto {
                 variant: Some(key_type::Variant::Hmac(key_type::Hmac {})),
             }),
-            KeyType::Derive => Ok(KeyTypeProto {
+            Type::Derive => Ok(KeyTypeProto {
                 variant: Some(key_type::Variant::Derive(key_type::Derive {})),
             }),
-            KeyType::Aes => Ok(KeyTypeProto {
+            Type::Aes => Ok(KeyTypeProto {
                 variant: Some(key_type::Variant::Aes(key_type::Aes {})),
             }),
-            KeyType::Des => Ok(KeyTypeProto {
+            Type::Des => Ok(KeyTypeProto {
                 variant: Some(key_type::Variant::Des(key_type::Des {})),
             }),
-            KeyType::Camellia => Ok(KeyTypeProto {
+            Type::Camellia => Ok(KeyTypeProto {
                 variant: Some(key_type::Variant::Camellia(key_type::Camellia {})),
             }),
-            KeyType::Arc4 => Ok(KeyTypeProto {
+            Type::Arc4 => Ok(KeyTypeProto {
                 variant: Some(key_type::Variant::Arc4(key_type::Arc4 {})),
             }),
-            KeyType::Chacha20 => Ok(KeyTypeProto {
+            Type::Chacha20 => Ok(KeyTypeProto {
                 variant: Some(key_type::Variant::Chacha20(key_type::Chacha20 {})),
             }),
-            KeyType::RsaPublicKey => Ok(KeyTypeProto {
+            Type::RsaPublicKey => Ok(KeyTypeProto {
                 variant: Some(key_type::Variant::RsaPublicKey(key_type::RsaPublicKey {})),
             }),
-            KeyType::RsaKeyPair => Ok(KeyTypeProto {
+            Type::RsaKeyPair => Ok(KeyTypeProto {
                 variant: Some(key_type::Variant::RsaKeyPair(key_type::RsaKeyPair {})),
             }),
-            KeyType::EccKeyPair { curve_family } => Ok(KeyTypeProto {
+            Type::EccKeyPair { curve_family } => Ok(KeyTypeProto {
                 variant: Some(key_type::Variant::EccKeyPair(key_type::EccKeyPair {
                     curve_family: ecc_family_to_i32(curve_family),
                 })),
             }),
-            KeyType::EccPublicKey { curve_family } => Ok(KeyTypeProto {
+            Type::EccPublicKey { curve_family } => Ok(KeyTypeProto {
                 variant: Some(key_type::Variant::EccPublicKey(key_type::EccPublicKey {
                     curve_family: ecc_family_to_i32(curve_family),
                 })),
             }),
-            KeyType::DhKeyPair { group_family } => Ok(KeyTypeProto {
+            Type::DhKeyPair { group_family } => Ok(KeyTypeProto {
                 variant: Some(key_type::Variant::DhKeyPair(key_type::DhKeyPair {
                     group_family: dh_family_to_i32(group_family),
                 })),
             }),
-            KeyType::DhPublicKey { group_family } => Ok(KeyTypeProto {
+            Type::DhPublicKey { group_family } => Ok(KeyTypeProto {
                 variant: Some(key_type::Variant::DhPublicKey(key_type::DhPublicKey {
                     group_family: dh_family_to_i32(group_family),
                 })),
@@ -261,24 +247,28 @@ impl TryFrom<KeyType> for KeyTypeProto {
     }
 }
 
-// KeyAttributes: from protobuf to native
-impl TryFrom<KeyAttributesProto> for KeyAttributes {
+// Attributes: from protobuf to native
+impl TryFrom<KeyAttributesProto> for Attributes {
     type Error = ResponseStatus;
 
     fn try_from(key_attributes_proto: KeyAttributesProto) -> Result<Self> {
-        Ok(KeyAttributes {
+        Ok(Attributes {
+            lifetime: Lifetime::Persistent,
             key_type: key_attributes_proto
                 .key_type
                 .ok_or_else(|| {
-                    error!("key_type field of KeyAttributes message is empty.");
+                    error!("key_type field of Attributes message is empty.");
                     ResponseStatus::InvalidEncoding
                 })?
                 .try_into()?,
-            key_bits: key_attributes_proto.key_bits,
-            key_policy: key_attributes_proto
+            bits: key_attributes_proto.key_bits.try_into().or_else(|e| {
+                error!("failed to convert key bits from proto. Error: {}", e);
+                Err(ResponseStatus::InvalidEncoding)
+            })?,
+            policy: key_attributes_proto
                 .key_policy
                 .ok_or_else(|| {
-                    error!("key_policy field of KeyAttributes message is empty.");
+                    error!("policy field of Attributes message is empty.");
                     ResponseStatus::InvalidEncoding
                 })?
                 .try_into()?,
@@ -286,15 +276,18 @@ impl TryFrom<KeyAttributesProto> for KeyAttributes {
     }
 }
 
-// KeyAttributes: from native to protobuf
-impl TryFrom<KeyAttributes> for KeyAttributesProto {
+// Attributes: from native to protobuf
+impl TryFrom<Attributes> for KeyAttributesProto {
     type Error = ResponseStatus;
 
-    fn try_from(key_attributes: KeyAttributes) -> Result<Self> {
+    fn try_from(key_attributes: Attributes) -> Result<Self> {
         Ok(KeyAttributesProto {
             key_type: Some(key_attributes.key_type.try_into()?),
-            key_bits: key_attributes.key_bits,
-            key_policy: Some(key_attributes.key_policy.try_into()?),
+            key_bits: key_attributes.bits.try_into().or_else(|e| {
+                error!("failed to convert key bits to proto. Error: {}", e);
+                Err(ResponseStatus::InvalidEncoding)
+            })?,
+            key_policy: Some(key_attributes.policy.try_into()?),
         })
     }
 }
@@ -307,16 +300,17 @@ mod test {
         self as key_attributes_proto, KeyAttributes as KeyAttributesProto,
     };
     use crate::operations::psa_algorithm::{Algorithm, AsymmetricSignature, Hash};
-    use crate::operations::psa_key_attributes::{self, KeyAttributes, KeyPolicy, UsageFlags};
+    use crate::operations::psa_key_attributes::{self, Attributes, Lifetime, Policy, UsageFlags};
     use std::convert::TryInto;
 
     #[test]
     fn key_attrs_to_proto() {
-        let key_attrs = KeyAttributes {
-            key_type: psa_key_attributes::KeyType::RsaKeyPair,
-            key_bits: 1024,
-            key_policy: KeyPolicy {
-                key_usage_flags: UsageFlags {
+        let key_attrs = Attributes {
+            lifetime: Lifetime::Persistent,
+            key_type: psa_key_attributes::Type::RsaKeyPair,
+            bits: 1024,
+            policy: Policy {
+                usage_flags: UsageFlags {
                     export: true,
                     copy: true,
                     cache: true,
@@ -328,9 +322,9 @@ mod test {
                     verify_hash: true,
                     derive: true,
                 },
-                key_algorithm: Algorithm::AsymmetricSignature(
+                permitted_algorithms: Algorithm::AsymmetricSignature(
                     AsymmetricSignature::RsaPkcs1v15Sign {
-                        hash_alg: Hash::Sha1,
+                        hash_alg: Hash::Sha1.into(),
                     },
                 ),
             },
@@ -359,7 +353,11 @@ mod test {
                 key_algorithm: Some(algorithm_proto::Algorithm {
                     variant: Some(algorithm_proto::algorithm::Variant::AsymmetricSignature(algorithm_proto::algorithm::AsymmetricSignature {
                         variant: Some(algorithm_proto::algorithm::asymmetric_signature::Variant::RsaPkcs1v15Sign(algorithm_proto::algorithm::asymmetric_signature::RsaPkcs1v15Sign {
-                            hash_alg: algorithm_proto::algorithm::Hash::Sha1.into(),
+                            hash_alg: Some(algorithm_proto::algorithm::asymmetric_signature::SignHash {
+                                variant: Some(algorithm_proto::algorithm::asymmetric_signature::sign_hash::Variant::Specific(
+                                    algorithm_proto::algorithm::Hash::Sha1.into(),
+                                )),
+                            }),
                         })),
                     }))
                 }),
@@ -392,20 +390,25 @@ mod test {
                 key_algorithm: Some(algorithm_proto::Algorithm {
                     variant: Some(algorithm_proto::algorithm::Variant::AsymmetricSignature(algorithm_proto::algorithm::AsymmetricSignature {
                         variant: Some(algorithm_proto::algorithm::asymmetric_signature::Variant::RsaPkcs1v15Sign(algorithm_proto::algorithm::asymmetric_signature::RsaPkcs1v15Sign {
-                            hash_alg: algorithm_proto::algorithm::Hash::Sha1.into(),
+                            hash_alg: Some(algorithm_proto::algorithm::asymmetric_signature::SignHash {
+                                variant: Some(algorithm_proto::algorithm::asymmetric_signature::sign_hash::Variant::Specific(
+                                    algorithm_proto::algorithm::Hash::Sha1.into(),
+                                )),
+                            }),
                         })),
                     }))
                 }),
             }),
         };
 
-        let key_attrs: KeyAttributes = key_attrs_proto.try_into().unwrap();
+        let key_attrs: Attributes = key_attrs_proto.try_into().unwrap();
 
-        let key_attrs_expected = KeyAttributes {
-            key_type: psa_key_attributes::KeyType::RsaKeyPair,
-            key_bits: 1024,
-            key_policy: KeyPolicy {
-                key_usage_flags: UsageFlags {
+        let key_attrs_expected = Attributes {
+            lifetime: Lifetime::Persistent,
+            key_type: psa_key_attributes::Type::RsaKeyPair,
+            bits: 1024,
+            policy: Policy {
+                usage_flags: UsageFlags {
                     export: true,
                     copy: true,
                     cache: true,
@@ -417,9 +420,9 @@ mod test {
                     verify_hash: true,
                     derive: true,
                 },
-                key_algorithm: Algorithm::AsymmetricSignature(
+                permitted_algorithms: Algorithm::AsymmetricSignature(
                     AsymmetricSignature::RsaPkcs1v15Sign {
-                        hash_alg: Hash::Sha1,
+                        hash_alg: Hash::Sha1.into(),
                     },
                 ),
             },

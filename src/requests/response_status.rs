@@ -95,7 +95,7 @@ pub enum ResponseStatus {
     /// The decrypted padding is incorrect
     PsaErrorInvalidPadding = 1150,
     /// Insufficient data when attempting to read from a resource
-    PsaErrorInssuficientData = 1143,
+    PsaErrorInsufficientData = 1143,
     /// The key handle is not valid
     PsaErrorInvalidHandle = 1136,
 }
@@ -208,7 +208,7 @@ impl fmt::Display for ResponseStatus {
             ResponseStatus::PsaErrorInsufficientStorage => {
                 write!(f, "there is not enough persistent storage")
             }
-            ResponseStatus::PsaErrorInssuficientData => {
+            ResponseStatus::PsaErrorInsufficientData => {
                 write!(f, "insufficient data when attempting to read from a resource")
             }
             ResponseStatus::PsaErrorCommunicationFailure => {
@@ -281,6 +281,36 @@ impl From<std::num::TryFromIntError> for ResponseStatus {
 impl From<std::convert::Infallible> for ResponseStatus {
     fn from(_err: std::convert::Infallible) -> Self {
         unreachable!();
+    }
+}
+
+use psa_crypto::types::status::Error;
+
+impl From<Error> for ResponseStatus {
+    fn from(err: Error) -> ResponseStatus {
+        match err {
+            Error::GenericError => ResponseStatus::PsaErrorGenericError,
+            Error::NotSupported => ResponseStatus::PsaErrorNotSupported,
+            Error::NotPermitted => ResponseStatus::PsaErrorNotPermitted,
+            Error::BufferTooSmall => ResponseStatus::PsaErrorBufferTooSmall,
+            Error::AlreadyExists => ResponseStatus::PsaErrorAlreadyExists,
+            Error::DoesNotExist => ResponseStatus::PsaErrorDoesNotExist,
+            Error::BadState => ResponseStatus::PsaErrorBadState,
+            Error::InvalidArgument => ResponseStatus::PsaErrorInvalidArgument,
+            Error::InsufficientMemory => ResponseStatus::PsaErrorInsufficientMemory,
+            Error::InsufficientStorage => ResponseStatus::PsaErrorInsufficientStorage,
+            Error::CommunicationFailure => ResponseStatus::PsaErrorCommunicationFailure,
+            Error::StorageFailure => ResponseStatus::PsaErrorStorageFailure,
+            Error::DataCorrupt => ResponseStatus::PsaErrorDataCorrupt,
+            Error::DataInvalid => ResponseStatus::PsaErrorDataInvalid,
+            Error::HardwareFailure => ResponseStatus::PsaErrorHardwareFailure,
+            Error::CorruptionDetected => ResponseStatus::PsaErrorCorruptionDetected,
+            Error::InsufficientEntropy => ResponseStatus::PsaErrorInsufficientEntropy,
+            Error::InvalidSignature => ResponseStatus::PsaErrorInvalidSignature,
+            Error::InvalidPadding => ResponseStatus::PsaErrorInvalidPadding,
+            Error::InsufficientData => ResponseStatus::PsaErrorInsufficientData,
+            Error::InvalidHandle => ResponseStatus::PsaErrorInvalidHandle,
+        }
     }
 }
 

@@ -81,7 +81,11 @@ mod test {
             variant: Some(
                 algorithm_proto::algorithm::asymmetric_signature::Variant::RsaPkcs1v15Sign(
                     algorithm_proto::algorithm::asymmetric_signature::RsaPkcs1v15Sign {
-                        hash_alg: algorithm_proto::algorithm::Hash::Sha1.into(),
+                        hash_alg: Some(algorithm_proto::algorithm::asymmetric_signature::SignHash {
+                            variant: Some(algorithm_proto::algorithm::asymmetric_signature::sign_hash::Variant::Specific(
+                                algorithm_proto::algorithm::Hash::Sha1.into(),
+                            )),
+                        }),
                     },
                 ),
             ),

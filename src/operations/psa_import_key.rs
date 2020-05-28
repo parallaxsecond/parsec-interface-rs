@@ -4,7 +4,7 @@
 //!
 //! Import a key in binary format.
 
-use super::psa_key_attributes::KeyAttributes;
+use super::psa_key_attributes::Attributes;
 
 /// Native object for cryptographic key importing operation.
 #[derive(Clone, Debug)]
@@ -13,7 +13,7 @@ pub struct Operation {
     /// name must be unique per application.
     pub key_name: String,
     /// `attributes` specifies the attributes for the new key.
-    pub attributes: KeyAttributes,
+    pub attributes: Attributes,
     /// `data` contains the bytes for the key,
     /// formatted in accordance with the requirements of the provider for the key type
     /// specified in `attributes`.

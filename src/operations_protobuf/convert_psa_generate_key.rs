@@ -66,7 +66,7 @@ mod test {
     use super::super::{Convert, ProtobufConverter};
     use crate::operations::psa_algorithm::{Algorithm, AsymmetricSignature, Hash};
     use crate::operations::psa_generate_key::{Operation, Result};
-    use crate::operations::psa_key_attributes::{self, KeyAttributes, KeyPolicy, UsageFlags};
+    use crate::operations::psa_key_attributes::{self, Attributes, Lifetime, Policy, UsageFlags};
     use crate::operations::NativeOperation;
     use crate::requests::Opcode;
     use std::convert::TryInto;
@@ -126,12 +126,13 @@ mod test {
             .expect("Failed to convert to operation");
     }
 
-    fn get_key_attrs() -> KeyAttributes {
-        KeyAttributes {
-            key_type: psa_key_attributes::KeyType::RsaKeyPair,
-            key_bits: 1024,
-            key_policy: KeyPolicy {
-                key_usage_flags: UsageFlags {
+    fn get_key_attrs() -> Attributes {
+        Attributes {
+            lifetime: Lifetime::Persistent,
+            key_type: psa_key_attributes::Type::RsaKeyPair,
+            bits: 1024,
+            policy: Policy {
+                usage_flags: UsageFlags {
                     export: true,
                     copy: true,
                     cache: true,
@@ -143,9 +144,9 @@ mod test {
                     verify_hash: true,
                     derive: true,
                 },
-                key_algorithm: Algorithm::AsymmetricSignature(
+                permitted_algorithms: Algorithm::AsymmetricSignature(
                     AsymmetricSignature::RsaPkcs1v15Sign {
-                        hash_alg: Hash::Sha1,
+                        hash_alg: Hash::Sha1.into(),
                     },
                 ),
             },
@@ -174,7 +175,11 @@ mod test {
                 key_algorithm: Some(AlgorithmProto {
                     variant: Some(algorithm_proto::algorithm::Variant::AsymmetricSignature(algorithm_proto::algorithm::AsymmetricSignature {
                         variant: Some(algorithm_proto::algorithm::asymmetric_signature::Variant::RsaPkcs1v15Sign(algorithm_proto::algorithm::asymmetric_signature::RsaPkcs1v15Sign {
-                            hash_alg: algorithm_proto::algorithm::Hash::Sha1.into(),
+                            hash_alg: Some(algorithm_proto::algorithm::asymmetric_signature::SignHash {
+                                variant: Some(algorithm_proto::algorithm::asymmetric_signature::sign_hash::Variant::Specific(
+                                    algorithm_proto::algorithm::Hash::Sha1.into(),
+                                )),
+                            }),
                         })),
                     }))
                 }),
