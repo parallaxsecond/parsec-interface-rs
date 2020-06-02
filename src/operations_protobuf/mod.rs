@@ -17,29 +17,7 @@ mod convert_list_opcodes;
 
 #[rustfmt::skip]
 #[allow(unused_qualifications, missing_copy_implementations, clippy::pedantic, clippy::module_inception)]
-mod generated_ops {
-    // Include the Rust generated file in its own module.
-    macro_rules! include_protobuf_as_module {
-        ($name:ident) => {
-            pub mod $name {
-                // The generated Rust file is in OUT_DIR, named $name.rs
-                include!(concat!(env!("OUT_DIR"), "/", stringify!($name), ".rs"));
-            }
-        };
-    }
-
-    include_protobuf_as_module!(psa_sign_hash);
-    include_protobuf_as_module!(psa_verify_hash);
-    include_protobuf_as_module!(psa_generate_key);
-    include_protobuf_as_module!(psa_destroy_key);
-    include_protobuf_as_module!(psa_export_public_key);
-    include_protobuf_as_module!(psa_import_key);
-    include_protobuf_as_module!(list_opcodes);
-    include_protobuf_as_module!(list_providers);
-    include_protobuf_as_module!(ping);
-    include_protobuf_as_module!(psa_key_attributes);
-    include_protobuf_as_module!(psa_algorithm);
-}
+mod generated_ops;
 
 use crate::operations::{Convert, NativeOperation, NativeResult};
 use crate::requests::{

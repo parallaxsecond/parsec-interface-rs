@@ -3,7 +3,7 @@
 //! # PsaVerifyHash operation
 //!
 //! Verify the signature of a hash or short message using a public key.
-use super::psa_key_attributes::KeyAttributes;
+use super::psa_key_attributes::Attributes;
 use crate::operations::psa_algorithm::AsymmetricSignature;
 use crate::requests::ResponseStatus;
 
@@ -36,7 +36,7 @@ impl Operation {
     /// * the key policy allows the verification algorithm requested in the operation
     /// * the key type is compatible with the requested algorithm
     /// * the length of the given digest is consistent with the specified verification algorithm
-    pub fn validate(&self, key_attributes: KeyAttributes) -> crate::requests::Result<()> {
+    pub fn validate(&self, key_attributes: Attributes) -> crate::requests::Result<()> {
         key_attributes.can_verify_hash()?;
         key_attributes.permits_alg(self.alg.into())?;
         key_attributes.compatible_with_alg(self.alg.into())?;
@@ -52,16 +52,17 @@ impl Operation {
 mod tests {
     use super::*;
     use crate::operations::psa_algorithm::{Algorithm, AsymmetricSignature, Hash};
-    use crate::operations::psa_key_attributes::{EccFamily, KeyPolicy, KeyType, UsageFlags};
+    use crate::operations::psa_key_attributes::{EccFamily, Lifetime, Policy, Type, UsageFlags};
 
-    fn get_attrs() -> KeyAttributes {
-        KeyAttributes {
-            key_type: KeyType::EccKeyPair {
+    fn get_attrs() -> Attributes {
+        Attributes {
+            lifetime: Lifetime::Persistent,
+            key_type: Type::EccKeyPair {
                 curve_family: EccFamily::SecpR1,
             },
-            key_bits: 256,
-            key_policy: KeyPolicy {
-                key_usage_flags: UsageFlags {
+            bits: 256,
+            policy: Policy {
+                usage_flags: UsageFlags {
                     export: false,
                     copy: false,
                     cache: false,
@@ -73,8 +74,8 @@ mod tests {
                     verify_hash: true,
                     derive: false,
                 },
-                key_algorithm: Algorithm::AsymmetricSignature(AsymmetricSignature::Ecdsa {
-                    hash_alg: Hash::Sha256,
+                permitted_algorithms: Algorithm::AsymmetricSignature(AsymmetricSignature::Ecdsa {
+                    hash_alg: Hash::Sha256.into(),
                 }),
             },
         }
@@ -85,7 +86,7 @@ mod tests {
         (Operation {
             key_name: String::from("some key"),
             alg: AsymmetricSignature::Ecdsa {
-                hash_alg: Hash::Sha256,
+                hash_alg: Hash::Sha256.into(),
             },
             hash: vec![0xff; 32],
             signature: vec![0xa5; 65],
@@ -97,12 +98,12 @@ mod tests {
     #[test]
     fn cannot_sign() {
         let mut attrs = get_attrs();
-        attrs.key_policy.key_usage_flags.verify_hash = false;
+        attrs.policy.usage_flags.verify_hash = false;
         assert_eq!(
             (Operation {
                 key_name: String::from("some key"),
                 alg: AsymmetricSignature::Ecdsa {
-                    hash_alg: Hash::Sha256,
+                    hash_alg: Hash::Sha256.into(),
                 },
                 hash: vec![0xff; 32],
                 signature: vec![0xa5; 65],
@@ -119,7 +120,7 @@ mod tests {
             (Operation {
                 key_name: String::from("some key"),
                 alg: AsymmetricSignature::Ecdsa {
-                    hash_alg: Hash::Sha224,
+                    hash_alg: Hash::Sha224.into(),
                 },
                 hash: vec![0xff; 28],
                 signature: vec![0xa5; 65],
@@ -136,7 +137,7 @@ mod tests {
             (Operation {
                 key_name: String::from("some key"),
                 alg: AsymmetricSignature::RsaPss {
-                    hash_alg: Hash::Sha224,
+                    hash_alg: Hash::Sha224.into(),
                 },
                 hash: vec![0xff; 28],
                 signature: vec![0xa5; 65],
@@ -153,7 +154,7 @@ mod tests {
             (Operation {
                 key_name: String::from("some key"),
                 alg: AsymmetricSignature::Ecdsa {
-                    hash_alg: Hash::Sha256,
+                    hash_alg: Hash::Sha256.into(),
                 },
                 hash: vec![0xff; 16],
                 signature: vec![0xa5; 65],
