@@ -25,7 +25,7 @@ prost = "0.6.1"
 arbitrary = { version = "0.4.4", features = ["derive"] }
 uuid = "0.7.4"
 log = "0.4.8"
-psa-crypto = { version = "0.1.0", default-features = false }
+psa-crypto = { version = "0.2.0", default-features = false }
 
 [features]
 testing = []
