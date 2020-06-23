@@ -3,6 +3,8 @@
 use super::generated_ops::psa_import_key::{Operation as OperationProto, Result as ResultProto};
 use crate::operations::psa_import_key::{Operation, Result};
 use crate::requests::ResponseStatus;
+use crate::secrecy::ExposeSecret;
+use crate::secrecy::Secret;
 use log::error;
 use std::convert::{TryFrom, TryInto};
 
@@ -10,6 +12,7 @@ impl TryFrom<OperationProto> for Operation {
     type Error = ResponseStatus;
 
     fn try_from(proto_op: OperationProto) -> std::result::Result<Self, Self::Error> {
+        let data = Secret::new(proto_op.data);
         Ok(Operation {
             key_name: proto_op.key_name,
             attributes: proto_op
@@ -19,7 +22,7 @@ impl TryFrom<OperationProto> for Operation {
                     ResponseStatus::InvalidEncoding
                 })?
                 .try_into()?,
-            data: proto_op.data,
+            data,
         })
     }
 }
@@ -31,7 +34,7 @@ impl TryFrom<Operation> for OperationProto {
         Ok(OperationProto {
             key_name: op.key_name,
             attributes: Some(op.attributes.try_into()?),
-            data: op.data,
+            data: op.data.expose_secret().to_vec(),
         })
     }
 }
@@ -69,6 +72,7 @@ mod test {
     use crate::operations::psa_key_attributes::{self, Attributes, Lifetime, Policy, UsageFlags};
     use crate::operations::{psa_import_key::Operation, psa_import_key::Result, NativeOperation};
     use crate::requests::Opcode;
+    use crate::secrecy::{ExposeSecret, Secret};
     use std::convert::TryInto;
 
     static CONVERTER: ProtobufConverter = ProtobufConverter {};
@@ -85,7 +89,7 @@ mod test {
 
         let op: Operation = proto.try_into().expect("Failed conversion");
         assert_eq!(op.key_name, name);
-        assert_eq!(op.data, key_data);
+        assert_eq!(op.data.expose_secret(), &key_data);
     }
 
     #[test]
@@ -95,7 +99,7 @@ mod test {
         let op = Operation {
             key_name: name.clone(),
             attributes: get_key_attrs(),
-            data: key_data.clone(),
+            data: Secret::new(key_data.clone()),
         };
 
         let proto: OperationProto = op.try_into().expect("Failed conversion");
@@ -121,7 +125,7 @@ mod test {
         let op = Operation {
             key_name: name,
             attributes: get_key_attrs(),
-            data: vec![0x11, 0x22, 0x33],
+            data: Secret::new(vec![0x11, 0x22, 0x33]),
         };
 
         let body = CONVERTER

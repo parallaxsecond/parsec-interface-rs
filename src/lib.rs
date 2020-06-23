@@ -174,7 +174,7 @@
 //!        opcode: Opcode::Ping,
 //!    },
 //!    body: converter.operation_to_body(operation).unwrap(),
-//!    auth: RequestAuth::from_bytes(Vec::from("root")),
+//!    auth: RequestAuth::new(Vec::from("root")),
 //!};
 //!// stream is a Write object
 //!request.write_to_stream(&mut stream).unwrap();
@@ -226,3 +226,6 @@
 pub mod operations;
 pub mod operations_protobuf;
 pub mod requests;
+
+/// Module providing access to secret-wrapping functionality.
+pub use secrecy;

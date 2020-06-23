@@ -1,6 +1,7 @@
 // Copyright 2019 Contributors to the Parsec project.
 // SPDX-License-Identifier: Apache-2.0
 use crate::requests::Result;
+use crate::secrecy::{ExposeSecret, Secret};
 #[cfg(feature = "fuzz")]
 use arbitrary::Arbitrary;
 use std::io::{Read, Write};
@@ -9,49 +10,32 @@ use std::io::{Read, Write};
 ///
 /// Hides the contents and keeps them immutable.
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]
-#[derive(Debug, Clone, Default, PartialEq)]
+#[allow(missing_debug_implementations)]
 pub struct RequestAuth {
-    bytes: Vec<u8>,
+    /// Buffer holding the authentication token as a byte vector
+    pub buffer: Secret<Vec<u8>>,
 }
 
 impl RequestAuth {
-    /// Construct new, empty request authentication field.
-    /// Available for testing only.
-    #[cfg(feature = "testing")]
-    pub(super) fn new() -> RequestAuth {
-        RequestAuth { bytes: Vec::new() }
+    /// Create a new authentication field for a request.
+    pub fn new(bytes: Vec<u8>) -> Self {
+        RequestAuth {
+            buffer: Secret::new(bytes),
+        }
     }
 
     /// Read a request authentication field from the stream, given the length
     /// of the byte stream contained.
     pub(super) fn read_from_stream(mut stream: &mut impl Read, len: usize) -> Result<RequestAuth> {
-        let bytes = get_from_stream!(stream; len);
-        Ok(RequestAuth { bytes })
+        let buffer = get_from_stream!(stream; len);
+        Ok(RequestAuth {
+            buffer: Secret::new(buffer),
+        })
     }
 
     /// Write request authentication field to stream.
     pub(super) fn write_to_stream(&self, stream: &mut impl Write) -> Result<()> {
-        stream.write_all(&self.bytes)?;
+        stream.write_all(&self.buffer.expose_secret())?;
         Ok(())
-    }
-
-    /// Create a `RequestAuth` from a vector of bytes.
-    pub fn from_bytes(bytes: Vec<u8>) -> RequestAuth {
-        RequestAuth { bytes }
-    }
-
-    /// Get the auth as a slice of bytes.
-    pub fn bytes(&self) -> &[u8] {
-        &self.bytes
-    }
-
-    /// Get the size of the auth field.
-    pub fn len(&self) -> usize {
-        self.bytes.len()
-    }
-
-    /// Check if auth field is empty.
-    pub fn is_empty(&self) -> bool {
-        self.bytes.is_empty()
     }
 }

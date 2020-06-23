@@ -6,8 +6,10 @@
 use super::common::wire_header_1_0::WireHeader as Raw;
 use super::response::ResponseHeader;
 use crate::requests::{ResponseStatus, Result};
+use crate::secrecy::ExposeSecret;
 #[cfg(feature = "fuzz")]
 use arbitrary::Arbitrary;
+use derivative::Derivative;
 use log::error;
 use std::convert::{TryFrom, TryInto};
 use std::io::{Read, Write};
@@ -25,7 +27,8 @@ pub use super::common::wire_header_1_0::WireHeader as RawHeader;
 
 /// Representation of the request wire format.
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]
-#[derive(PartialEq, Debug)]
+#[derive(Derivative)]
+#[derivative(Debug)]
 pub struct Request {
     /// Request header
     pub header: RequestHeader,
@@ -35,6 +38,7 @@ pub struct Request {
     pub body: RequestBody,
     /// Auth field is stored as a `RequestAuth` object. A parser that can handle the `auth_type`
     /// specified in the header is needed to authenticate the request.
+    #[derivative(Debug = "ignore")]
     pub auth: RequestAuth,
 }
 
@@ -62,7 +66,7 @@ impl Request {
     pub fn write_to_stream(self, stream: &mut impl Write) -> Result<()> {
         let mut raw_header: Raw = self.header.into();
         raw_header.body_len = u32::try_from(self.body.len())?;
-        raw_header.auth_len = u16::try_from(self.auth.len())?;
+        raw_header.auth_len = u16::try_from(self.auth.buffer.expose_secret().len())?;
         raw_header.write_to_stream(stream)?;
 
         self.body.write_to_stream(stream)?;
@@ -149,8 +153,14 @@ mod tests {
         };
 
         let request = Request::read_from_stream(&mut mock, 1000).expect("Failed to read request");
+        let exp_req = get_request();
 
-        assert_eq!(request, get_request());
+        assert_eq!(request.header, exp_req.header);
+        assert_eq!(request.body, exp_req.body);
+        assert_eq!(
+            request.auth.buffer.expose_secret(),
+            exp_req.auth.buffer.expose_secret()
+        );
     }
 
     #[test]
@@ -218,7 +228,7 @@ mod tests {
 
     fn get_request() -> Request {
         let body = RequestBody::from_bytes(vec![0x70, 0x80, 0x90]);
-        let auth = RequestAuth::from_bytes(vec![0xa0, 0xb0, 0xc0]);
+        let auth = RequestAuth::new(vec![0xa0, 0xb0, 0xc0]);
         let header = RequestHeader {
             provider: ProviderID::Core,
             session: 0x11_22_33_44_55_66_77_88,

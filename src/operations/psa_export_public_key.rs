@@ -17,5 +17,5 @@ pub struct Operation {
 pub struct Result {
     /// `data` holds the bytes defining the public key, formatted as specified
     /// by the provider for which the request was made.
-    pub data: Vec<u8>,
+    pub data: zeroize::Zeroizing<Vec<u8>>,
 }
