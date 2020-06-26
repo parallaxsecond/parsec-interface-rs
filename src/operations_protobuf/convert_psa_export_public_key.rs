@@ -32,7 +32,7 @@ impl TryFrom<ResultProto> for Result {
 
     fn try_from(proto_op: ResultProto) -> std::result::Result<Self, Self::Error> {
         Ok(Result {
-            data: proto_op.data,
+            data: proto_op.data.into(),
         })
     }
 }
@@ -41,7 +41,9 @@ impl TryFrom<Result> for ResultProto {
     type Error = ResponseStatus;
 
     fn try_from(op: Result) -> std::result::Result<Self, Self::Error> {
-        Ok(ResultProto { data: op.data })
+        Ok(ResultProto {
+            data: op.data.to_vec(),
+        })
     }
 }
 
@@ -92,14 +94,14 @@ mod test {
 
         let result: Result = proto.try_into().expect("Failed to convert");
 
-        assert_eq!(result.data, key_data);
+        assert_eq!(result.data, key_data.into());
     }
 
     #[test]
     fn asym_resp_to_proto() {
         let key_data = vec![0x11, 0x22, 0x33];
         let result = Result {
-            data: key_data.clone(),
+            data: key_data.clone().into(),
         };
 
         let proto: ResultProto = result.try_into().expect("Failed to convert");
@@ -124,7 +126,7 @@ mod test {
     #[test]
     fn resp_export_pk_e2e() {
         let result = Result {
-            data: vec![0x11, 0x22, 0x33],
+            data: vec![0x11, 0x22, 0x33].into(),
         };
         let body = CONVERTER
             .result_to_body(NativeResult::PsaExportPublicKey(result))

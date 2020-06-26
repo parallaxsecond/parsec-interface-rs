@@ -32,6 +32,7 @@ use generated_ops::psa_generate_key as psa_generate_key_proto;
 use generated_ops::psa_import_key as psa_import_key_proto;
 use generated_ops::psa_sign_hash as psa_sign_hash_proto;
 use generated_ops::psa_verify_hash as psa_verify_hash_proto;
+use generated_ops::ClearProtoMessage;
 use prost::Message;
 use std::convert::TryInto;
 
@@ -47,11 +48,13 @@ macro_rules! wire_to_native {
 
 macro_rules! native_to_wire {
     ($native_msg:expr, $proto_type:ty) => {{
-        let proto: $proto_type = $native_msg.try_into()?;
+        let mut proto: $proto_type = $native_msg.try_into()?;
         let mut bytes = Vec::new();
         if proto.encode(&mut bytes).is_err() {
+            proto.clear_message();
             return Err(ResponseStatus::SerializingBodyFailed);
         }
+        proto.clear_message();
         bytes
     }};
 }

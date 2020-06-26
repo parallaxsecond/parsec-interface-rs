@@ -1,9 +1,14 @@
 // Copyright 2020 Contributors to the Parsec project.
 // SPDX-License-Identifier: Apache-2.0
 // Include the Rust generated file in its own module.
+use zeroize::Zeroize;
+
 macro_rules! include_protobuf_as_module {
     ($name:ident) => {
         pub mod $name {
+            #[allow(unused)]
+            #[macro_export]
+            use zeroize::Zeroize;
             // The generated Rust file is in OUT_DIR, named $name.rs
             include!(concat!(env!("OUT_DIR"), "/", stringify!($name), ".rs"));
         }
@@ -103,5 +108,63 @@ impl TryFrom<i32> for DhFamily {
             );
             ResponseStatus::InvalidEncoding
         })?)
+    }
+}
+
+pub(super) trait ClearProtoMessage {
+    fn clear_message(&mut self) {}
+}
+
+// Implement a no-op zeroize for types that don't contain sensitive data
+macro_rules! empty_clear_message {
+    ($type:ty) => {
+        impl ClearProtoMessage for $type {
+            fn clear_message(&mut self) {}
+        }
+    };
+}
+
+empty_clear_message!(list_opcodes::Operation);
+empty_clear_message!(list_opcodes::Result);
+empty_clear_message!(list_providers::Operation);
+empty_clear_message!(list_providers::Result);
+empty_clear_message!(ping::Operation);
+empty_clear_message!(ping::Result);
+empty_clear_message!(psa_destroy_key::Operation);
+empty_clear_message!(psa_destroy_key::Result);
+empty_clear_message!(psa_generate_key::Operation);
+empty_clear_message!(psa_generate_key::Result);
+empty_clear_message!(psa_export_public_key::Operation);
+empty_clear_message!(psa_import_key::Result);
+empty_clear_message!(psa_verify_hash::Result);
+
+impl ClearProtoMessage for psa_sign_hash::Operation {
+    fn clear_message(&mut self) {
+        self.hash.zeroize();
+    }
+}
+
+impl ClearProtoMessage for psa_sign_hash::Result {
+    fn clear_message(&mut self) {
+        self.signature.zeroize();
+    }
+}
+
+impl ClearProtoMessage for psa_verify_hash::Operation {
+    fn clear_message(&mut self) {
+        self.hash.zeroize();
+        self.signature.zeroize();
+    }
+}
+
+impl ClearProtoMessage for psa_import_key::Operation {
+    fn clear_message(&mut self) {
+        self.data.zeroize();
+    }
+}
+
+impl ClearProtoMessage for psa_export_public_key::Result {
+    fn clear_message(&mut self) {
+        self.data.zeroize();
     }
 }

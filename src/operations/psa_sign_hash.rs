@@ -17,7 +17,7 @@ pub struct Operation {
     /// compatible with the type of key.
     pub alg: AsymmetricSignature,
     /// The input whose signature is to be verified. This is usually the hash of a message.
-    pub hash: Vec<u8>,
+    pub hash: zeroize::Zeroizing<Vec<u8>>,
 }
 
 /// Native object for asymmetric sign result.
@@ -25,7 +25,7 @@ pub struct Operation {
 pub struct Result {
     /// The `signature` field contains the resulting bytes from the signing operation. The format of
     /// the signature is as specified by the provider doing the signing.
-    pub signature: Vec<u8>,
+    pub signature: zeroize::Zeroizing<Vec<u8>>,
 }
 
 impl Operation {
@@ -88,7 +88,7 @@ mod tests {
             alg: AsymmetricSignature::Ecdsa {
                 hash_alg: Hash::Sha256.into(),
             },
-            hash: vec![0xff; 32],
+            hash: vec![0xff; 32].into(),
         })
         .validate(get_attrs())
         .unwrap();
@@ -104,7 +104,7 @@ mod tests {
                 alg: AsymmetricSignature::Ecdsa {
                     hash_alg: Hash::Sha256.into(),
                 },
-                hash: vec![0xff; 32],
+                hash: vec![0xff; 32].into(),
             })
             .validate(attrs)
             .unwrap_err(),
@@ -120,7 +120,7 @@ mod tests {
                 alg: AsymmetricSignature::Ecdsa {
                     hash_alg: Hash::Sha224.into(),
                 },
-                hash: vec![0xff; 28],
+                hash: vec![0xff; 28].into(),
             })
             .validate(get_attrs())
             .unwrap_err(),
@@ -136,7 +136,7 @@ mod tests {
                 alg: AsymmetricSignature::RsaPss {
                     hash_alg: Hash::Sha224.into(),
                 },
-                hash: vec![0xff; 28],
+                hash: vec![0xff; 28].into(),
             })
             .validate(get_attrs())
             .unwrap_err(),
@@ -152,7 +152,7 @@ mod tests {
                 alg: AsymmetricSignature::Ecdsa {
                     hash_alg: Hash::Sha256.into(),
                 },
-                hash: vec![0xff; 16],
+                hash: vec![0xff; 16].into(),
             })
             .validate(get_attrs())
             .unwrap_err(),

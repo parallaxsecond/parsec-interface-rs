@@ -39,6 +39,9 @@ This project uses the following third party crates:
 * uuid (Apache-2.0)
 * log (MIT and Apache-2.0)
 * arbitrary (MIT and Apache-2.0)
+* zeroize (MIT and Apache-2.0)
+* secrecy (MIT and Apache-2.0)
+* derivative (MIT and Apache-2.0)
 
 ## Contributing
 

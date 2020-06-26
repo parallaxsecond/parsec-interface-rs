@@ -17,9 +17,9 @@ pub struct Operation {
     pub alg: AsymmetricSignature,
     /// The `hash` contains a short message or hash value as described for the
     /// asymmetric signing operation.
-    pub hash: Vec<u8>,
+    pub hash: zeroize::Zeroizing<Vec<u8>>,
     /// Buffer containing the signature to verify.
-    pub signature: Vec<u8>,
+    pub signature: zeroize::Zeroizing<Vec<u8>>,
 }
 
 /// Native object for asymmetric verification of signatures.
@@ -88,8 +88,8 @@ mod tests {
             alg: AsymmetricSignature::Ecdsa {
                 hash_alg: Hash::Sha256.into(),
             },
-            hash: vec![0xff; 32],
-            signature: vec![0xa5; 65],
+            hash: vec![0xff; 32].into(),
+            signature: vec![0xa5; 65].into(),
         })
         .validate(get_attrs())
         .unwrap();
@@ -105,8 +105,8 @@ mod tests {
                 alg: AsymmetricSignature::Ecdsa {
                     hash_alg: Hash::Sha256.into(),
                 },
-                hash: vec![0xff; 32],
-                signature: vec![0xa5; 65],
+                hash: vec![0xff; 32].into(),
+                signature: vec![0xa5; 65].into(),
             })
             .validate(attrs)
             .unwrap_err(),
@@ -122,8 +122,8 @@ mod tests {
                 alg: AsymmetricSignature::Ecdsa {
                     hash_alg: Hash::Sha224.into(),
                 },
-                hash: vec![0xff; 28],
-                signature: vec![0xa5; 65],
+                hash: vec![0xff; 28].into(),
+                signature: vec![0xa5; 65].into(),
             })
             .validate(get_attrs())
             .unwrap_err(),
@@ -139,8 +139,8 @@ mod tests {
                 alg: AsymmetricSignature::RsaPss {
                     hash_alg: Hash::Sha224.into(),
                 },
-                hash: vec![0xff; 28],
-                signature: vec![0xa5; 65],
+                hash: vec![0xff; 28].into(),
+                signature: vec![0xa5; 65].into(),
             })
             .validate(get_attrs())
             .unwrap_err(),
@@ -156,8 +156,8 @@ mod tests {
                 alg: AsymmetricSignature::Ecdsa {
                     hash_alg: Hash::Sha256.into(),
                 },
-                hash: vec![0xff; 16],
-                signature: vec![0xa5; 65],
+                hash: vec![0xff; 16].into(),
+                signature: vec![0xa5; 65].into(),
             })
             .validate(get_attrs())
             .unwrap_err(),

@@ -3,50 +3,52 @@
 use super::Result;
 use serde::{Deserialize, Serialize};
 use std::io::{Read, Write};
+use zeroize::Zeroize;
 
 /// Wrapper around the body of a response.
 ///
 /// Hides the contents and keeps them immutable.
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Zeroize)]
+#[zeroize(drop)]
 pub struct ResponseBody {
-    bytes: Vec<u8>,
+    buffer: Vec<u8>,
 }
 
 impl ResponseBody {
     /// Create a new empty response body.
     pub(crate) fn new() -> ResponseBody {
-        ResponseBody { bytes: Vec::new() }
+        ResponseBody { buffer: Vec::new() }
     }
 
     /// Read a response body from a stream, given the number of bytes it contains.
     pub(super) fn read_from_stream(mut stream: &mut impl Read, len: usize) -> Result<ResponseBody> {
-        let bytes = get_from_stream!(stream; len);
-        Ok(ResponseBody { bytes })
+        let buffer = get_from_stream!(stream; len);
+        Ok(ResponseBody { buffer })
     }
 
     /// Write a response body to a stream.
     pub(super) fn write_to_stream(&self, stream: &mut impl Write) -> Result<()> {
-        stream.write_all(&self.bytes)?;
+        stream.write_all(&self.buffer)?;
         Ok(())
     }
 
     /// Create a `ResponseBody` from a vector of bytes.
-    pub(crate) fn from_bytes(bytes: Vec<u8>) -> ResponseBody {
-        ResponseBody { bytes }
+    pub(crate) fn from_bytes(buffer: Vec<u8>) -> ResponseBody {
+        ResponseBody { buffer }
     }
 
     /// Get the body as a slice of bytes.
     pub fn bytes(&self) -> &[u8] {
-        &self.bytes
+        &self.buffer
     }
 
     /// Get the size of the body.
     pub fn len(&self) -> usize {
-        self.bytes.len()
+        self.buffer.len()
     }
 
     /// Check if body is empty.
     pub fn is_empty(&self) -> bool {
-        self.bytes.is_empty()
+        self.buffer.is_empty()
     }
 }
