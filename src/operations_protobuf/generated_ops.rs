@@ -17,6 +17,8 @@ macro_rules! include_protobuf_as_module {
 
 include_protobuf_as_module!(psa_sign_hash);
 include_protobuf_as_module!(psa_verify_hash);
+include_protobuf_as_module!(psa_asymmetric_encrypt);
+include_protobuf_as_module!(psa_asymmetric_decrypt);
 include_protobuf_as_module!(psa_generate_key);
 include_protobuf_as_module!(psa_destroy_key);
 include_protobuf_as_module!(psa_export_public_key);
@@ -137,6 +139,7 @@ empty_clear_message!(psa_generate_key::Result);
 empty_clear_message!(psa_export_public_key::Operation);
 empty_clear_message!(psa_import_key::Result);
 empty_clear_message!(psa_verify_hash::Result);
+empty_clear_message!(psa_asymmetric_encrypt::Result);
 
 impl ClearProtoMessage for psa_sign_hash::Operation {
     fn clear_message(&mut self) {
@@ -167,4 +170,19 @@ impl ClearProtoMessage for psa_export_public_key::Result {
     fn clear_message(&mut self) {
         self.data.zeroize();
     }
+}
+
+impl ClearProtoMessage for psa_asymmetric_encrypt::Operation {
+    fn clear_message(&mut self) {
+        self.plaintext.zeroize();
+        self.salt.zeroize();
+    }
+}
+
+impl ClearProtoMessage for psa_asymmetric_decrypt::Operation {
+    fn clear_message(&mut self) { self.salt.zeroize(); }
+}
+
+impl ClearProtoMessage for psa_asymmetric_decrypt::Result {
+    fn clear_message(&mut self) { self.plaintext.zeroize(); }
 }

@@ -14,6 +14,8 @@ mod convert_psa_sign_hash;
 mod convert_psa_verify_hash;
 mod convert_list_providers;
 mod convert_list_opcodes;
+mod convert_psa_asymmetric_encrypt;
+mod convert_psa_asymmetric_decrypt;
 
 #[rustfmt::skip]
 #[allow(unused_qualifications, missing_copy_implementations, clippy::pedantic, clippy::module_inception)]
@@ -26,6 +28,8 @@ use crate::requests::{
 use generated_ops::list_opcodes as list_opcodes_proto;
 use generated_ops::list_providers as list_providers_proto;
 use generated_ops::ping as ping_proto;
+use generated_ops::psa_asymmetric_decrypt as psa_asymmetric_decrypt_proto;
+use generated_ops::psa_asymmetric_encrypt as psa_asymmetric_encrypt_proto;
 use generated_ops::psa_destroy_key as psa_destroy_key_proto;
 use generated_ops::psa_export_public_key as psa_export_public_key_proto;
 use generated_ops::psa_generate_key as psa_generate_key_proto;
@@ -107,6 +111,12 @@ impl Convert for ProtobufConverter {
                 body.bytes(),
                 psa_verify_hash_proto::Operation
             ))),
+            Opcode::PsaAsymmetricEncrypt => Ok(NativeOperation::PsaAsymmetricEncrypt(
+                wire_to_native!(body.bytes(), psa_asymmetric_encrypt_proto::Operation),
+            )),
+            Opcode::PsaAsymmetricDecrypt => Ok(NativeOperation::PsaAsymmetricDecrypt(
+                wire_to_native!(body.bytes(), psa_asymmetric_decrypt_proto::Operation),
+            )),
         }
     }
 
@@ -139,6 +149,12 @@ impl Convert for ProtobufConverter {
             )),
             NativeOperation::PsaVerifyHash(operation) => Ok(RequestBody::from_bytes(
                 native_to_wire!(operation, psa_verify_hash_proto::Operation),
+            )),
+            NativeOperation::PsaAsymmetricEncrypt(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_asymmetric_encrypt_proto::Operation),
+            )),
+            NativeOperation::PsaAsymmetricDecrypt(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_asymmetric_decrypt_proto::Operation),
             )),
         }
     }
@@ -181,6 +197,12 @@ impl Convert for ProtobufConverter {
                 body.bytes(),
                 psa_verify_hash_proto::Result
             ))),
+            Opcode::PsaAsymmetricEncrypt => Ok(NativeResult::PsaAsymmetricEncrypt(
+                wire_to_native!(body.bytes(), psa_asymmetric_encrypt_proto::Result),
+            )),
+            Opcode::PsaAsymmetricDecrypt => Ok(NativeResult::PsaAsymmetricDecrypt(
+                wire_to_native!(body.bytes(), psa_asymmetric_decrypt_proto::Result),
+            )),
         }
     }
 
@@ -221,6 +243,12 @@ impl Convert for ProtobufConverter {
                 result,
                 psa_verify_hash_proto::Result
             ))),
+            NativeResult::PsaAsymmetricEncrypt(result) => Ok(ResponseBody::from_bytes(
+                native_to_wire!(result, psa_asymmetric_encrypt_proto::Result),
+            )),
+            NativeResult::PsaAsymmetricDecrypt(result) => Ok(ResponseBody::from_bytes(
+                native_to_wire!(result, psa_asymmetric_decrypt_proto::Result),
+            )),
         }
     }
 }

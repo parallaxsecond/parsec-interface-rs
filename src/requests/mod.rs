@@ -91,6 +91,10 @@ pub enum Opcode {
     ListProviders = 8,
     /// ListOpcodes operation
     ListOpcodes = 9,
+    /// PsaAsymmetricEncrypt operation
+    PsaAsymmetricEncrypt = 10,
+    /// PsaAsymmetricDecrypt operation
+    PsaAsymmetricDecrypt = 11,
 }
 
 /// Listing of available authentication methods.
