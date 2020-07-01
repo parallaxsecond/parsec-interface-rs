@@ -21,7 +21,7 @@ impl RequestBody {
     /// Available for testing only.
     #[cfg(feature = "testing")]
     pub(super) fn new() -> RequestBody {
-        RequestBody { bytes: Vec::new() }
+        RequestBody { buffer: Vec::new() }
     }
 
     /// Read the request body from a stream, given the length of the content.
@@ -60,7 +60,7 @@ impl RequestBody {
     ///
     /// Must only be used for testing purposes.
     #[cfg(feature = "testing")]
-    pub fn _from_bytes(bytes: Vec<u8>) -> RequestBody {
-        RequestBody { bytes }
+    pub fn _from_bytes(buffer: Vec<u8>) -> RequestBody {
+        RequestBody { buffer }
     }
 }

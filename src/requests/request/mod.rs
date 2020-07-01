@@ -50,7 +50,7 @@ impl Request {
         Request {
             header: RequestHeader::new(),
             body: RequestBody::new(),
-            auth: RequestAuth::new(),
+            auth: RequestAuth::new(Vec::new()),
         }
     }
 
