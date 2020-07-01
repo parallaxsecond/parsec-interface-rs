@@ -16,6 +16,7 @@ git submodule update --init
 # Build test #
 ##############
 RUST_BACKTRACE=1 cargo build
+RUST_BACKTRACE=1 cargo build --features testing
 
 #################
 # Static checks #
