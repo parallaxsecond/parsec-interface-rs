@@ -16,6 +16,8 @@ pub mod psa_export_public_key;
 pub mod psa_destroy_key;
 pub mod psa_sign_hash;
 pub mod psa_verify_hash;
+pub mod psa_asymmetric_encrypt;
+pub mod psa_asymmetric_decrypt;
 pub mod list_opcodes;
 pub mod list_providers;
 
@@ -46,6 +48,10 @@ pub enum NativeOperation {
     PsaSignHash(psa_sign_hash::Operation),
     /// PsaVerifyHash operation
     PsaVerifyHash(psa_verify_hash::Operation),
+    /// PsaAsymmetricEncrypt operation
+    PsaAsymmetricEncrypt(psa_asymmetric_encrypt::Operation),
+    /// PsaAsymmetricDecrypt operation
+    PsaAsymmetricDecrypt(psa_asymmetric_decrypt::Operation),
 }
 
 impl NativeOperation {
@@ -61,6 +67,8 @@ impl NativeOperation {
             NativeOperation::PsaExportPublicKey(_) => Opcode::PsaExportPublicKey,
             NativeOperation::ListOpcodes(_) => Opcode::ListOpcodes,
             NativeOperation::ListProviders(_) => Opcode::ListProviders,
+            NativeOperation::PsaAsymmetricEncrypt(_) => Opcode::PsaAsymmetricEncrypt,
+            NativeOperation::PsaAsymmetricDecrypt(_) => Opcode::PsaAsymmetricDecrypt,
         }
     }
 }
@@ -87,6 +95,10 @@ pub enum NativeResult {
     PsaSignHash(psa_sign_hash::Result),
     /// PsaVerifyHash result
     PsaVerifyHash(psa_verify_hash::Result),
+    /// PsaAsymmetricEncrypt result
+    PsaAsymmetricEncrypt(psa_asymmetric_encrypt::Result),
+    /// PsaAsymmetricDecrypt result
+    PsaAsymmetricDecrypt(psa_asymmetric_decrypt::Result),
 }
 
 impl NativeResult {
@@ -102,6 +114,8 @@ impl NativeResult {
             NativeResult::PsaExportPublicKey(_) => Opcode::PsaExportPublicKey,
             NativeResult::ListOpcodes(_) => Opcode::ListOpcodes,
             NativeResult::ListProviders(_) => Opcode::ListProviders,
+            NativeResult::PsaAsymmetricEncrypt(_) => Opcode::PsaAsymmetricEncrypt,
+            NativeResult::PsaAsymmetricDecrypt(_) => Opcode::PsaAsymmetricDecrypt,
         }
     }
 }
