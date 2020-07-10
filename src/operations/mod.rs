@@ -205,6 +205,18 @@ impl From<psa_verify_hash::Operation> for NativeOperation {
     }
 }
 
+impl From<psa_asymmetric_encrypt::Operation> for NativeOperation {
+    fn from(op: psa_asymmetric_encrypt::Operation) -> Self {
+        NativeOperation::PsaAsymmetricEncrypt(op)
+    }
+}
+
+impl From<psa_asymmetric_decrypt::Operation> for NativeOperation {
+    fn from(op: psa_asymmetric_decrypt::Operation) -> Self {
+        NativeOperation::PsaAsymmetricDecrypt(op)
+    }
+}
+
 impl From<list_providers::Result> for NativeResult {
     fn from(op: list_providers::Result) -> Self {
         NativeResult::ListProviders(op)
@@ -256,5 +268,17 @@ impl From<psa_sign_hash::Result> for NativeResult {
 impl From<psa_verify_hash::Result> for NativeResult {
     fn from(op: psa_verify_hash::Result) -> Self {
         NativeResult::PsaVerifyHash(op)
+    }
+}
+
+impl From<psa_asymmetric_encrypt::Result> for NativeResult {
+    fn from(op: psa_asymmetric_encrypt::Result) -> Self {
+        NativeResult::PsaAsymmetricEncrypt(op)
+    }
+}
+
+impl From<psa_asymmetric_decrypt::Result> for NativeResult {
+    fn from(op: psa_asymmetric_decrypt::Result) -> Self {
+        NativeResult::PsaAsymmetricDecrypt(op)
     }
 }
