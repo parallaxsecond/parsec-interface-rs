@@ -9,6 +9,7 @@ mod convert_psa_generate_key;
 mod convert_psa_key_attributes;
 mod convert_psa_import_key;
 mod convert_psa_export_public_key;
+mod convert_psa_export_key;
 mod convert_psa_destroy_key;
 mod convert_psa_sign_hash;
 mod convert_psa_verify_hash;
@@ -31,6 +32,7 @@ use generated_ops::ping as ping_proto;
 use generated_ops::psa_asymmetric_decrypt as psa_asymmetric_decrypt_proto;
 use generated_ops::psa_asymmetric_encrypt as psa_asymmetric_encrypt_proto;
 use generated_ops::psa_destroy_key as psa_destroy_key_proto;
+use generated_ops::psa_export_key as psa_export_key_proto;
 use generated_ops::psa_export_public_key as psa_export_public_key_proto;
 use generated_ops::psa_generate_key as psa_generate_key_proto;
 use generated_ops::psa_import_key as psa_import_key_proto;
@@ -99,6 +101,10 @@ impl Convert for ProtobufConverter {
                 body.bytes(),
                 psa_export_public_key_proto::Operation
             ))),
+            Opcode::PsaExportKey => Ok(NativeOperation::PsaExportKey(wire_to_native!(
+                body.bytes(),
+                psa_export_key_proto::Operation
+            ))),
             Opcode::PsaDestroyKey => Ok(NativeOperation::PsaDestroyKey(wire_to_native!(
                 body.bytes(),
                 psa_destroy_key_proto::Operation
@@ -140,6 +146,9 @@ impl Convert for ProtobufConverter {
             )),
             NativeOperation::PsaExportPublicKey(operation) => Ok(RequestBody::from_bytes(
                 native_to_wire!(operation, psa_export_public_key_proto::Operation),
+            )),
+            NativeOperation::PsaExportKey(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_export_key_proto::Operation),
             )),
             NativeOperation::PsaDestroyKey(operation) => Ok(RequestBody::from_bytes(
                 native_to_wire!(operation, psa_destroy_key_proto::Operation),
@@ -184,6 +193,10 @@ impl Convert for ProtobufConverter {
             Opcode::PsaExportPublicKey => Ok(NativeResult::PsaExportPublicKey(wire_to_native!(
                 body.bytes(),
                 psa_export_public_key_proto::Result
+            ))),
+            Opcode::PsaExportKey => Ok(NativeResult::PsaExportKey(wire_to_native!(
+                body.bytes(),
+                psa_export_key_proto::Result
             ))),
             Opcode::PsaDestroyKey => Ok(NativeResult::PsaDestroyKey(wire_to_native!(
                 body.bytes(),
@@ -231,6 +244,10 @@ impl Convert for ProtobufConverter {
             NativeResult::PsaExportPublicKey(result) => Ok(ResponseBody::from_bytes(
                 native_to_wire!(result, psa_export_public_key_proto::Result),
             )),
+            NativeResult::PsaExportKey(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+                result,
+                psa_export_key_proto::Result
+            ))),
             NativeResult::PsaDestroyKey(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
                 psa_destroy_key_proto::Result

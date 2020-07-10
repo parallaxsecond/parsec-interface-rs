@@ -6,6 +6,8 @@
 # Continuous Integration test script, executed by GitHub Actions on x86 and
 # Travis CI on Arm64.
 
+# To update the `parsec-operations` submodule, rebase onto the latest release and commit before running `ci.sh`
+
 set -euf -o pipefail
 
 # The Parsec operations repository is included as a submodule. It is

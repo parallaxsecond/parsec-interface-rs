@@ -95,6 +95,8 @@ pub enum Opcode {
     PsaAsymmetricEncrypt = 10,
     /// PsaAsymmetricDecrypt operation
     PsaAsymmetricDecrypt = 11,
+    /// PsaExportKey operation
+    PsaExportKey = 12,
 }
 
 /// Listing of available authentication methods.
