@@ -13,6 +13,7 @@ pub mod ping;
 pub mod psa_generate_key;
 pub mod psa_import_key;
 pub mod psa_export_public_key;
+pub mod psa_export_key;
 pub mod psa_destroy_key;
 pub mod psa_sign_hash;
 pub mod psa_verify_hash;
@@ -42,6 +43,8 @@ pub enum NativeOperation {
     PsaImportKey(psa_import_key::Operation),
     /// PsaExportPublicKey operation
     PsaExportPublicKey(psa_export_public_key::Operation),
+    /// PsaExportKey operation
+    PsaExportKey(psa_export_key::Operation),
     /// PsaDestroyKey operation
     PsaDestroyKey(psa_destroy_key::Operation),
     /// PsaSignHash operation
@@ -65,6 +68,7 @@ impl NativeOperation {
             NativeOperation::PsaVerifyHash(_) => Opcode::PsaVerifyHash,
             NativeOperation::PsaImportKey(_) => Opcode::PsaImportKey,
             NativeOperation::PsaExportPublicKey(_) => Opcode::PsaExportPublicKey,
+            NativeOperation::PsaExportKey(_) => Opcode::PsaExportKey,
             NativeOperation::ListOpcodes(_) => Opcode::ListOpcodes,
             NativeOperation::ListProviders(_) => Opcode::ListProviders,
             NativeOperation::PsaAsymmetricEncrypt(_) => Opcode::PsaAsymmetricEncrypt,
@@ -89,6 +93,8 @@ pub enum NativeResult {
     PsaImportKey(psa_import_key::Result),
     /// PsaExportPublicKey result
     PsaExportPublicKey(psa_export_public_key::Result),
+    /// PsaExportKey result
+    PsaExportKey(psa_export_key::Result),
     /// PsaDestroyKey result
     PsaDestroyKey(psa_destroy_key::Result),
     /// PsaSignHash result
@@ -112,6 +118,7 @@ impl NativeResult {
             NativeResult::PsaVerifyHash(_) => Opcode::PsaVerifyHash,
             NativeResult::PsaImportKey(_) => Opcode::PsaImportKey,
             NativeResult::PsaExportPublicKey(_) => Opcode::PsaExportPublicKey,
+            NativeResult::PsaExportKey(_) => Opcode::PsaExportKey,
             NativeResult::ListOpcodes(_) => Opcode::ListOpcodes,
             NativeResult::ListProviders(_) => Opcode::ListProviders,
             NativeResult::PsaAsymmetricEncrypt(_) => Opcode::PsaAsymmetricEncrypt,
@@ -187,6 +194,12 @@ impl From<psa_export_public_key::Operation> for NativeOperation {
     }
 }
 
+impl From<psa_export_key::Operation> for NativeOperation {
+    fn from(op: psa_export_key::Operation) -> Self {
+        NativeOperation::PsaExportKey(op)
+    }
+}
+
 impl From<psa_destroy_key::Operation> for NativeOperation {
     fn from(op: psa_destroy_key::Operation) -> Self {
         NativeOperation::PsaDestroyKey(op)
@@ -250,6 +263,12 @@ impl From<psa_import_key::Result> for NativeResult {
 impl From<psa_export_public_key::Result> for NativeResult {
     fn from(op: psa_export_public_key::Result) -> Self {
         NativeResult::PsaExportPublicKey(op)
+    }
+}
+
+impl From<psa_export_key::Result> for NativeResult {
+    fn from(op: psa_export_key::Result) -> Self {
+        NativeResult::PsaExportKey(op)
     }
 }
 
