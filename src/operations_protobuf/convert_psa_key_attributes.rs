@@ -261,9 +261,9 @@ impl TryFrom<KeyAttributesProto> for Attributes {
                     ResponseStatus::InvalidEncoding
                 })?
                 .try_into()?,
-            bits: key_attributes_proto.key_bits.try_into().or_else(|e| {
+            bits: key_attributes_proto.key_bits.try_into().map_err(|e| {
                 error!("failed to convert key bits from proto. Error: {}", e);
-                Err(ResponseStatus::InvalidEncoding)
+                ResponseStatus::InvalidEncoding
             })?,
             policy: key_attributes_proto
                 .key_policy
@@ -283,9 +283,9 @@ impl TryFrom<Attributes> for KeyAttributesProto {
     fn try_from(key_attributes: Attributes) -> Result<Self> {
         Ok(KeyAttributesProto {
             key_type: Some(key_attributes.key_type.try_into()?),
-            key_bits: key_attributes.bits.try_into().or_else(|e| {
+            key_bits: key_attributes.bits.try_into().map_err(|e| {
                 error!("failed to convert key bits to proto. Error: {}", e);
-                Err(ResponseStatus::InvalidEncoding)
+                ResponseStatus::InvalidEncoding
             })?,
             key_policy: Some(key_attributes.policy.try_into()?),
         })
