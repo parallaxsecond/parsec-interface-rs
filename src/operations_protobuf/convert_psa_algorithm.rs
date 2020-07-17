@@ -176,9 +176,9 @@ impl TryFrom<MacProto> for Mac {
                     error!("mac_alg field of mac::Truncated message is empty.");
                     ResponseStatus::InvalidEncoding
                 })?.try_into()?,
-                mac_length: truncated.mac_length.try_into().or_else(|e| {
+                mac_length: truncated.mac_length.try_into().map_err(|e| {
                     error!("mac_length field of mac::Truncated message can not be represented by an usize ({}).", e);
-                    Err(ResponseStatus::InvalidEncoding)
+                    ResponseStatus::InvalidEncoding
                 })?,
             }),
         }
@@ -200,12 +200,12 @@ impl TryFrom<Mac> for MacProto {
             } => Ok(MacProto {
                 variant: Some(mac::Variant::Truncated(mac::Truncated {
                     mac_alg: Some(mac_alg.try_into()?),
-                    mac_length: mac_length.try_into().or_else(|e| {
+                    mac_length: mac_length.try_into().map_err(|e| {
                         error!(
                             "mac_length field of Mac can not be represented by an u32 ({}).",
                             e
                         );
-                        Err(ResponseStatus::InvalidEncoding)
+                        ResponseStatus::InvalidEncoding
                     })?,
                 })),
             }),
@@ -293,9 +293,9 @@ impl TryFrom<AeadProto> for Aead {
             },
             aead::Variant::AeadWithShortenedTag(aead_with_shortened_tag) => Ok(Aead::AeadWithShortenedTag {
                 aead_alg: AeadWithDefaultLengthTagProto::try_from(aead_with_shortened_tag.aead_alg)?.try_into()?,
-                tag_length: aead_with_shortened_tag.tag_length.try_into().or_else(|e| {
+                tag_length: aead_with_shortened_tag.tag_length.try_into().map_err(|e| {
                         error!("tag_length field of aead::AeadWithShortenedTag can not be represented by an usize ({}).", e);
-                        Err(ResponseStatus::InvalidEncoding)
+                        ResponseStatus::InvalidEncoding
                 })?,
             }),
         }
@@ -314,9 +314,9 @@ impl TryFrom<Aead> for AeadProto {
             Aead::AeadWithShortenedTag { aead_alg, tag_length } => Ok(AeadProto {
                 variant: Some(aead::Variant::AeadWithShortenedTag(aead::AeadWithShortenedTag {
                     aead_alg: aead_with_default_length_tag_to_i32(aead_alg),
-                    tag_length: tag_length.try_into().or_else(|e| {
+                    tag_length: tag_length.try_into().map_err(|e| {
                         error!("tag_length field of Aead::AeadWithShortenedTag can not be represented by an u32 ({}).", e);
-                        Err(ResponseStatus::InvalidEncoding)
+                        ResponseStatus::InvalidEncoding
                     })?,
                 })),
             }),
