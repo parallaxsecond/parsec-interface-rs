@@ -17,6 +17,7 @@ mod convert_list_providers;
 mod convert_list_opcodes;
 mod convert_psa_asymmetric_encrypt;
 mod convert_psa_asymmetric_decrypt;
+mod convert_psa_generate_random;
 
 #[rustfmt::skip]
 #[allow(unused_qualifications, missing_copy_implementations, clippy::pedantic, clippy::module_inception)]
@@ -35,6 +36,7 @@ use generated_ops::psa_destroy_key as psa_destroy_key_proto;
 use generated_ops::psa_export_key as psa_export_key_proto;
 use generated_ops::psa_export_public_key as psa_export_public_key_proto;
 use generated_ops::psa_generate_key as psa_generate_key_proto;
+use generated_ops::psa_generate_random as psa_generate_random_proto;
 use generated_ops::psa_import_key as psa_import_key_proto;
 use generated_ops::psa_sign_hash as psa_sign_hash_proto;
 use generated_ops::psa_verify_hash as psa_verify_hash_proto;
@@ -123,6 +125,10 @@ impl Convert for ProtobufConverter {
             Opcode::PsaAsymmetricDecrypt => Ok(NativeOperation::PsaAsymmetricDecrypt(
                 wire_to_native!(body.bytes(), psa_asymmetric_decrypt_proto::Operation),
             )),
+            Opcode::PsaGenerateRandom => Ok(NativeOperation::PsaGenerateRandom(wire_to_native!(
+                body.bytes(),
+                psa_generate_random_proto::Operation
+            ))),
         }
     }
 
@@ -164,6 +170,9 @@ impl Convert for ProtobufConverter {
             )),
             NativeOperation::PsaAsymmetricDecrypt(operation) => Ok(RequestBody::from_bytes(
                 native_to_wire!(operation, psa_asymmetric_decrypt_proto::Operation),
+            )),
+            NativeOperation::PsaGenerateRandom(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_generate_random_proto::Operation),
             )),
         }
     }
@@ -216,6 +225,10 @@ impl Convert for ProtobufConverter {
             Opcode::PsaAsymmetricDecrypt => Ok(NativeResult::PsaAsymmetricDecrypt(
                 wire_to_native!(body.bytes(), psa_asymmetric_decrypt_proto::Result),
             )),
+            Opcode::PsaGenerateRandom => Ok(NativeResult::PsaGenerateRandom(wire_to_native!(
+                body.bytes(),
+                psa_generate_random_proto::Result
+            ))),
         }
     }
 
@@ -265,6 +278,9 @@ impl Convert for ProtobufConverter {
             )),
             NativeResult::PsaAsymmetricDecrypt(result) => Ok(ResponseBody::from_bytes(
                 native_to_wire!(result, psa_asymmetric_decrypt_proto::Result),
+            )),
+            NativeResult::PsaGenerateRandom(result) => Ok(ResponseBody::from_bytes(
+                native_to_wire!(result, psa_generate_random_proto::Result),
             )),
         }
     }
