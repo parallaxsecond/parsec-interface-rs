@@ -97,6 +97,8 @@ pub enum Opcode {
     PsaAsymmetricDecrypt = 11,
     /// PsaExportKey operation
     PsaExportKey = 12,
+    /// PsaGenerateRandom operation
+    PsaGenerateRandom = 13,
 }
 
 /// Listing of available authentication methods.

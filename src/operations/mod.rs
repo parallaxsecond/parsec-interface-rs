@@ -21,6 +21,7 @@ pub mod psa_asymmetric_encrypt;
 pub mod psa_asymmetric_decrypt;
 pub mod list_opcodes;
 pub mod list_providers;
+pub mod psa_generate_random;
 
 pub use psa_crypto::types::algorithm as psa_algorithm;
 pub use psa_crypto::types::key as psa_key_attributes;
@@ -55,6 +56,8 @@ pub enum NativeOperation {
     PsaAsymmetricEncrypt(psa_asymmetric_encrypt::Operation),
     /// PsaAsymmetricDecrypt operation
     PsaAsymmetricDecrypt(psa_asymmetric_decrypt::Operation),
+    /// PsaGenerateRandom operation
+    PsaGenerateRandom(psa_generate_random::Operation),
 }
 
 impl NativeOperation {
@@ -73,6 +76,7 @@ impl NativeOperation {
             NativeOperation::ListProviders(_) => Opcode::ListProviders,
             NativeOperation::PsaAsymmetricEncrypt(_) => Opcode::PsaAsymmetricEncrypt,
             NativeOperation::PsaAsymmetricDecrypt(_) => Opcode::PsaAsymmetricDecrypt,
+            NativeOperation::PsaGenerateRandom(_) => Opcode::PsaGenerateRandom,
         }
     }
 }
@@ -105,6 +109,8 @@ pub enum NativeResult {
     PsaAsymmetricEncrypt(psa_asymmetric_encrypt::Result),
     /// PsaAsymmetricDecrypt result
     PsaAsymmetricDecrypt(psa_asymmetric_decrypt::Result),
+    /// PsaGenerateRandom result
+    PsaGenerateRandom(psa_generate_random::Result),
 }
 
 impl NativeResult {
@@ -123,6 +129,7 @@ impl NativeResult {
             NativeResult::ListProviders(_) => Opcode::ListProviders,
             NativeResult::PsaAsymmetricEncrypt(_) => Opcode::PsaAsymmetricEncrypt,
             NativeResult::PsaAsymmetricDecrypt(_) => Opcode::PsaAsymmetricDecrypt,
+            NativeResult::PsaGenerateRandom(_) => Opcode::PsaGenerateRandom,
         }
     }
 }
@@ -230,6 +237,12 @@ impl From<psa_asymmetric_decrypt::Operation> for NativeOperation {
     }
 }
 
+impl From<psa_generate_random::Operation> for NativeOperation {
+    fn from(op: psa_generate_random::Operation) -> Self {
+        NativeOperation::PsaGenerateRandom(op)
+    }
+}
+
 impl From<list_providers::Result> for NativeResult {
     fn from(op: list_providers::Result) -> Self {
         NativeResult::ListProviders(op)
@@ -299,5 +312,11 @@ impl From<psa_asymmetric_encrypt::Result> for NativeResult {
 impl From<psa_asymmetric_decrypt::Result> for NativeResult {
     fn from(op: psa_asymmetric_decrypt::Result) -> Self {
         NativeResult::PsaAsymmetricDecrypt(op)
+    }
+}
+
+impl From<psa_generate_random::Result> for NativeResult {
+    fn from(op: psa_generate_random::Result) -> Self {
+        NativeResult::PsaGenerateRandom(op)
     }
 }
