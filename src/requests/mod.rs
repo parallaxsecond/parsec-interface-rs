@@ -6,7 +6,7 @@
 //! service returns.
 use num_derive::FromPrimitive;
 
-mod response_status;
+pub mod response_status;
 
 pub mod utils;
 pub mod common;

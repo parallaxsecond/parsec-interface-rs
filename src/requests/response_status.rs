@@ -1,5 +1,9 @@
 // Copyright 2019 Contributors to the Parsec project.
 // SPDX-License-Identifier: Apache-2.0
+//! # Response Status
+//!
+//! This module contains the definitions for Parsec's response statuses.
+
 use log::{error, warn};
 use num_derive::FromPrimitive;
 use std::convert::TryFrom;
