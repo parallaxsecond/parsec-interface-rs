@@ -17,6 +17,8 @@ pub mod psa_export_key;
 pub mod psa_destroy_key;
 pub mod psa_sign_hash;
 pub mod psa_verify_hash;
+pub mod psa_hash_compute;
+pub mod psa_hash_compare;
 pub mod psa_asymmetric_encrypt;
 pub mod psa_asymmetric_decrypt;
 pub mod list_opcodes;
@@ -55,6 +57,10 @@ pub enum NativeOperation {
     PsaSignHash(psa_sign_hash::Operation),
     /// PsaVerifyHash operation
     PsaVerifyHash(psa_verify_hash::Operation),
+    /// PsaHashCompute operation
+    PsaHashCompute(psa_hash_compute::Operation),
+    /// PsaHashCompare operation
+    PsaHashCompare(psa_hash_compare::Operation),
     /// PsaAsymmetricEncrypt operation
     PsaAsymmetricEncrypt(psa_asymmetric_encrypt::Operation),
     /// PsaAsymmetricDecrypt operation
@@ -72,6 +78,8 @@ impl NativeOperation {
             NativeOperation::PsaDestroyKey(_) => Opcode::PsaDestroyKey,
             NativeOperation::PsaSignHash(_) => Opcode::PsaSignHash,
             NativeOperation::PsaVerifyHash(_) => Opcode::PsaVerifyHash,
+            NativeOperation::PsaHashCompute(_) => Opcode::PsaHashCompute,
+            NativeOperation::PsaHashCompare(_) => Opcode::PsaHashCompare,
             NativeOperation::PsaImportKey(_) => Opcode::PsaImportKey,
             NativeOperation::PsaExportPublicKey(_) => Opcode::PsaExportPublicKey,
             NativeOperation::PsaExportKey(_) => Opcode::PsaExportKey,
@@ -109,6 +117,10 @@ pub enum NativeResult {
     PsaDestroyKey(psa_destroy_key::Result),
     /// PsaSignHash result
     PsaSignHash(psa_sign_hash::Result),
+    /// PsaHashCompute result
+    PsaHashCompute(psa_hash_compute::Result),
+    /// PsaHashCompare result
+    PsaHashCompare(psa_hash_compare::Result),
     /// PsaVerifyHash result
     PsaVerifyHash(psa_verify_hash::Result),
     /// PsaAsymmetricEncrypt result
@@ -129,6 +141,8 @@ impl NativeResult {
             NativeResult::PsaSignHash(_) => Opcode::PsaSignHash,
             NativeResult::PsaVerifyHash(_) => Opcode::PsaVerifyHash,
             NativeResult::PsaImportKey(_) => Opcode::PsaImportKey,
+            NativeResult::PsaHashCompute(_) => Opcode::PsaHashCompute,
+            NativeResult::PsaHashCompare(_) => Opcode::PsaHashCompare,
             NativeResult::PsaExportPublicKey(_) => Opcode::PsaExportPublicKey,
             NativeResult::PsaExportKey(_) => Opcode::PsaExportKey,
             NativeResult::ListOpcodes(_) => Opcode::ListOpcodes,
@@ -256,6 +270,18 @@ impl From<psa_generate_random::Operation> for NativeOperation {
     }
 }
 
+impl From<psa_hash_compute::Operation> for NativeOperation {
+    fn from(op: psa_hash_compute::Operation) -> Self {
+        NativeOperation::PsaHashCompute(op)
+    }
+}
+
+impl From<psa_hash_compare::Operation> for NativeOperation {
+    fn from(op: psa_hash_compare::Operation) -> Self {
+        NativeOperation::PsaHashCompare(op)
+    }
+}
+
 impl From<list_providers::Result> for NativeResult {
     fn from(op: list_providers::Result) -> Self {
         NativeResult::ListProviders(op)
@@ -319,6 +345,18 @@ impl From<psa_sign_hash::Result> for NativeResult {
 impl From<psa_verify_hash::Result> for NativeResult {
     fn from(op: psa_verify_hash::Result) -> Self {
         NativeResult::PsaVerifyHash(op)
+    }
+}
+
+impl From<psa_hash_compute::Result> for NativeResult {
+    fn from(op: psa_hash_compute::Result) -> Self {
+        NativeResult::PsaHashCompute(op)
+    }
+}
+
+impl From<psa_hash_compare::Result> for NativeResult {
+    fn from(op: psa_hash_compare::Result) -> Self {
+        NativeResult::PsaHashCompare(op)
     }
 }
 

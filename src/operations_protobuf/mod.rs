@@ -13,6 +13,8 @@ mod convert_psa_export_key;
 mod convert_psa_destroy_key;
 mod convert_psa_sign_hash;
 mod convert_psa_verify_hash;
+mod convert_psa_hash_compute;
+mod convert_psa_hash_compare;
 mod convert_list_providers;
 mod convert_list_opcodes;
 mod convert_list_authenticators;
@@ -39,6 +41,8 @@ use generated_ops::psa_export_key as psa_export_key_proto;
 use generated_ops::psa_export_public_key as psa_export_public_key_proto;
 use generated_ops::psa_generate_key as psa_generate_key_proto;
 use generated_ops::psa_generate_random as psa_generate_random_proto;
+use generated_ops::psa_hash_compare as psa_hash_compare_proto;
+use generated_ops::psa_hash_compute as psa_hash_compute_proto;
 use generated_ops::psa_import_key as psa_import_key_proto;
 use generated_ops::psa_sign_hash as psa_sign_hash_proto;
 use generated_ops::psa_verify_hash as psa_verify_hash_proto;
@@ -135,6 +139,14 @@ impl Convert for ProtobufConverter {
                 body.bytes(),
                 psa_generate_random_proto::Operation
             ))),
+            Opcode::PsaHashCompare => Ok(NativeOperation::PsaHashCompare(wire_to_native!(
+                body.bytes(),
+                psa_hash_compare_proto::Operation
+            ))),
+            Opcode::PsaHashCompute => Ok(NativeOperation::PsaHashCompute(wire_to_native!(
+                body.bytes(),
+                psa_hash_compute_proto::Operation
+            ))),
         }
     }
 
@@ -182,6 +194,12 @@ impl Convert for ProtobufConverter {
             )),
             NativeOperation::PsaGenerateRandom(operation) => Ok(RequestBody::from_bytes(
                 native_to_wire!(operation, psa_generate_random_proto::Operation),
+            )),
+            NativeOperation::PsaHashCompare(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_hash_compare_proto::Operation),
+            )),
+            NativeOperation::PsaHashCompute(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_hash_compute_proto::Operation),
             )),
         }
     }
@@ -242,6 +260,14 @@ impl Convert for ProtobufConverter {
                 body.bytes(),
                 psa_generate_random_proto::Result
             ))),
+            Opcode::PsaHashCompare => Ok(NativeResult::PsaHashCompare(wire_to_native!(
+                body.bytes(),
+                psa_hash_compare_proto::Result
+            ))),
+            Opcode::PsaHashCompute => Ok(NativeResult::PsaHashCompute(wire_to_native!(
+                body.bytes(),
+                psa_hash_compute_proto::Result
+            ))),
         }
     }
 
@@ -298,6 +324,14 @@ impl Convert for ProtobufConverter {
             NativeResult::PsaGenerateRandom(result) => Ok(ResponseBody::from_bytes(
                 native_to_wire!(result, psa_generate_random_proto::Result),
             )),
+            NativeResult::PsaHashCompare(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+                result,
+                psa_hash_compare_proto::Result
+            ))),
+            NativeResult::PsaHashCompute(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+                result,
+                psa_hash_compute_proto::Result
+            ))),
         }
     }
 }

@@ -31,6 +31,8 @@ include_protobuf_as_module!(ping);
 include_protobuf_as_module!(psa_key_attributes);
 include_protobuf_as_module!(psa_algorithm);
 include_protobuf_as_module!(psa_generate_random);
+include_protobuf_as_module!(psa_hash_compute);
+include_protobuf_as_module!(psa_hash_compare);
 
 use crate::requests::{ResponseStatus, Result};
 use log::error;
@@ -147,6 +149,7 @@ empty_clear_message!(psa_import_key::Result);
 empty_clear_message!(psa_verify_hash::Result);
 empty_clear_message!(psa_asymmetric_encrypt::Result);
 empty_clear_message!(psa_generate_random::Operation);
+empty_clear_message!(psa_hash_compare::Result);
 
 impl ClearProtoMessage for psa_sign_hash::Operation {
     fn clear_message(&mut self) {
@@ -202,4 +205,19 @@ impl ClearProtoMessage for psa_asymmetric_decrypt::Result {
 
 impl ClearProtoMessage for psa_generate_random::Result {
     fn clear_message(&mut self) { self.random_bytes.zeroize(); }
+}
+
+impl ClearProtoMessage for psa_hash_compute::Operation {
+    fn clear_message(&mut self) { self.input.zeroize(); }
+}
+
+impl ClearProtoMessage for psa_hash_compute::Result {
+    fn clear_message(&mut self) { self.hash.zeroize(); }
+}
+
+impl ClearProtoMessage for psa_hash_compare::Operation {
+    fn clear_message(&mut self) {
+        self.input.zeroize();
+        self.hash.zeroize();
+    }
 }
