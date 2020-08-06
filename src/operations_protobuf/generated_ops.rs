@@ -19,6 +19,8 @@ include_protobuf_as_module!(psa_sign_hash);
 include_protobuf_as_module!(psa_verify_hash);
 include_protobuf_as_module!(psa_asymmetric_encrypt);
 include_protobuf_as_module!(psa_asymmetric_decrypt);
+include_protobuf_as_module!(psa_aead_encrypt);
+include_protobuf_as_module!(psa_aead_decrypt);
 include_protobuf_as_module!(psa_generate_key);
 include_protobuf_as_module!(psa_destroy_key);
 include_protobuf_as_module!(psa_export_public_key);
@@ -147,7 +149,6 @@ empty_clear_message!(psa_export_public_key::Operation);
 empty_clear_message!(psa_export_key::Operation);
 empty_clear_message!(psa_import_key::Result);
 empty_clear_message!(psa_verify_hash::Result);
-empty_clear_message!(psa_asymmetric_encrypt::Result);
 empty_clear_message!(psa_generate_random::Operation);
 empty_clear_message!(psa_hash_compare::Result);
 
@@ -196,11 +197,44 @@ impl ClearProtoMessage for psa_asymmetric_encrypt::Operation {
 }
 
 impl ClearProtoMessage for psa_asymmetric_decrypt::Operation {
-    fn clear_message(&mut self) { self.salt.zeroize(); }
+    fn clear_message(&mut self) {
+        self.salt.zeroize();
+        self.ciphertext.zeroize();
+    }
+}
+
+impl ClearProtoMessage for psa_asymmetric_encrypt::Result {
+    fn clear_message(&mut self) { self.ciphertext.zeroize(); }
 }
 
 impl ClearProtoMessage for psa_asymmetric_decrypt::Result {
     fn clear_message(&mut self) { self.plaintext.zeroize(); }
+}
+
+impl ClearProtoMessage for psa_aead_encrypt::Operation {
+    fn clear_message(&mut self) {
+        self.plaintext.zeroize();
+        self.additional_data.zeroize();
+        self.nonce.zeroize();
+    }
+}
+
+impl ClearProtoMessage for psa_aead_decrypt::Operation {
+    fn clear_message(&mut self) {
+        self.additional_data.zeroize();
+        self.nonce.zeroize();
+        self.ciphertext.zeroize();
+    }
+}
+
+impl ClearProtoMessage for psa_aead_encrypt::Result {
+    fn clear_message(&mut self) { self.ciphertext.zeroize(); }
+}
+
+impl ClearProtoMessage for psa_aead_decrypt::Result {
+    fn clear_message(&mut self) {
+        self.plaintext.zeroize()
+    }
 }
 
 impl ClearProtoMessage for psa_generate_random::Result {

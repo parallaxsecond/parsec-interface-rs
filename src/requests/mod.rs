@@ -105,6 +105,10 @@ pub enum Opcode {
     PsaHashCompute = 15,
     /// PsaHashCompare operation
     PsaHashCompare = 16,
+    /// PsaAeadEncrypt
+    PsaAeadEncrypt = 17,
+    /// PsaAeadDecrypt
+    PsaAeadDecrypt = 18,
 }
 
 /// Listing of available authentication methods.
