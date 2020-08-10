@@ -35,6 +35,7 @@ include_protobuf_as_module!(psa_algorithm);
 include_protobuf_as_module!(psa_generate_random);
 include_protobuf_as_module!(psa_hash_compute);
 include_protobuf_as_module!(psa_hash_compare);
+include_protobuf_as_module!(psa_raw_key_agreement);
 
 use crate::requests::{ResponseStatus, Result};
 use log::error;
@@ -253,5 +254,17 @@ impl ClearProtoMessage for psa_hash_compare::Operation {
     fn clear_message(&mut self) {
         self.input.zeroize();
         self.hash.zeroize();
+    }
+}
+
+impl ClearProtoMessage for psa_raw_key_agreement::Operation {
+    fn clear_message(&mut self) {
+        self.peer_key.zeroize();
+    }
+}
+
+impl ClearProtoMessage for psa_raw_key_agreement::Result {
+    fn clear_message(&mut self) {
+        self.shared_secret.zeroize();
     }
 }

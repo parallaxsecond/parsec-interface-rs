@@ -27,6 +27,7 @@ pub mod list_opcodes;
 pub mod list_providers;
 pub mod list_authenticators;
 pub mod psa_generate_random;
+pub mod psa_raw_key_agreement;
 
 pub use psa_crypto::types::algorithm as psa_algorithm;
 pub use psa_crypto::types::key as psa_key_attributes;
@@ -73,6 +74,8 @@ pub enum NativeOperation {
     PsaAeadDecrypt(psa_aead_decrypt::Operation),
     /// PsaGenerateRandom operation
     PsaGenerateRandom(psa_generate_random::Operation),
+    /// PsaRawKeyAgreement operation
+    PsaRawKeyAgreement(psa_raw_key_agreement::Operation),
 }
 
 impl NativeOperation {
@@ -97,6 +100,7 @@ impl NativeOperation {
             NativeOperation::PsaAeadEncrypt(_) => Opcode::PsaAeadEncrypt,
             NativeOperation::PsaAeadDecrypt(_) => Opcode::PsaAeadDecrypt,
             NativeOperation::PsaGenerateRandom(_) => Opcode::PsaGenerateRandom,
+            NativeOperation::PsaRawKeyAgreement(_) => Opcode::PsaRawKeyAgreement,
         }
     }
 }
@@ -141,6 +145,8 @@ pub enum NativeResult {
     PsaAeadDecrypt(psa_aead_decrypt::Result),
     /// PsaGenerateRandom result
     PsaGenerateRandom(psa_generate_random::Result),
+    /// PsaRawKeyAgreement result
+    PsaRawKeyAgreement(psa_raw_key_agreement::Result),
 }
 
 impl NativeResult {
@@ -165,6 +171,7 @@ impl NativeResult {
             NativeResult::PsaAeadEncrypt(_) => Opcode::PsaAeadEncrypt,
             NativeResult::PsaAeadDecrypt(_) => Opcode::PsaAeadDecrypt,
             NativeResult::PsaGenerateRandom(_) => Opcode::PsaGenerateRandom,
+            NativeResult::PsaRawKeyAgreement(_) => Opcode::PsaRawKeyAgreement,
         }
     }
 }
@@ -307,6 +314,11 @@ impl From<psa_hash_compare::Operation> for NativeOperation {
         NativeOperation::PsaHashCompare(op)
     }
 }
+impl From<psa_raw_key_agreement::Operation> for NativeOperation {
+    fn from(op: psa_raw_key_agreement::Operation) -> Self {
+        NativeOperation::PsaRawKeyAgreement(op)
+    }
+}
 
 impl From<list_providers::Result> for NativeResult {
     fn from(op: list_providers::Result) -> Self {
@@ -413,5 +425,11 @@ impl From<psa_aead_decrypt::Result> for NativeResult {
 impl From<psa_generate_random::Result> for NativeResult {
     fn from(op: psa_generate_random::Result) -> Self {
         NativeResult::PsaGenerateRandom(op)
+    }
+}
+
+impl From<psa_raw_key_agreement::Result> for NativeResult {
+    fn from(op: psa_raw_key_agreement::Result) -> Self {
+        NativeResult::PsaRawKeyAgreement(op)
     }
 }
