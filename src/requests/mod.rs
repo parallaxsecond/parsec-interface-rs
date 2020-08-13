@@ -112,4 +112,6 @@ pub enum AuthType {
     NoAuth = 0,
     /// Direct authentication
     Direct = 1,
+    /// JSON Web Tokens (JWT) authentication
+    JWT = 2,
 }
