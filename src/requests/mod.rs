@@ -99,6 +99,8 @@ pub enum Opcode {
     PsaExportKey = 12,
     /// PsaGenerateRandom operation
     PsaGenerateRandom = 13,
+    /// ListAuthenticators operation
+    ListAuthenticators = 14,
 }
 
 /// Listing of available authentication methods.
