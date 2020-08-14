@@ -109,6 +109,8 @@ pub enum Opcode {
     PsaAeadEncrypt = 17,
     /// PsaAeadDecrypt
     PsaAeadDecrypt = 18,
+    /// PsaRawKeyAgreement operation
+    PsaRawKeyAgreement = 19,
 }
 
 /// Listing of available authentication methods.

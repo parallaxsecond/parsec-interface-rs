@@ -495,11 +495,17 @@ impl TryFrom<RawKeyAgreementProto> for RawKeyAgreement {
 }
 
 // RawKeyAgreement algorithms: from native to protobuf
-fn raw_key_agreement_to_i32(raw_key_agreement: RawKeyAgreement) -> i32 {
+pub fn raw_key_agreement_to_i32(raw_key_agreement: RawKeyAgreement) -> i32 {
     match raw_key_agreement {
         RawKeyAgreement::Ffdh => RawKeyAgreementProto::Ffdh.into(),
         RawKeyAgreement::Ecdh => RawKeyAgreementProto::Ecdh.into(),
     }
+}
+
+// RawKeyAgreement algorithms: from protobuf to native
+pub fn i32_to_raw_key_agreement(raw_key_agreement_val: i32) -> Result<RawKeyAgreement> {
+    let raw_key_agreement_alg: RawKeyAgreementProto = raw_key_agreement_val.try_into()?;
+    raw_key_agreement_alg.try_into()
 }
 
 // KeyAgreement algorithms: from protobuf to native
