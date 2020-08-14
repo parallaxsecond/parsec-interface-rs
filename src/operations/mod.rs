@@ -21,6 +21,8 @@ pub mod psa_hash_compute;
 pub mod psa_hash_compare;
 pub mod psa_asymmetric_encrypt;
 pub mod psa_asymmetric_decrypt;
+pub mod psa_aead_encrypt;
+pub mod psa_aead_decrypt;
 pub mod list_opcodes;
 pub mod list_providers;
 pub mod list_authenticators;
@@ -65,6 +67,10 @@ pub enum NativeOperation {
     PsaAsymmetricEncrypt(psa_asymmetric_encrypt::Operation),
     /// PsaAsymmetricDecrypt operation
     PsaAsymmetricDecrypt(psa_asymmetric_decrypt::Operation),
+    /// PsaAeadEncrypt operation
+    PsaAeadEncrypt(psa_aead_encrypt::Operation),
+    /// PsaAeadDecrypt operation
+    PsaAeadDecrypt(psa_aead_decrypt::Operation),
     /// PsaGenerateRandom operation
     PsaGenerateRandom(psa_generate_random::Operation),
 }
@@ -88,6 +94,8 @@ impl NativeOperation {
             NativeOperation::ListAuthenticators(_) => Opcode::ListAuthenticators,
             NativeOperation::PsaAsymmetricEncrypt(_) => Opcode::PsaAsymmetricEncrypt,
             NativeOperation::PsaAsymmetricDecrypt(_) => Opcode::PsaAsymmetricDecrypt,
+            NativeOperation::PsaAeadEncrypt(_) => Opcode::PsaAeadEncrypt,
+            NativeOperation::PsaAeadDecrypt(_) => Opcode::PsaAeadDecrypt,
             NativeOperation::PsaGenerateRandom(_) => Opcode::PsaGenerateRandom,
         }
     }
@@ -127,6 +135,10 @@ pub enum NativeResult {
     PsaAsymmetricEncrypt(psa_asymmetric_encrypt::Result),
     /// PsaAsymmetricDecrypt result
     PsaAsymmetricDecrypt(psa_asymmetric_decrypt::Result),
+    /// PsaAeadEncrypt result
+    PsaAeadEncrypt(psa_aead_encrypt::Result),
+    /// PsaAeadDecrypt result
+    PsaAeadDecrypt(psa_aead_decrypt::Result),
     /// PsaGenerateRandom result
     PsaGenerateRandom(psa_generate_random::Result),
 }
@@ -150,6 +162,8 @@ impl NativeResult {
             NativeResult::ListAuthenticators(_) => Opcode::ListAuthenticators,
             NativeResult::PsaAsymmetricEncrypt(_) => Opcode::PsaAsymmetricEncrypt,
             NativeResult::PsaAsymmetricDecrypt(_) => Opcode::PsaAsymmetricDecrypt,
+            NativeResult::PsaAeadEncrypt(_) => Opcode::PsaAeadEncrypt,
+            NativeResult::PsaAeadDecrypt(_) => Opcode::PsaAeadDecrypt,
             NativeResult::PsaGenerateRandom(_) => Opcode::PsaGenerateRandom,
         }
     }
@@ -264,6 +278,18 @@ impl From<psa_asymmetric_decrypt::Operation> for NativeOperation {
     }
 }
 
+impl From<psa_aead_encrypt::Operation> for NativeOperation {
+    fn from(op: psa_aead_encrypt::Operation) -> Self {
+        NativeOperation::PsaAeadEncrypt(op)
+    }
+}
+
+impl From<psa_aead_decrypt::Operation> for NativeOperation {
+    fn from(op: psa_aead_decrypt::Operation) -> Self {
+        NativeOperation::PsaAeadDecrypt(op)
+    }
+}
+
 impl From<psa_generate_random::Operation> for NativeOperation {
     fn from(op: psa_generate_random::Operation) -> Self {
         NativeOperation::PsaGenerateRandom(op)
@@ -369,6 +395,18 @@ impl From<psa_asymmetric_encrypt::Result> for NativeResult {
 impl From<psa_asymmetric_decrypt::Result> for NativeResult {
     fn from(op: psa_asymmetric_decrypt::Result) -> Self {
         NativeResult::PsaAsymmetricDecrypt(op)
+    }
+}
+
+impl From<psa_aead_encrypt::Result> for NativeResult {
+    fn from(op: psa_aead_encrypt::Result) -> Self {
+        NativeResult::PsaAeadEncrypt(op)
+    }
+}
+
+impl From<psa_aead_decrypt::Result> for NativeResult {
+    fn from(op: psa_aead_decrypt::Result) -> Self {
+        NativeResult::PsaAeadDecrypt(op)
     }
 }
 
