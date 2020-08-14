@@ -66,8 +66,14 @@ impl TryFrom<HashProto> for Hash {
     }
 }
 
+// Hash algorithms: from protobuf to native
+pub fn i32_to_hash(hash_val: i32) -> Result<Hash> {
+    let hash_proto_alg: HashProto = hash_val.try_into()?;
+    hash_proto_alg.try_into()
+}
+
 // Hash algorithms: from native to protobuf
-fn hash_to_i32(hash: Hash) -> i32 {
+pub fn hash_to_i32(hash: Hash) -> i32 {
     match hash {
         #[allow(deprecated)]
         Hash::Md2 => HashProto::Md2.into(),

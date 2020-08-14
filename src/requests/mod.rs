@@ -101,6 +101,10 @@ pub enum Opcode {
     PsaGenerateRandom = 13,
     /// ListAuthenticators operation
     ListAuthenticators = 14,
+    /// PsaHashCompute operation
+    PsaHashCompute = 15,
+    /// PsaHashCompare operation
+    PsaHashCompare = 16,
 }
 
 /// Listing of available authentication methods.
