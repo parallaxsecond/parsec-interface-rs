@@ -35,7 +35,7 @@ impl RequestHeader {
     #[cfg(feature = "testing")]
     pub(crate) fn new() -> RequestHeader {
         RequestHeader {
-            provider: ProviderID::Core,
+            provider: ProviderID::core(),
             session: 0,
             content_type: BodyType::Protobuf,
             accept_type: BodyType::Protobuf,
@@ -91,7 +91,7 @@ impl From<RequestHeader> for Raw {
     fn from(header: RequestHeader) -> Self {
         Raw {
             flags: 0,
-            provider: header.provider as u8,
+            provider: header.provider.id(),
             session: header.session,
             content_type: header.content_type as u8,
             accept_type: header.accept_type as u8,

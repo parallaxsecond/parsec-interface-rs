@@ -17,23 +17,28 @@ use arbitrary::Arbitrary;
 pub use request::Request;
 pub use response::Response;
 pub use response_status::{ResponseStatus, Result};
-use std::convert::TryFrom;
 
 /// Listing of provider types and their associated codes.
 ///
 /// Passed in headers as `provider`.
-#[cfg_attr(feature = "fuzz", derive(Arbitrary))]
-#[derive(FromPrimitive, PartialEq, Eq, Hash, Copy, Clone, Debug)]
-#[repr(u8)]
-pub enum ProviderID {
-    /// Provider to use for core Parsec operations.
-    Core = 0,
-    /// Provider using Mbed Crypto software library.
-    MbedCrypto = 1,
-    /// Provider using a PKCS 11 compatible library.
-    Pkcs11 = 2,
-    /// Provider using a TSS 2.0 Enhanced System API library.
-    Tpm = 3,
+#[derive(PartialEq, Eq, Hash, Copy, Clone, Debug)]
+pub struct ProviderID(u8);
+
+impl ProviderID {
+    /// Create a new provider ID with the given value
+    pub fn new(id: u8) -> Self {
+        ProviderID(id)
+    }
+
+    /// Get the ID of the provider
+    pub fn id(&self) -> u8 {
+        self.0
+    }
+
+    /// Get the provider ID for the Core Provider
+    pub const fn core() -> Self {
+        ProviderID(0)
+    }
 }
 
 impl std::fmt::Display for ProviderID {
@@ -42,14 +47,9 @@ impl std::fmt::Display for ProviderID {
     }
 }
 
-impl TryFrom<u8> for ProviderID {
-    type Error = ResponseStatus;
-
-    fn try_from(provider_id: u8) -> ::std::result::Result<Self, Self::Error> {
-        match num::FromPrimitive::from_u8(provider_id) {
-            Some(provider_id) => Ok(provider_id),
-            None => Err(ResponseStatus::ProviderDoesNotExist),
-        }
+impl From<u8> for ProviderID {
+    fn from(provider_id: u8) -> Self {
+        ProviderID(provider_id)
     }
 }
 

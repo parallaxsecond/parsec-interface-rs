@@ -27,7 +27,7 @@ impl ResponseHeader {
     /// Create a new response header with default field values.
     pub(crate) fn new() -> ResponseHeader {
         ResponseHeader {
-            provider: ProviderID::Core,
+            provider: ProviderID::core(),
             session: 0,
             content_type: BodyType::Protobuf,
             opcode: Opcode::Ping,
@@ -43,10 +43,7 @@ impl TryFrom<Raw> for ResponseHeader {
     type Error = ResponseStatus;
 
     fn try_from(header: Raw) -> Result<ResponseHeader> {
-        let provider: ProviderID = match FromPrimitive::from_u8(header.provider) {
-            Some(provider_id) => provider_id,
-            None => return Err(ResponseStatus::ProviderDoesNotExist),
-        };
+        let provider: ProviderID = header.provider.into();
 
         let content_type: BodyType = match FromPrimitive::from_u8(header.content_type) {
             Some(content_type) => content_type,
@@ -81,7 +78,7 @@ impl From<ResponseHeader> for Raw {
     fn from(header: ResponseHeader) -> Self {
         Raw {
             flags: 0,
-            provider: header.provider as u8,
+            provider: header.provider.id(),
             session: header.session,
             content_type: header.content_type as u8,
             accept_type: 0,

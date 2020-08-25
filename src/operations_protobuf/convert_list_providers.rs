@@ -5,7 +5,6 @@ use super::generated_ops::list_providers::{
 };
 use crate::operations::list_providers::{Operation, ProviderInfo, Result};
 use crate::requests::{ProviderID, ResponseStatus};
-use num::FromPrimitive;
 use std::convert::{TryFrom, TryInto};
 use uuid::Uuid;
 
@@ -35,9 +34,9 @@ impl TryFrom<ProviderInfoProto> for ProviderInfo {
             Ok(provider_uuid) => provider_uuid,
             Err(_) => return Err(ResponseStatus::WrongProviderUuid),
         };
-        let id: ProviderID = match FromPrimitive::from_u32(proto_info.id) {
-            Some(id) => id,
-            None => return Err(ResponseStatus::ProviderDoesNotExist),
+        let id: ProviderID = match u8::try_from(proto_info.id) {
+            Ok(id) => id.into(),
+            Err(_) => return Err(ResponseStatus::InvalidEncoding),
         };
 
         Ok(ProviderInfo {
@@ -63,7 +62,7 @@ impl TryFrom<ProviderInfo> for ProviderInfoProto {
             version_maj: info.version_maj,
             version_min: info.version_min,
             version_rev: info.version_rev,
-            id: info.id as u32,
+            id: info.id.id() as u32,
         })
     }
 }
@@ -133,7 +132,7 @@ mod test {
         assert_eq!(resp.providers[0].version_maj, 0);
         assert_eq!(resp.providers[0].version_min, 1);
         assert_eq!(resp.providers[0].version_rev, 0);
-        assert_eq!(resp.providers[0].id, ProviderID::MbedCrypto);
+        assert_eq!(resp.providers[0].id, ProviderID::new(1));
     }
 
     #[test]
@@ -148,7 +147,7 @@ mod test {
             version_maj: 0,
             version_min: 1,
             version_rev: 0,
-            id: ProviderID::MbedCrypto,
+            id: ProviderID::new(1),
         };
         resp.providers.push(provider_info);
 
@@ -225,7 +224,7 @@ mod test {
             version_maj: 0,
             version_min: 1,
             version_rev: 0,
-            id: ProviderID::MbedCrypto,
+            id: ProviderID::new(99),
         };
         list_providers.providers.push(provider_info);
 
@@ -247,7 +246,7 @@ mod test {
             version_maj: 0,
             version_min: 1,
             version_rev: 0,
-            id: ProviderID::MbedCrypto,
+            id: ProviderID::new(123),
         };
         list_providers.providers.push(provider_info);
 

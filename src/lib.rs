@@ -116,7 +116,7 @@
 //!let result_body = converter.result_to_body(result).unwrap();
 //!let response = Response {
 //!    header: ResponseHeader {
-//!        provider: ProviderID::MbedCrypto,
+//!        provider: ProviderID::new(1),
 //!        session: 0,
 //!        content_type: BodyType::Protobuf,
 //!        opcode: Opcode::PsaGenerateKey,
@@ -166,7 +166,7 @@
 //!let operation = NativeOperation::Ping(Operation {});
 //!let request = Request {
 //!    header: RequestHeader {
-//!        provider: ProviderID::Core,
+//!        provider: ProviderID::core(),
 //!        session: 0,
 //!        content_type: BodyType::Protobuf,
 //!        accept_type: BodyType::Protobuf,

@@ -12,12 +12,14 @@ impl TryFrom<OperationProto> for Operation {
     type Error = ResponseStatus;
 
     fn try_from(proto_op: OperationProto) -> std::result::Result<Self, Self::Error> {
-        match FromPrimitive::from_u32(proto_op.provider_id) {
-            None => {
+        match u8::try_from(proto_op.provider_id) {
+            Err(_) => {
                 error!("Invalid provider ID: {}", proto_op.provider_id);
-                Err(ResponseStatus::ProviderDoesNotExist)
+                Err(ResponseStatus::InvalidEncoding)
             }
-            Some(provider_id) => Ok(Operation { provider_id }),
+            Ok(provider_id) => Ok(Operation {
+                provider_id: provider_id.into(),
+            }),
         }
     }
 }
@@ -27,7 +29,7 @@ impl TryFrom<Operation> for OperationProto {
 
     fn try_from(op: Operation) -> std::result::Result<Self, Self::Error> {
         Ok(OperationProto {
-            provider_id: op.provider_id as u32,
+            provider_id: op.provider_id.id() as u32,
         })
     }
 }
@@ -109,7 +111,7 @@ mod test {
     #[test]
     fn op_list_opcodes_from_native() {
         let list_opcodes = Operation {
-            provider_id: ProviderID::Core,
+            provider_id: ProviderID::core(),
         };
         let body = CONVERTER
             .operation_to_body(NativeOperation::ListOpcodes(list_opcodes))
@@ -120,7 +122,7 @@ mod test {
     #[test]
     fn op_list_opcodes_e2e() {
         let list_opcodes = Operation {
-            provider_id: ProviderID::Pkcs11,
+            provider_id: ProviderID::new(5),
         };
         let req_body = CONVERTER
             .operation_to_body(NativeOperation::ListOpcodes(list_opcodes))
