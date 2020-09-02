@@ -5,7 +5,7 @@
 //! List the providers available in the service, with some information.
 use crate::requests::ProviderID;
 use std::cmp::Eq;
-use uuid::Uuid;
+pub use uuid::Uuid;
 
 /// Structure holding the basic information that defines the providers in
 /// the service for client discovery.

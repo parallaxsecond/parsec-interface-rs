@@ -27,22 +27,6 @@ $ git submodule update --init
 
 The software is provided under Apache-2.0. Contributions to this project are accepted under the same license.
 
-This project uses the following third party crates:
-* serde (Apache-2.0)
-* bincode (MIT)
-* num-traits (MIT and Apache-2.0)
-* num-derive (MIT and Apache-2.0)
-* prost-build (Apache-2.0)
-* prost (Apache-2.0)
-* bytes (MIT)
-* num (MIT and Apache-2.0)
-* uuid (Apache-2.0)
-* log (MIT and Apache-2.0)
-* arbitrary (MIT and Apache-2.0)
-* zeroize (MIT and Apache-2.0)
-* secrecy (MIT and Apache-2.0)
-* derivative (MIT and Apache-2.0)
-
 ## Contributing
 
 Please check the [**Contribution Guidelines**](https://parallaxsecond.github.io/parsec-book/contributing.html)
