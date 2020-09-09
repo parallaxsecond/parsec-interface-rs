@@ -127,5 +127,5 @@ pub enum AuthType {
     /// JSON Web Tokens (JWT) authentication
     JWT = 2,
     /// Unix peer credentials authentication
-    PeerCredentials = 3,
+    UnixPeerCredentials = 3,
 }
