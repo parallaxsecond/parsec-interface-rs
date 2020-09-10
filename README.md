@@ -12,7 +12,7 @@
 </p>
 
 This repository contains an interface library to be used both by the Parsec service and a Rust Client library.
-The library contains methods to communicate using the [wire protocol](https://github.com/parallaxsecond/parsec/blob/master/docs/wire_protocol.md).
+The library contains methods to communicate using the [wire protocol](https://parallaxsecond.github.io/parsec-book/parsec_client/wire_protocol.html).
 
 ## Build
 
