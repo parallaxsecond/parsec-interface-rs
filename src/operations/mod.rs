@@ -26,6 +26,7 @@ pub mod psa_aead_decrypt;
 pub mod list_opcodes;
 pub mod list_providers;
 pub mod list_authenticators;
+pub mod list_keys;
 pub mod psa_generate_random;
 pub mod psa_raw_key_agreement;
 
@@ -44,6 +45,8 @@ pub enum NativeOperation {
     ListOpcodes(list_opcodes::Operation),
     /// ListAuthenticators operation
     ListAuthenticators(list_authenticators::Operation),
+    /// ListKeys operation
+    ListKeys(list_keys::Operation),
     /// Ping operation
     Ping(ping::Operation),
     /// PsaGenerateKey operation
@@ -95,6 +98,7 @@ impl NativeOperation {
             NativeOperation::ListOpcodes(_) => Opcode::ListOpcodes,
             NativeOperation::ListProviders(_) => Opcode::ListProviders,
             NativeOperation::ListAuthenticators(_) => Opcode::ListAuthenticators,
+            NativeOperation::ListKeys(_) => Opcode::ListKeys,
             NativeOperation::PsaAsymmetricEncrypt(_) => Opcode::PsaAsymmetricEncrypt,
             NativeOperation::PsaAsymmetricDecrypt(_) => Opcode::PsaAsymmetricDecrypt,
             NativeOperation::PsaAeadEncrypt(_) => Opcode::PsaAeadEncrypt,
@@ -115,6 +119,8 @@ pub enum NativeResult {
     ListOpcodes(list_opcodes::Result),
     /// ListAuthenticators result
     ListAuthenticators(list_authenticators::Result),
+    /// ListKeys result
+    ListKeys(list_keys::Result),
     /// Ping result
     Ping(ping::Result),
     /// PsaGenerateKey result
@@ -166,6 +172,7 @@ impl NativeResult {
             NativeResult::ListOpcodes(_) => Opcode::ListOpcodes,
             NativeResult::ListProviders(_) => Opcode::ListProviders,
             NativeResult::ListAuthenticators(_) => Opcode::ListAuthenticators,
+            NativeResult::ListKeys(_) => Opcode::ListKeys,
             NativeResult::PsaAsymmetricEncrypt(_) => Opcode::PsaAsymmetricEncrypt,
             NativeResult::PsaAsymmetricDecrypt(_) => Opcode::PsaAsymmetricDecrypt,
             NativeResult::PsaAeadEncrypt(_) => Opcode::PsaAeadEncrypt,
@@ -222,6 +229,12 @@ impl From<list_opcodes::Operation> for NativeOperation {
 impl From<list_authenticators::Operation> for NativeOperation {
     fn from(op: list_authenticators::Operation) -> Self {
         NativeOperation::ListAuthenticators(op)
+    }
+}
+
+impl From<list_keys::Operation> for NativeOperation {
+    fn from(op: list_keys::Operation) -> Self {
+        NativeOperation::ListKeys(op)
     }
 }
 
@@ -335,6 +348,12 @@ impl From<list_opcodes::Result> for NativeResult {
 impl From<list_authenticators::Result> for NativeResult {
     fn from(op: list_authenticators::Result) -> Self {
         NativeResult::ListAuthenticators(op)
+    }
+}
+
+impl From<list_keys::Result> for NativeResult {
+    fn from(op: list_keys::Result) -> Self {
+        NativeResult::ListKeys(op)
     }
 }
 

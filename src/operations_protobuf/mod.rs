@@ -18,6 +18,7 @@ mod convert_psa_hash_compare;
 mod convert_list_providers;
 mod convert_list_opcodes;
 mod convert_list_authenticators;
+mod convert_list_keys;
 mod convert_psa_asymmetric_encrypt;
 mod convert_psa_asymmetric_decrypt;
 mod convert_psa_aead_encrypt;
@@ -34,6 +35,7 @@ use crate::requests::{
     request::RequestBody, response::ResponseBody, BodyType, Opcode, ResponseStatus, Result,
 };
 use generated_ops::list_authenticators as list_authenticators_proto;
+use generated_ops::list_keys as list_keys_proto;
 use generated_ops::list_opcodes as list_opcodes_proto;
 use generated_ops::list_providers as list_providers_proto;
 use generated_ops::ping as ping_proto;
@@ -102,6 +104,10 @@ impl Convert for ProtobufConverter {
             Opcode::ListAuthenticators => Ok(NativeOperation::ListAuthenticators(wire_to_native!(
                 body.bytes(),
                 list_authenticators_proto::Operation
+            ))),
+            Opcode::ListKeys => Ok(NativeOperation::ListKeys(wire_to_native!(
+                body.bytes(),
+                list_keys_proto::Operation
             ))),
             Opcode::Ping => Ok(NativeOperation::Ping(wire_to_native!(
                 body.bytes(),
@@ -179,6 +185,10 @@ impl Convert for ProtobufConverter {
             NativeOperation::ListAuthenticators(operation) => Ok(RequestBody::from_bytes(
                 native_to_wire!(operation, list_authenticators_proto::Operation),
             )),
+            NativeOperation::ListKeys(operation) => Ok(RequestBody::from_bytes(native_to_wire!(
+                operation,
+                list_keys_proto::Operation
+            ))),
             NativeOperation::Ping(operation) => Ok(RequestBody::from_bytes(native_to_wire!(
                 operation,
                 ping_proto::Operation
@@ -244,6 +254,10 @@ impl Convert for ProtobufConverter {
             Opcode::ListAuthenticators => Ok(NativeResult::ListAuthenticators(wire_to_native!(
                 body.bytes(),
                 list_authenticators_proto::Result
+            ))),
+            Opcode::ListKeys => Ok(NativeResult::ListKeys(wire_to_native!(
+                body.bytes(),
+                list_keys_proto::Result
             ))),
             Opcode::Ping => Ok(NativeResult::Ping(wire_to_native!(
                 body.bytes(),
@@ -323,6 +337,10 @@ impl Convert for ProtobufConverter {
             NativeResult::ListAuthenticators(result) => Ok(ResponseBody::from_bytes(
                 native_to_wire!(result, list_authenticators_proto::Result),
             )),
+            NativeResult::ListKeys(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+                result,
+                list_keys_proto::Result
+            ))),
             NativeResult::Ping(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
                 ping_proto::Result

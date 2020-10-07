@@ -4,12 +4,13 @@
 //!
 //! Lists all keys belonging to the application.
 use super::psa_key_attributes::Attributes;
+use crate::requests::ProviderID;
 
 /// Structure holding the basic information for a key in the application for client discovery.
 #[derive(Debug, Clone, PartialEq)]
 pub struct KeyInfo {
     /// The ID of the associated provider.
-    pub provider_id: u32,
+    pub provider_id: ProviderID,
     /// The name of the key.
     pub name: String,
     /// The key attributes.
