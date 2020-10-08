@@ -268,6 +268,16 @@ impl From<bincode::Error> for ResponseStatus {
     }
 }
 
+impl From<uuid::Error> for ResponseStatus {
+    fn from(err: uuid::Error) -> Self {
+        warn!(
+            "Conversion from {} to ResponseStatus::InvalidEncoding.",
+            err
+        );
+        ResponseStatus::InvalidEncoding
+    }
+}
+
 impl From<std::num::TryFromIntError> for ResponseStatus {
     fn from(err: std::num::TryFromIntError) -> Self {
         warn!(
