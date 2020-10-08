@@ -126,8 +126,10 @@ pub enum AuthType {
     NoAuth = 0,
     /// Direct authentication
     Direct = 1,
-    /// JSON Web Tokens (JWT) authentication
-    JWT = 2,
+    /// JSON Web Tokens (JWT) authentication (not currently supported)
+    Jwt = 2,
     /// Unix peer credentials authentication
     UnixPeerCredentials = 3,
+    /// Authentication verifying a JWT SPIFFE Verifiable Identity Document
+    JwtSvid = 4,
 }
