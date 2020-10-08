@@ -74,45 +74,45 @@ pub enum BodyType {
 #[repr(u32)]
 pub enum Opcode {
     /// Ping operation
-    Ping = 1,
+    Ping = 0x0001,
     /// PsaGenerateKey operation
-    PsaGenerateKey = 2,
+    PsaGenerateKey = 0x0002,
     /// PsaDestroyKey operation
-    PsaDestroyKey = 3,
+    PsaDestroyKey = 0x0003,
     /// PsaSignHash operation
-    PsaSignHash = 4,
+    PsaSignHash = 0x0004,
     /// PsaVerifyHash operation
-    PsaVerifyHash = 5,
+    PsaVerifyHash = 0x0005,
     /// PsaImportKey operation
-    PsaImportKey = 6,
+    PsaImportKey = 0x0006,
     /// PsaExportPublicKey operation
-    PsaExportPublicKey = 7,
+    PsaExportPublicKey = 0x0007,
     /// ListProviders operation
-    ListProviders = 8,
+    ListProviders = 0x0008,
     /// ListOpcodes operation
-    ListOpcodes = 9,
+    ListOpcodes = 0x0009,
     /// PsaAsymmetricEncrypt operation
-    PsaAsymmetricEncrypt = 10,
+    PsaAsymmetricEncrypt = 0x000A,
     /// PsaAsymmetricDecrypt operation
-    PsaAsymmetricDecrypt = 11,
+    PsaAsymmetricDecrypt = 0x000B,
     /// PsaExportKey operation
-    PsaExportKey = 12,
+    PsaExportKey = 0x000C,
     /// PsaGenerateRandom operation
-    PsaGenerateRandom = 13,
+    PsaGenerateRandom = 0x000D,
     /// ListAuthenticators operation
-    ListAuthenticators = 14,
+    ListAuthenticators = 0x000E,
     /// PsaHashCompute operation
-    PsaHashCompute = 15,
+    PsaHashCompute = 0x000F,
     /// PsaHashCompare operation
-    PsaHashCompare = 16,
+    PsaHashCompare = 0x0010,
     /// PsaAeadEncrypt
-    PsaAeadEncrypt = 17,
+    PsaAeadEncrypt = 0x0011,
     /// PsaAeadDecrypt
-    PsaAeadDecrypt = 18,
+    PsaAeadDecrypt = 0x0012,
     /// PsaRawKeyAgreement operation
-    PsaRawKeyAgreement = 19,
+    PsaRawKeyAgreement = 0x0013,
     /// ListKeys operations
-    ListKeys = 26,
+    ListKeys = 0x001A,
 }
 
 /// Listing of available authentication methods.
