@@ -34,6 +34,8 @@ pub enum ProviderID {
     Pkcs11 = 2,
     /// Provider using a TSS 2.0 Enhanced System API library.
     Tpm = 3,
+    /// Provider using the crypto Trusted Service running in TrustZone
+    TrustedService = 4,
 }
 
 impl std::fmt::Display for ProviderID {
