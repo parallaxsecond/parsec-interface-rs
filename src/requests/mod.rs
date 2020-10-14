@@ -115,6 +115,40 @@ pub enum Opcode {
     ListKeys = 0x001A,
 }
 
+impl Opcode {
+    /// Check if an opcode is one of a Core operation
+    pub fn is_core(&self) -> bool {
+        // match to ensure exhaustivity when a new opcode is added
+        match self {
+            Opcode::Ping => true,
+            Opcode::ListProviders => true,
+            Opcode::ListOpcodes => true,
+            Opcode::ListAuthenticators => true,
+            Opcode::ListKeys => true,
+            Opcode::PsaGenerateKey => false,
+            Opcode::PsaDestroyKey => false,
+            Opcode::PsaSignHash => false,
+            Opcode::PsaVerifyHash => false,
+            Opcode::PsaImportKey => false,
+            Opcode::PsaExportPublicKey => false,
+            Opcode::PsaAsymmetricEncrypt => false,
+            Opcode::PsaAsymmetricDecrypt => false,
+            Opcode::PsaExportKey => false,
+            Opcode::PsaGenerateRandom => false,
+            Opcode::PsaHashCompute => false,
+            Opcode::PsaHashCompare => false,
+            Opcode::PsaAeadEncrypt => false,
+            Opcode::PsaAeadDecrypt => false,
+            Opcode::PsaRawKeyAgreement => false,
+        }
+    }
+
+    /// Check if an opcode is one of a PSA Crypto operation
+    pub fn is_crypto(&self) -> bool {
+        !self.is_core()
+    }
+}
+
 /// Listing of available authentication methods.
 ///
 /// Passed in headers as `auth_type`.
@@ -132,4 +166,11 @@ pub enum AuthType {
     UnixPeerCredentials = 3,
     /// Authentication verifying a JWT SPIFFE Verifiable Identity Document
     JwtSvid = 4,
+}
+
+#[test]
+fn check_opcode_nature() {
+    assert!(Opcode::ListKeys.is_core());
+    assert!(!Opcode::ListKeys.is_crypto());
+    assert!(Opcode::PsaGenerateKey.is_crypto());
 }
