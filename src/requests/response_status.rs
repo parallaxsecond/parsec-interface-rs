@@ -173,10 +173,16 @@ impl fmt::Display for ResponseStatus {
                 write!(f, "request did not provide a required authentication")
             }
             ResponseStatus::BodySizeExceedsLimit => {
-                write!(f, "request length specified in the header is above defined limit")
+                write!(
+                    f,
+                    "request length specified in the header is above defined limit"
+                )
             }
             ResponseStatus::PsaErrorGenericError => {
-                write!(f, "an error occurred that does not correspond to any defined failure cause")
+                write!(
+                    f,
+                    "an error occurred that does not correspond to any defined failure cause"
+                )
             }
             ResponseStatus::PsaErrorNotPermitted => {
                 write!(f, "the requested action is denied by a policy")
@@ -191,7 +197,10 @@ impl fmt::Display for ResponseStatus {
                 write!(f, "the key handle is not valid")
             }
             ResponseStatus::PsaErrorBadState => {
-                write!(f, "the requested action cannot be performed in the current state")
+                write!(
+                    f,
+                    "the requested action cannot be performed in the current state"
+                )
             }
             ResponseStatus::PsaErrorBufferTooSmall => {
                 write!(f, "an output buffer is too small")
@@ -209,19 +218,31 @@ impl fmt::Display for ResponseStatus {
                 write!(f, "there is not enough persistent storage")
             }
             ResponseStatus::PsaErrorInsufficientData => {
-                write!(f, "insufficient data when attempting to read from a resource")
+                write!(
+                    f,
+                    "insufficient data when attempting to read from a resource"
+                )
             }
             ResponseStatus::PsaErrorCommunicationFailure => {
-                write!(f, "there was a communication failure inside the implementation")
+                write!(
+                    f,
+                    "there was a communication failure inside the implementation"
+                )
             }
             ResponseStatus::PsaErrorStorageFailure => {
-                write!(f, "there was a storage failure that may have led to data loss")
+                write!(
+                    f,
+                    "there was a storage failure that may have led to data loss"
+                )
             }
             ResponseStatus::PsaErrorDataCorrupt => {
                 write!(f, "stored data has been corrupted")
             }
             ResponseStatus::PsaErrorDataInvalid => {
-                write!(f, "data read from storage is not valid for the implementation")
+                write!(
+                    f,
+                    "data read from storage is not valid for the implementation"
+                )
             }
             ResponseStatus::PsaErrorHardwareFailure => {
                 write!(f, "a hardware failure was detected")
@@ -280,6 +301,26 @@ impl From<uuid::Error> for ResponseStatus {
 
 impl From<std::num::TryFromIntError> for ResponseStatus {
     fn from(err: std::num::TryFromIntError) -> Self {
+        warn!(
+            "Conversion from {} to ResponseStatus::InvalidEncoding.",
+            err
+        );
+        ResponseStatus::InvalidEncoding
+    }
+}
+
+impl From<std::array::TryFromSliceError> for ResponseStatus {
+    fn from(err: std::array::TryFromSliceError) -> Self {
+        warn!(
+            "Conversion from {} to ResponseStatus::InvalidEncoding.",
+            err
+        );
+        ResponseStatus::InvalidEncoding
+    }
+}
+
+impl From<std::ffi::NulError> for ResponseStatus {
+    fn from(err: std::ffi::NulError) -> Self {
         warn!(
             "Conversion from {} to ResponseStatus::InvalidEncoding.",
             err
