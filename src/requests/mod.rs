@@ -36,6 +36,8 @@ pub enum ProviderID {
     Tpm = 3,
     /// Provider using the crypto Trusted Service running in TrustZone
     TrustedService = 4,
+    /// Provider using the MicrochipTech cryptodevice ATECCx08 via CryptoAuthentication Library
+    CryptoAuthLib = 5,
 }
 
 impl std::fmt::Display for ProviderID {
