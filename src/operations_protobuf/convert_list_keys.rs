@@ -106,9 +106,6 @@ mod test {
     #[test]
     fn proto_to_resp() {
         let mut proto: ResultProto = Default::default();
-        let mut key_info = KeyInfoProto::default();
-        key_info.provider_id = ProviderID::MbedCrypto as u32;
-        key_info.name = String::from("Some Key Name");
 
         let key_attrs = Attributes {
             lifetime: Lifetime::Persistent,
@@ -136,7 +133,11 @@ mod test {
         };
 
         let key_attrs_proto: KeyAttributesProto = key_attrs.try_into().unwrap();
-        key_info.attributes = Some(key_attrs_proto);
+        let key_info = KeyInfoProto {
+            provider_id: ProviderID::MbedCrypto as u32,
+            name: String::from("Some Key Name"),
+            attributes: Some(key_attrs_proto),
+        };
         proto.keys.push(key_info);
 
         let resp: Result = proto.try_into().unwrap();

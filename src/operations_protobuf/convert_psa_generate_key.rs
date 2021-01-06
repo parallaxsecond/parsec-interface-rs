@@ -27,9 +27,10 @@ impl TryFrom<Operation> for OperationProto {
     type Error = ResponseStatus;
 
     fn try_from(op: Operation) -> std::result::Result<Self, Self::Error> {
-        let mut proto: OperationProto = Default::default();
-        proto.key_name = op.key_name;
-        proto.attributes = Some(op.attributes.try_into()?);
+        let proto = OperationProto {
+            key_name: op.key_name,
+            attributes: Some(op.attributes.try_into()?),
+        };
 
         Ok(proto)
     }
