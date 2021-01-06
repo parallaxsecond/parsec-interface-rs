@@ -112,14 +112,15 @@ mod test {
     #[test]
     fn proto_to_resp() {
         let mut proto: ResultProto = Default::default();
-        let mut provider_info = ProviderInfoProto::default();
-        provider_info.uuid = String::from("9840cd61-9367-4010-bc24-f5b98a6174d1");
-        provider_info.description = String::from("provider description");
-        provider_info.vendor = String::from("Arm");
-        provider_info.version_maj = 0;
-        provider_info.version_min = 1;
-        provider_info.version_rev = 0;
-        provider_info.id = 1;
+        let provider_info = ProviderInfoProto {
+            uuid: String::from("9840cd61-9367-4010-bc24-f5b98a6174d1"),
+            description: String::from("provider description"),
+            vendor: String::from("Arm"),
+            version_maj: 0,
+            version_min: 1,
+            version_rev: 0,
+            id: 1,
+        };
         proto.providers.push(provider_info);
         let resp: Result = proto.try_into().unwrap();
 

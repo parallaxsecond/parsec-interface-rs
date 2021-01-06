@@ -100,12 +100,13 @@ mod test {
     #[test]
     fn proto_to_resp() {
         let mut proto: ResultProto = Default::default();
-        let mut authenticator_info = AuthenticatorInfoProto::default();
-        authenticator_info.description = String::from("authenticator description");
-        authenticator_info.version_maj = 0;
-        authenticator_info.version_min = 1;
-        authenticator_info.version_rev = 0;
-        authenticator_info.id = AuthType::Direct as u32;
+        let authenticator_info = AuthenticatorInfoProto {
+            description: String::from("authenticator description"),
+            version_maj: 0,
+            version_min: 1,
+            version_rev: 0,
+            id: AuthType::Direct as u32,
+        };
         proto.authenticators.push(authenticator_info);
         let resp: Result = proto.try_into().unwrap();
 

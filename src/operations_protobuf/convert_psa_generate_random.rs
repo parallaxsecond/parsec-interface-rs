@@ -21,8 +21,9 @@ impl TryFrom<Operation> for OperationProto {
     type Error = ResponseStatus;
 
     fn try_from(op: Operation) -> std::result::Result<Self, Self::Error> {
-        let mut proto: OperationProto = Default::default();
-        proto.size = op.size.try_into()?;
+        let proto = OperationProto {
+            size: op.size.try_into()?,
+        };
         Ok(proto)
     }
 }
@@ -60,8 +61,9 @@ mod test {
 
     #[test]
     fn proto_to_resp() {
-        let mut proto: ResultProto = Default::default();
-        proto.random_bytes = vec![0xDE, 0xAD, 0xBE, 0xEF];
+        let proto = ResultProto {
+            random_bytes: vec![0xDE, 0xAD, 0xBE, 0xEF],
+        };
 
         let resp: Result = proto.try_into().unwrap();
 

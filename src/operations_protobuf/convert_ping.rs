@@ -25,9 +25,10 @@ impl TryFrom<Result> for ResultProto {
     type Error = ResponseStatus;
 
     fn try_from(result: Result) -> std::result::Result<Self, Self::Error> {
-        let mut proto_response: ResultProto = Default::default();
-        proto_response.wire_protocol_version_maj = u32::from(result.wire_protocol_version_maj);
-        proto_response.wire_protocol_version_min = u32::from(result.wire_protocol_version_min);
+        let proto_response = ResultProto {
+            wire_protocol_version_maj: u32::from(result.wire_protocol_version_maj),
+            wire_protocol_version_min: u32::from(result.wire_protocol_version_min),
+        };
 
         Ok(proto_response)
     }
@@ -58,9 +59,10 @@ mod test {
 
     #[test]
     fn proto_to_resp() {
-        let mut proto: ResultProto = Default::default();
-        proto.wire_protocol_version_maj = 1;
-        proto.wire_protocol_version_min = 1;
+        let proto = ResultProto {
+            wire_protocol_version_maj: 1,
+            wire_protocol_version_min: 1,
+        };
         let resp: Result = proto.try_into().unwrap();
 
         assert!(resp.wire_protocol_version_maj == 1);
