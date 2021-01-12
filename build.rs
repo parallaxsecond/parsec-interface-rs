@@ -17,11 +17,11 @@ fn generate_proto_sources() -> Result<()> {
                 .path()
                 .into_os_string()
                 .into_string()
-                .or_else(|_| {
-                    Err(Error::new(
+                .map_err(|_| {
+                    Error::new(
                         ErrorKind::InvalidData,
                         "conversion from OsString to String failed",
-                    ))
+                    )
                 })
         })
         // Fail the entire operation if there was an error.

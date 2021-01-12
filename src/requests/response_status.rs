@@ -56,6 +56,8 @@ pub enum ResponseStatus {
     NotAuthenticated = 19,
     /// Request length specified in the header is above defined limit
     BodySizeExceedsLimit = 20,
+    /// The operation requires admin privilege
+    AdminOperation = 21,
     /// An error occurred that does not correspond to any defined failure cause
     PsaErrorGenericError = 1132,
     /// The requested operation or a parameter is not supported by this implementation
@@ -177,6 +179,9 @@ impl fmt::Display for ResponseStatus {
                     f,
                     "request length specified in the header is above defined limit"
                 )
+            }
+            ResponseStatus::AdminOperation => {
+                write!(f, "the operation requires admin privilege")
             }
             ResponseStatus::PsaErrorGenericError => {
                 write!(

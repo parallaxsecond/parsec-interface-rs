@@ -27,6 +27,8 @@ pub mod list_opcodes;
 pub mod list_providers;
 pub mod list_authenticators;
 pub mod list_keys;
+pub mod delete_client;
+pub mod list_clients;
 pub mod psa_generate_random;
 pub mod psa_raw_key_agreement;
 
@@ -47,6 +49,10 @@ pub enum NativeOperation {
     ListAuthenticators(list_authenticators::Operation),
     /// ListKeys operation
     ListKeys(list_keys::Operation),
+    /// ListClients operation
+    ListClients(list_clients::Operation),
+    /// DeleteClient operation
+    DeleteClient(delete_client::Operation),
     /// Ping operation
     Ping(ping::Operation),
     /// PsaGenerateKey operation
@@ -99,6 +105,8 @@ impl NativeOperation {
             NativeOperation::ListProviders(_) => Opcode::ListProviders,
             NativeOperation::ListAuthenticators(_) => Opcode::ListAuthenticators,
             NativeOperation::ListKeys(_) => Opcode::ListKeys,
+            NativeOperation::ListClients(_) => Opcode::ListClients,
+            NativeOperation::DeleteClient(_) => Opcode::DeleteClient,
             NativeOperation::PsaAsymmetricEncrypt(_) => Opcode::PsaAsymmetricEncrypt,
             NativeOperation::PsaAsymmetricDecrypt(_) => Opcode::PsaAsymmetricDecrypt,
             NativeOperation::PsaAeadEncrypt(_) => Opcode::PsaAeadEncrypt,
@@ -121,6 +129,10 @@ pub enum NativeResult {
     ListAuthenticators(list_authenticators::Result),
     /// ListKeys result
     ListKeys(list_keys::Result),
+    /// ListClients result
+    ListClients(list_clients::Result),
+    /// DeleteClient result
+    DeleteClient(delete_client::Result),
     /// Ping result
     Ping(ping::Result),
     /// PsaGenerateKey result
@@ -173,6 +185,8 @@ impl NativeResult {
             NativeResult::ListProviders(_) => Opcode::ListProviders,
             NativeResult::ListAuthenticators(_) => Opcode::ListAuthenticators,
             NativeResult::ListKeys(_) => Opcode::ListKeys,
+            NativeResult::ListClients(_) => Opcode::ListClients,
+            NativeResult::DeleteClient(_) => Opcode::DeleteClient,
             NativeResult::PsaAsymmetricEncrypt(_) => Opcode::PsaAsymmetricEncrypt,
             NativeResult::PsaAsymmetricDecrypt(_) => Opcode::PsaAsymmetricDecrypt,
             NativeResult::PsaAeadEncrypt(_) => Opcode::PsaAeadEncrypt,
@@ -235,6 +249,18 @@ impl From<list_authenticators::Operation> for NativeOperation {
 impl From<list_keys::Operation> for NativeOperation {
     fn from(op: list_keys::Operation) -> Self {
         NativeOperation::ListKeys(op)
+    }
+}
+
+impl From<list_clients::Operation> for NativeOperation {
+    fn from(op: list_clients::Operation) -> Self {
+        NativeOperation::ListClients(op)
+    }
+}
+
+impl From<delete_client::Operation> for NativeOperation {
+    fn from(op: delete_client::Operation) -> Self {
+        NativeOperation::DeleteClient(op)
     }
 }
 
@@ -354,6 +380,18 @@ impl From<list_authenticators::Result> for NativeResult {
 impl From<list_keys::Result> for NativeResult {
     fn from(op: list_keys::Result) -> Self {
         NativeResult::ListKeys(op)
+    }
+}
+
+impl From<list_clients::Result> for NativeResult {
+    fn from(op: list_clients::Result) -> Self {
+        NativeResult::ListClients(op)
+    }
+}
+
+impl From<delete_client::Result> for NativeResult {
+    fn from(op: delete_client::Result) -> Self {
+        NativeResult::DeleteClient(op)
     }
 }
 
