@@ -115,8 +115,12 @@ pub enum Opcode {
     PsaAeadDecrypt = 0x0012,
     /// PsaRawKeyAgreement operation
     PsaRawKeyAgreement = 0x0013,
-    /// ListKeys operations
+    /// ListKeys operation
     ListKeys = 0x001A,
+    /// ListClients operation (admin operation)
+    ListClients = 0x001B,
+    /// DeleteClient operation (admin operation)
+    DeleteClient = 0x001C,
 }
 
 impl Opcode {
@@ -124,26 +128,56 @@ impl Opcode {
     pub fn is_core(&self) -> bool {
         // match to ensure exhaustivity when a new opcode is added
         match self {
-            Opcode::Ping => true,
-            Opcode::ListProviders => true,
-            Opcode::ListOpcodes => true,
-            Opcode::ListAuthenticators => true,
-            Opcode::ListKeys => true,
-            Opcode::PsaGenerateKey => false,
-            Opcode::PsaDestroyKey => false,
-            Opcode::PsaSignHash => false,
-            Opcode::PsaVerifyHash => false,
-            Opcode::PsaImportKey => false,
-            Opcode::PsaExportPublicKey => false,
-            Opcode::PsaAsymmetricEncrypt => false,
-            Opcode::PsaAsymmetricDecrypt => false,
-            Opcode::PsaExportKey => false,
-            Opcode::PsaGenerateRandom => false,
-            Opcode::PsaHashCompute => false,
-            Opcode::PsaHashCompare => false,
-            Opcode::PsaAeadEncrypt => false,
-            Opcode::PsaAeadDecrypt => false,
-            Opcode::PsaRawKeyAgreement => false,
+            Opcode::Ping
+            | Opcode::ListProviders
+            | Opcode::ListOpcodes
+            | Opcode::ListAuthenticators
+            | Opcode::ListKeys
+            | Opcode::ListClients
+            | Opcode::DeleteClient => true,
+            Opcode::PsaGenerateKey
+            | Opcode::PsaDestroyKey
+            | Opcode::PsaSignHash
+            | Opcode::PsaVerifyHash
+            | Opcode::PsaImportKey
+            | Opcode::PsaExportPublicKey
+            | Opcode::PsaAsymmetricEncrypt
+            | Opcode::PsaAsymmetricDecrypt
+            | Opcode::PsaExportKey
+            | Opcode::PsaGenerateRandom
+            | Opcode::PsaHashCompute
+            | Opcode::PsaHashCompare
+            | Opcode::PsaAeadEncrypt
+            | Opcode::PsaAeadDecrypt
+            | Opcode::PsaRawKeyAgreement => false,
+        }
+    }
+
+    /// Check if an opcode is an admin operation
+    pub fn is_admin(&self) -> bool {
+        // match to ensure exhaustivity when a new opcode is added
+        match self {
+            Opcode::ListClients | Opcode::DeleteClient => true,
+            Opcode::Ping
+            | Opcode::ListProviders
+            | Opcode::ListOpcodes
+            | Opcode::ListAuthenticators
+            | Opcode::ListKeys
+            | Opcode::PsaGenerateKey
+            | Opcode::PsaDestroyKey
+            | Opcode::PsaSignHash
+            | Opcode::PsaVerifyHash
+            | Opcode::PsaImportKey
+            | Opcode::PsaExportPublicKey
+            | Opcode::PsaAsymmetricEncrypt
+            | Opcode::PsaAsymmetricDecrypt
+            | Opcode::PsaExportKey
+            | Opcode::PsaGenerateRandom
+            | Opcode::PsaHashCompute
+            | Opcode::PsaHashCompare
+            | Opcode::PsaAeadEncrypt
+            | Opcode::PsaAeadDecrypt
+            | Opcode::PsaRawKeyAgreement => false,
         }
     }
 
@@ -177,4 +211,6 @@ fn check_opcode_nature() {
     assert!(Opcode::ListKeys.is_core());
     assert!(!Opcode::ListKeys.is_crypto());
     assert!(Opcode::PsaGenerateKey.is_crypto());
+    assert!(Opcode::ListClients.is_admin());
+    assert!(!Opcode::PsaGenerateKey.is_admin());
 }
