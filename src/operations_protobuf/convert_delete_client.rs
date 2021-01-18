@@ -36,9 +36,9 @@ mod test {
 
     #[test]
     fn proto_to_resp() {
-        let mut proto: OperationProto = Default::default();
-
-        proto.client = String::from("toto");
+        let proto = OperationProto {
+            client: String::from("toto"),
+        };
 
         let resp: Operation = proto.into();
 
