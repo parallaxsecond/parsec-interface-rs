@@ -277,9 +277,12 @@ impl ErrorTrait for ResponseStatus {}
 impl From<std::io::Error> for ResponseStatus {
     fn from(err: std::io::Error) -> Self {
         warn!(
-            "Conversion from {} to ResponseStatus::ConnectionError.",
+            "Conversion from {:?} to ResponseStatus::ConnectionError.",
             err
         );
+        if err.kind() == std::io::ErrorKind::WouldBlock {
+            warn!("The WouldBlock error might mean that the connection timed out. Try in increase the timeout length.");
+        }
         ResponseStatus::ConnectionError
     }
 }
