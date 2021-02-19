@@ -18,6 +18,7 @@ pub use request::Request;
 pub use response::Response;
 pub use response_status::{ResponseStatus, Result};
 use std::convert::TryFrom;
+use std::fmt;
 
 /// Listing of provider types and their associated codes.
 ///
@@ -40,9 +41,16 @@ pub enum ProviderID {
     CryptoAuthLib = 5,
 }
 
-impl std::fmt::Display for ProviderID {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+impl fmt::Display for ProviderID {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ProviderID::Core => write!(f, "Core provider"),
+            ProviderID::MbedCrypto => write!(f, "Mbed Crypto provider"),
+            ProviderID::Pkcs11 => write!(f, "PKCS #11 provider"),
+            ProviderID::Tpm => write!(f, "TPM provider"),
+            ProviderID::TrustedService => write!(f, "Trusted Service provider"),
+            ProviderID::CryptoAuthLib => write!(f, "CryptoAuthentication Library provider"),
+        }
     }
 }
 
@@ -204,6 +212,20 @@ pub enum AuthType {
     UnixPeerCredentials = 3,
     /// Authentication verifying a JWT SPIFFE Verifiable Identity Document
     JwtSvid = 4,
+}
+
+impl fmt::Display for AuthType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            AuthType::NoAuth => write!(f, "No authentication"),
+            AuthType::Direct => write!(f, "Direct authentication"),
+            AuthType::Jwt => write!(f, "JSON Web Tokens authentication"),
+            AuthType::UnixPeerCredentials => write!(f, "Unix Peer Credentials authentication"),
+            AuthType::JwtSvid => {
+                write!(f, "JWT SPIFFE Verifiable Identity Document authentication")
+            }
+        }
+    }
 }
 
 #[test]
