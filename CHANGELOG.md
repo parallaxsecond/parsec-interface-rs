@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.24.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.24.0) (2021-03-18)
+
+[Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.23.0...0.24.0)
+
+**Implemented enhancements:**
+
+- Rename ProviderID [\#36](https://github.com/parallaxsecond/parsec-interface-rs/issues/36)
+- Investigate possible use of zerocopy [\#10](https://github.com/parallaxsecond/parsec-interface-rs/issues/10)
+
+**Merged pull requests:**
+
+- Add version 0.24.0 [\#103](https://github.com/parallaxsecond/parsec-interface-rs/pull/103) ([hug-dev](https://github.com/hug-dev))
+- Update psa-crypto dependence [\#102](https://github.com/parallaxsecond/parsec-interface-rs/pull/102) ([hug-dev](https://github.com/hug-dev))
+- Implement Display on ProviderID and AuthType [\#101](https://github.com/parallaxsecond/parsec-interface-rs/pull/101) ([hug-dev](https://github.com/hug-dev))
+- Add log message to help debugging [\#100](https://github.com/parallaxsecond/parsec-interface-rs/pull/100) ([hug-dev](https://github.com/hug-dev))
+- Use newest PSA Crypto crate version [\#99](https://github.com/parallaxsecond/parsec-interface-rs/pull/99) ([ionut-arm](https://github.com/ionut-arm))
+- Add Changelog file [\#97](https://github.com/parallaxsecond/parsec-interface-rs/pull/97) ([ionut-arm](https://github.com/ionut-arm))
+
 ## [0.23.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.23.0) (2021-01-19)
 
 [Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.22.0...0.23.0)
