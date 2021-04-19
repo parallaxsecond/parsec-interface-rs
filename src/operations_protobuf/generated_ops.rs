@@ -17,6 +17,8 @@ macro_rules! include_protobuf_as_module {
 
 include_protobuf_as_module!(psa_sign_hash);
 include_protobuf_as_module!(psa_verify_hash);
+include_protobuf_as_module!(psa_sign_message);
+include_protobuf_as_module!(psa_verify_message);
 include_protobuf_as_module!(psa_asymmetric_encrypt);
 include_protobuf_as_module!(psa_asymmetric_decrypt);
 include_protobuf_as_module!(psa_aead_encrypt);

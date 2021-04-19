@@ -13,6 +13,8 @@ mod convert_psa_export_key;
 mod convert_psa_destroy_key;
 mod convert_psa_sign_hash;
 mod convert_psa_verify_hash;
+mod convert_psa_sign_message;
+mod convert_psa_verify_message;
 mod convert_psa_hash_compute;
 mod convert_psa_hash_compare;
 mod convert_list_providers;
@@ -58,6 +60,8 @@ use generated_ops::psa_import_key as psa_import_key_proto;
 use generated_ops::psa_raw_key_agreement as psa_raw_key_agreement_proto;
 use generated_ops::psa_sign_hash as psa_sign_hash_proto;
 use generated_ops::psa_verify_hash as psa_verify_hash_proto;
+use generated_ops::psa_sign_message as psa_sign_message_proto;
+use generated_ops::psa_verify_message as psa_verify_message_proto;
 use generated_ops::ClearProtoMessage;
 use prost::Message;
 use std::convert::TryInto;
@@ -153,6 +157,14 @@ impl Convert for ProtobufConverter {
                 body.bytes(),
                 psa_verify_hash_proto::Operation
             ))),
+            Opcode::PsaSignMessage => Ok(NativeOperation::PsaSignMessage(wire_to_native!(
+                body.bytes(),
+                psa_sign_message_proto::Operation
+            ))),
+            Opcode::PsaVerifyMessage => Ok(NativeOperation::PsaVerifyMessage(wire_to_native!(
+                body.bytes(),
+                psa_verify_message_proto::Operation
+            ))),
             Opcode::PsaAsymmetricEncrypt => Ok(NativeOperation::PsaAsymmetricEncrypt(
                 wire_to_native!(body.bytes(), psa_asymmetric_encrypt_proto::Operation),
             )),
@@ -231,6 +243,12 @@ impl Convert for ProtobufConverter {
             )),
             NativeOperation::PsaVerifyHash(operation) => Ok(RequestBody::from_bytes(
                 native_to_wire!(operation, psa_verify_hash_proto::Operation),
+            )),
+            NativeOperation::PsaSignMessage(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_sign_message_proto::Operation),
+            )),
+            NativeOperation::PsaVerifyMessage(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_verify_message_proto::Operation),
             )),
             NativeOperation::PsaAsymmetricEncrypt(operation) => Ok(RequestBody::from_bytes(
                 native_to_wire!(operation, psa_asymmetric_encrypt_proto::Operation),
@@ -316,6 +334,14 @@ impl Convert for ProtobufConverter {
             Opcode::PsaVerifyHash => Ok(NativeResult::PsaVerifyHash(wire_to_native!(
                 body.bytes(),
                 psa_verify_hash_proto::Result
+            ))),
+            Opcode::PsaSignMessage => Ok(NativeResult::PsaSignMessage(wire_to_native!(
+                body.bytes(),
+                psa_sign_message_proto::Result
+            ))),
+            Opcode::PsaVerifyMessage => Ok(NativeResult::PsaVerifyMessage(wire_to_native!(
+                body.bytes(),
+                psa_verify_message_proto::Result
             ))),
             Opcode::PsaAsymmetricEncrypt => Ok(NativeResult::PsaAsymmetricEncrypt(
                 wire_to_native!(body.bytes(), psa_asymmetric_encrypt_proto::Result),
@@ -405,6 +431,14 @@ impl Convert for ProtobufConverter {
             NativeResult::PsaVerifyHash(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
                 result,
                 psa_verify_hash_proto::Result
+            ))),
+            NativeResult::PsaSignMessage(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+                result,
+                psa_sign_message_proto::Result
+            ))),
+            NativeResult::PsaVerifyMessage(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+                result,
+                psa_verify_message_proto::Result
             ))),
             NativeResult::PsaAsymmetricEncrypt(result) => Ok(ResponseBody::from_bytes(
                 native_to_wire!(result, psa_asymmetric_encrypt_proto::Result),
