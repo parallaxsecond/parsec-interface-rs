@@ -206,7 +206,7 @@ impl NativeResult {
             NativeResult::PsaGenerateRandom(_) => Opcode::PsaGenerateRandom,
             NativeResult::PsaRawKeyAgreement(_) => Opcode::PsaRawKeyAgreement,
             NativeResult::PsaSignMessage(_) => Opcode::PsaSignMessage,
-            NativeResult::PsaverifyMessage(_) => Opcode::PsaVerifyMessage,
+            NativeResult::PsaVerifyMessage(_) => Opcode::PsaVerifyMessage,
         }
     }
 }

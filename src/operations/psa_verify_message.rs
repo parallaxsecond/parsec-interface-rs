@@ -5,7 +5,6 @@
 //! Verify the signature of a hash or short message using a public key.
 use super::psa_key_attributes::Attributes;
 use crate::operations::psa_algorithm::AsymmetricSignature;
-use crate::requests::ResponseStatus;
 
 /// Native object for asymmetric verification of signatures.
 #[derive(Debug)]
@@ -36,7 +35,7 @@ impl Operation {
     /// * the key policy allows the verification algorithm requested in the operation
     /// * the key type is compatible with the requested algorithm
     pub fn validate(&self, key_attributes: Attributes) -> crate::requests::Result<()> {
-        key_attributes.can_verify_message()?;
+        key_attributes.can_verify_hash()?;
         key_attributes.permits_alg(self.alg.into())?;
         key_attributes.compatible_with_alg(self.alg.into())?;
 

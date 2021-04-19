@@ -59,8 +59,8 @@ use generated_ops::psa_hash_compute as psa_hash_compute_proto;
 use generated_ops::psa_import_key as psa_import_key_proto;
 use generated_ops::psa_raw_key_agreement as psa_raw_key_agreement_proto;
 use generated_ops::psa_sign_hash as psa_sign_hash_proto;
-use generated_ops::psa_verify_hash as psa_verify_hash_proto;
 use generated_ops::psa_sign_message as psa_sign_message_proto;
+use generated_ops::psa_verify_hash as psa_verify_hash_proto;
 use generated_ops::psa_verify_message as psa_verify_message_proto;
 use generated_ops::ClearProtoMessage;
 use prost::Message;
@@ -436,10 +436,9 @@ impl Convert for ProtobufConverter {
                 result,
                 psa_sign_message_proto::Result
             ))),
-            NativeResult::PsaVerifyMessage(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
-                result,
-                psa_verify_message_proto::Result
-            ))),
+            NativeResult::PsaVerifyMessage(result) => Ok(ResponseBody::from_bytes(
+                native_to_wire!(result, psa_verify_message_proto::Result),
+            )),
             NativeResult::PsaAsymmetricEncrypt(result) => Ok(ResponseBody::from_bytes(
                 native_to_wire!(result, psa_asymmetric_encrypt_proto::Result),
             )),

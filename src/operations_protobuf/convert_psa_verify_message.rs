@@ -1,6 +1,8 @@
 // Copyright 2019 Contributors to the Parsec project.
 // SPDX-License-Identifier: Apache-2.0
-use super::generated_ops::psa_verify_message::{Operation as OperationProto, Result as ResultProto};
+use super::generated_ops::psa_verify_message::{
+    Operation as OperationProto, Result as ResultProto,
+};
 use crate::operations::psa_verify_message::{Operation, Result};
 use crate::requests::ResponseStatus;
 use log::error;
@@ -36,7 +38,7 @@ impl TryFrom<Operation> for OperationProto {
         Ok(OperationProto {
             key_name: op.key_name,
             alg,
-            message: op.hash.to_vec(),
+            message: op.message.to_vec(),
             signature: op.signature.to_vec(),
         })
     }

@@ -1,12 +1,11 @@
 // Copyright 2019 Contributors to the Parsec project.
 // SPDX-License-Identifier: Apache-2.0
 //! # PsaSignMessage operation
-//! 
+//!
 //! //! Sign an hash generated from message with a private key.
 
 use super::psa_key_attributes::Attributes;
 use crate::operations::psa_algorithm::AsymmetricSignature;
-use crate::requests::ResponseStatus;
 
 /// Native object for asymmetric sign operations.
 #[derive(Debug)]
@@ -36,7 +35,7 @@ impl Operation {
     /// * the key policy allows the signing algorithm requested in the operation
     /// * the key type is compatible with the requested algorithm
     pub fn validate(&self, key_attributes: Attributes) -> crate::requests::Result<()> {
-        key_attributes.can_sign_message()?;
+        key_attributes.can_sign_hash()?;
         key_attributes.permits_alg(self.alg.into())?;
         key_attributes.compatible_with_alg(self.alg.into())?;
 
