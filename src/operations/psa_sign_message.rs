@@ -35,10 +35,109 @@ impl Operation {
     /// * the key policy allows the signing algorithm requested in the operation
     /// * the key type is compatible with the requested algorithm
     pub fn validate(&self, key_attributes: Attributes) -> crate::requests::Result<()> {
-        key_attributes.can_sign_hash()?;
+        key_attributes.can_sign_message()?;
         key_attributes.permits_alg(self.alg.into())?;
         key_attributes.compatible_with_alg(self.alg.into())?;
 
         Ok(())
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::operations::psa_algorithm::{Algorithm, AsymmetricSignature, Hash};
+    use crate::operations::psa_key_attributes::{EccFamily, Lifetime, Policy, Type, UsageFlags};
+    use crate::requests::ResponseStatus;
+
+    fn get_attrs() -> Attributes {
+        Attributes {
+            lifetime: Lifetime::Persistent,
+            key_type: Type::EccKeyPair {
+                curve_family: EccFamily::SecpR1,
+            },
+            bits: 256,
+            policy: Policy {
+                usage_flags: UsageFlags {
+                    export: false,
+                    copy: false,
+                    cache: false,
+                    encrypt: false,
+                    decrypt: false,
+                    sign_message: true,
+                    verify_message: false,
+                    sign_hash: true,
+                    verify_hash: false,
+                    derive: false,
+                },
+                permitted_algorithms: Algorithm::AsymmetricSignature(AsymmetricSignature::Ecdsa {
+                    hash_alg: Hash::Sha256.into(),
+                }),
+            },
+        }
+    }
+
+    #[test]
+    fn validate_success() {
+        (Operation {
+            key_name: String::from("some key"),
+            alg: AsymmetricSignature::Ecdsa {
+                hash_alg: Hash::Sha256.into(),
+            },
+            message: vec![0xff; 32].into(),
+        })
+        .validate(get_attrs())
+        .unwrap();
+    }
+
+    #[test]
+    fn cannot_sign() {
+        let mut attrs = get_attrs();
+        attrs.policy.usage_flags.sign_message = false;
+        assert_eq!(
+            (Operation {
+                key_name: String::from("some key"),
+                alg: AsymmetricSignature::Ecdsa {
+                    hash_alg: Hash::Sha256.into(),
+                },
+                message: vec![0xff; 32].into(),
+            })
+            .validate(attrs)
+            .unwrap_err(),
+            ResponseStatus::PsaErrorNotPermitted
+        );
+    }
+
+    #[test]
+    fn wrong_algorithm() {
+        assert_eq!(
+            (Operation {
+                key_name: String::from("some key"),
+                alg: AsymmetricSignature::Ecdsa {
+                    hash_alg: Hash::Sha224.into(),
+                },
+                message: vec![0xff; 28].into(),
+            })
+            .validate(get_attrs())
+            .unwrap_err(),
+            ResponseStatus::PsaErrorNotPermitted
+        );
+    }
+
+    #[test]
+    fn wrong_scheme() {
+        assert_eq!(
+            (Operation {
+                key_name: String::from("some key"),
+                alg: AsymmetricSignature::RsaPss {
+                    hash_alg: Hash::Sha224.into(),
+                },
+                message: vec![0xff; 28].into(),
+            })
+            .validate(get_attrs())
+            .unwrap_err(),
+            ResponseStatus::PsaErrorNotPermitted
+        );
+    }
+
 }
