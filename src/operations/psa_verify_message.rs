@@ -14,7 +14,7 @@ pub struct Operation {
     /// An asymmetric signature algorithm that separates the hash and sign operations, that is
     /// compatible with the type of key.
     pub alg: AsymmetricSignature,
-    /// The `hash` contains a short message or hash value as described for the
+    /// The `message` contains a short message for the
     /// asymmetric signing operation.
     pub message: zeroize::Zeroizing<Vec<u8>>,
     /// Buffer containing the signature to verify.
@@ -65,7 +65,7 @@ mod tests {
                     encrypt: false,
                     decrypt: false,
                     sign_message: false,
-                    verify_message: false,
+                    verify_message: true,
                     sign_hash: false,
                     verify_hash: true,
                     derive: false,

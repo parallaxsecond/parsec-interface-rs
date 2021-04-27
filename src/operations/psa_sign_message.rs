@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //! # PsaSignMessage operation
 //!
-//! //! Sign an hash generated from message with a private key.
+//! Sign a message with a private key.
 
 use super::psa_key_attributes::Attributes;
 use crate::operations::psa_algorithm::AsymmetricSignature;
