@@ -26,7 +26,7 @@ use std::fmt;
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(FromPrimitive, PartialEq, Eq, Hash, Copy, Clone, Debug)]
 #[repr(u8)]
-pub enum ProviderID {
+pub enum ProviderId {
     /// Provider to use for core Parsec operations.
     Core = 0,
     /// Provider using Mbed Crypto software library.
@@ -41,20 +41,20 @@ pub enum ProviderID {
     CryptoAuthLib = 5,
 }
 
-impl fmt::Display for ProviderID {
+impl fmt::Display for ProviderId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ProviderID::Core => write!(f, "Core provider"),
-            ProviderID::MbedCrypto => write!(f, "Mbed Crypto provider"),
-            ProviderID::Pkcs11 => write!(f, "PKCS #11 provider"),
-            ProviderID::Tpm => write!(f, "TPM provider"),
-            ProviderID::TrustedService => write!(f, "Trusted Service provider"),
-            ProviderID::CryptoAuthLib => write!(f, "CryptoAuthentication Library provider"),
+            ProviderId::Core => write!(f, "Core provider"),
+            ProviderId::MbedCrypto => write!(f, "Mbed Crypto provider"),
+            ProviderId::Pkcs11 => write!(f, "PKCS #11 provider"),
+            ProviderId::Tpm => write!(f, "TPM provider"),
+            ProviderId::TrustedService => write!(f, "Trusted Service provider"),
+            ProviderId::CryptoAuthLib => write!(f, "CryptoAuthentication Library provider"),
         }
     }
 }
 
-impl TryFrom<u8> for ProviderID {
+impl TryFrom<u8> for ProviderId {
     type Error = ResponseStatus;
 
     fn try_from(provider_id: u8) -> ::std::result::Result<Self, Self::Error> {

@@ -70,7 +70,7 @@ mod test {
     use crate::operations::{
         list_opcodes::Operation, list_opcodes::Result, NativeOperation, NativeResult,
     };
-    use crate::requests::{request::RequestBody, response::ResponseBody, Opcode, ProviderID};
+    use crate::requests::{request::RequestBody, response::ResponseBody, Opcode, ProviderId};
     use std::collections::HashSet;
     use std::convert::TryInto;
 
@@ -109,7 +109,7 @@ mod test {
     #[test]
     fn op_list_opcodes_from_native() {
         let list_opcodes = Operation {
-            provider_id: ProviderID::Core,
+            provider_id: ProviderId::Core,
         };
         let body = CONVERTER
             .operation_to_body(NativeOperation::ListOpcodes(list_opcodes))
@@ -120,7 +120,7 @@ mod test {
     #[test]
     fn op_list_opcodes_e2e() {
         let list_opcodes = Operation {
-            provider_id: ProviderID::Pkcs11,
+            provider_id: ProviderId::Pkcs11,
         };
         let req_body = CONVERTER
             .operation_to_body(NativeOperation::ListOpcodes(list_opcodes))

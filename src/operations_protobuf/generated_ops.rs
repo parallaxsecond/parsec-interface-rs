@@ -49,78 +49,78 @@ use std::convert::TryFrom;
 impl TryFrom<i32> for Cipher {
     type Error = ResponseStatus;
     fn try_from(cipher_val: i32) -> Result<Self> {
-        Ok(Cipher::from_i32(cipher_val).ok_or_else(|| {
+        Cipher::from_i32(cipher_val).ok_or_else(|| {
             error!(
                 "Value {} not recognised as a valid cipher algorithm encoding.",
                 cipher_val
             );
             ResponseStatus::InvalidEncoding
-        })?)
+        })
     }
 }
 
 impl TryFrom<i32> for Hash {
     type Error = ResponseStatus;
     fn try_from(hash_val: i32) -> Result<Self> {
-        Ok(Hash::from_i32(hash_val).ok_or_else(|| {
+        Hash::from_i32(hash_val).ok_or_else(|| {
             error!(
                 "Value {} not recognised as a valid hash algorithm encoding.",
                 hash_val
             );
             ResponseStatus::InvalidEncoding
-        })?)
+        })
     }
 }
 
 impl TryFrom<i32> for AeadWithDefaultLengthTag {
     type Error = ResponseStatus;
     fn try_from(aead_val: i32) -> Result<Self> {
-        Ok(AeadWithDefaultLengthTag::from_i32(aead_val).ok_or_else(|| {
+        AeadWithDefaultLengthTag::from_i32(aead_val).ok_or_else(|| {
             error!(
                 "Value {} not recognised as a valid AEAD with default tag length algorithm encoding.",
                 aead_val
             );
             ResponseStatus::InvalidEncoding
-        })?)
+        })
     }
 }
 
 impl TryFrom<i32> for Raw {
     type Error = ResponseStatus;
     fn try_from(key_agreement_val: i32) -> Result<Self> {
-        Ok(Raw::from_i32(key_agreement_val).ok_or_else(|| {
+        Raw::from_i32(key_agreement_val).ok_or_else(|| {
             error!(
                 "Value {} not recognised as a valid raw key agreement algorithm encoding.",
                 key_agreement_val
             );
             ResponseStatus::InvalidEncoding
-        })?)
+        })
     }
 }
 
 impl TryFrom<i32> for EccFamily {
     type Error = ResponseStatus;
     fn try_from(ecc_family_val: i32) -> Result<Self> {
-        Ok(EccFamily::from_i32(ecc_family_val).ok_or_else(|| {
+        EccFamily::from_i32(ecc_family_val).ok_or_else(|| {
             error!(
                 "Value {} not recognised as a valid ECC family encoding.",
                 ecc_family_val
             );
             ResponseStatus::InvalidEncoding
-        })?)
+        })
     }
 }
 
 impl TryFrom<i32> for DhFamily {
     type Error = ResponseStatus;
     fn try_from(dh_family_val: i32) -> Result<Self> {
-        Ok(DhFamily::from_i32(dh_family_val).ok_or_else(|| {
+        DhFamily::from_i32(dh_family_val).ok_or_else(|| {
             error!(
                 "Value {} not recognised as a valid DH family encoding.",
                 dh_family_val
             );
             ResponseStatus::InvalidEncoding
-        })?)
+        })
     }
 }
 

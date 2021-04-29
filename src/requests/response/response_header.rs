@@ -1,7 +1,7 @@
 // Copyright 2019 Contributors to the Parsec project.
 // SPDX-License-Identifier: Apache-2.0
 use crate::requests::common::wire_header_1_0::WireHeader as Raw;
-use crate::requests::{BodyType, Opcode, ProviderID, ResponseStatus, Result};
+use crate::requests::{BodyType, Opcode, ProviderId, ResponseStatus, Result};
 use num::FromPrimitive;
 use std::convert::TryFrom;
 
@@ -12,7 +12,7 @@ use std::convert::TryFrom;
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct ResponseHeader {
     /// Provider ID value
-    pub provider: ProviderID,
+    pub provider: ProviderId,
     /// Session handle
     pub session: u64,
     /// Content type: defines how the request body should be processed.
@@ -27,7 +27,7 @@ impl ResponseHeader {
     /// Create a new response header with default field values.
     pub(crate) fn new() -> ResponseHeader {
         ResponseHeader {
-            provider: ProviderID::Core,
+            provider: ProviderId::Core,
             session: 0,
             content_type: BodyType::Protobuf,
             opcode: Opcode::Ping,
@@ -43,7 +43,7 @@ impl TryFrom<Raw> for ResponseHeader {
     type Error = ResponseStatus;
 
     fn try_from(header: Raw) -> Result<ResponseHeader> {
-        let provider: ProviderID = match FromPrimitive::from_u8(header.provider) {
+        let provider: ProviderId = match FromPrimitive::from_u8(header.provider) {
             Some(provider_id) => provider_id,
             None => return Err(ResponseStatus::ProviderDoesNotExist),
         };

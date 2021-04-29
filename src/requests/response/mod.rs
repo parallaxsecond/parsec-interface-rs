@@ -110,7 +110,7 @@ impl Response {
 #[cfg(test)]
 mod tests {
     use super::super::utils::tests as test_utils;
-    use super::super::{BodyType, Opcode, ProviderID, ResponseStatus};
+    use super::super::{BodyType, Opcode, ProviderId, ResponseStatus};
     use super::*;
 
     #[test]
@@ -188,7 +188,7 @@ mod tests {
     fn get_response() -> Response {
         let body = ResponseBody::from_bytes(vec![0x70, 0x80, 0x90]);
         let header = ResponseHeader {
-            provider: ProviderID::Core,
+            provider: ProviderId::Core,
             session: 0x11_22_33_44_55_66_77_88,
             content_type: BodyType::Protobuf,
             opcode: Opcode::Ping,

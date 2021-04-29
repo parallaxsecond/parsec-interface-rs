@@ -107,7 +107,7 @@
 //!# }
 //!# let mut stream = MockWrite { buffer: Vec::new() };
 //!use parsec_interface::operations::{Convert, NativeResult, psa_generate_key::Result};
-//!use parsec_interface::requests::{ProviderID, Opcode, BodyType, Response, ResponseStatus};
+//!use parsec_interface::requests::{ProviderId, Opcode, BodyType, Response, ResponseStatus};
 //!use parsec_interface::requests::response::ResponseHeader;
 //!use parsec_interface::operations_protobuf::ProtobufConverter;
 //!
@@ -116,7 +116,7 @@
 //!let result_body = converter.result_to_body(result).unwrap();
 //!let response = Response {
 //!    header: ResponseHeader {
-//!        provider: ProviderID::MbedCrypto,
+//!        provider: ProviderId::MbedCrypto,
 //!        session: 0,
 //!        content_type: BodyType::Protobuf,
 //!        opcode: Opcode::PsaGenerateKey,
@@ -157,7 +157,7 @@
 //!#
 //!# let mut stream = MockWrite { buffer: Vec::new() };
 //!use parsec_interface::operations::{Convert, NativeOperation};
-//!use parsec_interface::requests::{Request, ProviderID, BodyType, AuthType, Opcode};
+//!use parsec_interface::requests::{Request, ProviderId, BodyType, AuthType, Opcode};
 //!use parsec_interface::requests::request::{RequestHeader, RequestAuth};
 //!use parsec_interface::operations_protobuf::ProtobufConverter;
 //!use parsec_interface::operations::ping::Operation;
@@ -166,7 +166,7 @@
 //!let operation = NativeOperation::Ping(Operation {});
 //!let request = Request {
 //!    header: RequestHeader {
-//!        provider: ProviderID::Core,
+//!        provider: ProviderId::Core,
 //!        session: 0,
 //!        content_type: BodyType::Protobuf,
 //!        accept_type: BodyType::Protobuf,

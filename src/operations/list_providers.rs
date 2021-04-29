@@ -3,7 +3,7 @@
 //! # ListProviders operation
 //!
 //! List the providers available in the service, with some information.
-use crate::requests::ProviderID;
+use crate::requests::ProviderId;
 use std::cmp::Eq;
 pub use uuid::Uuid;
 
@@ -24,7 +24,7 @@ pub struct ProviderInfo {
     /// Provider implementation version revision number.
     pub version_rev: u32,
     /// Provider ID to use on the wire protocol to communicate with this provider.
-    pub id: ProviderID,
+    pub id: ProviderId,
 }
 
 /// Native object for provider listing operation.

@@ -17,7 +17,7 @@ pub enum ResponseStatus {
     /// Successful operation
     Success = 0,
     /// Requested provider ID does not match that of the backend
-    WrongProviderID = 1,
+    WrongProviderId = 1,
     /// Requested content type is not supported by the backend
     ContentTypeNotSupported = 2,
     /// Requested accept type is not supported by the backend
@@ -120,7 +120,7 @@ impl fmt::Display for ResponseStatus {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ResponseStatus::Success => write!(f, "successful operation"),
-            ResponseStatus::WrongProviderID => write!(
+            ResponseStatus::WrongProviderId => write!(
                 f,
                 "requested provider ID does not match that of the backend"
             ),
