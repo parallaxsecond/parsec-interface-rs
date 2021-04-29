@@ -4,7 +4,7 @@ use super::generated_ops::list_keys::{
     KeyInfo as KeyInfoProto, Operation as OperationProto, Result as ResultProto,
 };
 use crate::operations::list_keys::{KeyInfo, Operation, Result};
-use crate::requests::{ProviderID, ResponseStatus};
+use crate::requests::{ProviderId, ResponseStatus};
 use log::error;
 use num::FromPrimitive;
 use std::convert::{TryFrom, TryInto};
@@ -29,7 +29,7 @@ impl TryFrom<KeyInfoProto> for KeyInfo {
     type Error = ResponseStatus;
 
     fn try_from(proto_info: KeyInfoProto) -> std::result::Result<Self, Self::Error> {
-        let id: ProviderID = match FromPrimitive::from_u32(proto_info.provider_id) {
+        let id: ProviderId = match FromPrimitive::from_u32(proto_info.provider_id) {
             Some(id) => id,
             None => return Err(ResponseStatus::ProviderDoesNotExist),
         };
@@ -98,7 +98,7 @@ mod test {
     use crate::operations::psa_algorithm::{Algorithm, AsymmetricSignature, Hash};
     use crate::operations::psa_key_attributes::{self, Attributes, Lifetime, Policy, UsageFlags};
     use crate::operations::{NativeOperation, NativeResult};
-    use crate::requests::{request::RequestBody, response::ResponseBody, Opcode, ProviderID};
+    use crate::requests::{request::RequestBody, response::ResponseBody, Opcode, ProviderId};
     use std::convert::TryInto;
 
     static CONVERTER: ProtobufConverter = ProtobufConverter {};
@@ -134,7 +134,7 @@ mod test {
 
         let key_attrs_proto: KeyAttributesProto = key_attrs.try_into().unwrap();
         let key_info = KeyInfoProto {
-            provider_id: ProviderID::MbedCrypto as u32,
+            provider_id: ProviderId::MbedCrypto as u32,
             name: String::from("Some Key Name"),
             attributes: Some(key_attrs_proto),
         };
@@ -144,7 +144,7 @@ mod test {
 
         assert_eq!(resp.keys.len(), 1);
         assert_eq!(resp.keys[0].name, "Some Key Name");
-        assert_eq!(resp.keys[0].provider_id, ProviderID::MbedCrypto);
+        assert_eq!(resp.keys[0].provider_id, ProviderId::MbedCrypto);
         assert_eq!(resp.keys[0].attributes, key_attrs);
     }
 
@@ -176,7 +176,7 @@ mod test {
             },
         };
         let key_info = KeyInfo {
-            provider_id: ProviderID::MbedCrypto,
+            provider_id: ProviderId::MbedCrypto,
             name: String::from("Foo"),
             attributes: key_attributes,
         };
@@ -186,7 +186,7 @@ mod test {
         let key_attributes_proto: KeyAttributesProto = key_attributes.try_into().unwrap();
 
         assert_eq!(proto.keys.len(), 1);
-        assert_eq!(proto.keys[0].provider_id, ProviderID::MbedCrypto as u32);
+        assert_eq!(proto.keys[0].provider_id, ProviderId::MbedCrypto as u32);
         assert_eq!(proto.keys[0].name, "Foo");
         assert_eq!(proto.keys[0].attributes, Some(key_attributes_proto));
     }
@@ -242,7 +242,7 @@ mod test {
     fn result_list_keys_from_native() {
         let mut list_keys = Result { keys: Vec::new() };
         let key_info = KeyInfo {
-            provider_id: ProviderID::MbedCrypto,
+            provider_id: ProviderId::MbedCrypto,
             name: String::from("Bar"),
             attributes: Attributes {
                 lifetime: Lifetime::Persistent,
@@ -281,7 +281,7 @@ mod test {
     fn list_keys_result_e2e() {
         let mut list_keys = Result { keys: Vec::new() };
         let key_info = KeyInfo {
-            provider_id: ProviderID::MbedCrypto,
+            provider_id: ProviderId::MbedCrypto,
             name: String::from("Baz"),
             attributes: Attributes {
                 lifetime: Lifetime::Persistent,

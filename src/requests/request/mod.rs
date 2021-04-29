@@ -131,7 +131,7 @@ impl From<RequestHeader> for ResponseHeader {
 #[cfg(test)]
 mod tests {
     use super::super::utils::tests as test_utils;
-    use super::super::{AuthType, BodyType, Opcode, ProviderID, ResponseStatus};
+    use super::super::{AuthType, BodyType, Opcode, ProviderId, ResponseStatus};
     use super::*;
 
     #[test]
@@ -198,7 +198,7 @@ mod tests {
         let resp_hdr: ResponseHeader = req_hdr.into();
 
         let mut resp_hdr_exp = ResponseHeader::new();
-        resp_hdr_exp.provider = ProviderID::Core;
+        resp_hdr_exp.provider = ProviderId::Core;
         resp_hdr_exp.session = 0x11_22_33_44_55_66_77_88;
         resp_hdr_exp.content_type = BodyType::Protobuf;
         resp_hdr_exp.opcode = Opcode::Ping;
@@ -230,7 +230,7 @@ mod tests {
         let body = RequestBody::from_bytes(vec![0x70, 0x80, 0x90]);
         let auth = RequestAuth::new(vec![0xa0, 0xb0, 0xc0]);
         let header = RequestHeader {
-            provider: ProviderID::Core,
+            provider: ProviderId::Core,
             session: 0x11_22_33_44_55_66_77_88,
             content_type: BodyType::Protobuf,
             accept_type: BodyType::Protobuf,

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 use crate::requests::common::wire_header_1_0::WireHeader as Raw;
 use crate::requests::ResponseStatus;
-use crate::requests::{AuthType, BodyType, Opcode, ProviderID};
+use crate::requests::{AuthType, BodyType, Opcode, ProviderId};
 #[cfg(feature = "fuzz")]
 use arbitrary::Arbitrary;
 use num::FromPrimitive;
@@ -16,7 +16,7 @@ use std::convert::TryFrom;
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct RequestHeader {
     /// Provider ID value
-    pub provider: ProviderID,
+    pub provider: ProviderId,
     /// Session handle
     pub session: u64,
     /// Content type: defines how the request body should be processed.
@@ -35,7 +35,7 @@ impl RequestHeader {
     #[cfg(feature = "testing")]
     pub(crate) fn new() -> RequestHeader {
         RequestHeader {
-            provider: ProviderID::Core,
+            provider: ProviderId::Core,
             session: 0,
             content_type: BodyType::Protobuf,
             accept_type: BodyType::Protobuf,
@@ -73,7 +73,7 @@ impl TryFrom<Raw> for RequestHeader {
         };
 
         Ok(RequestHeader {
-            provider: ProviderID::try_from(header.provider)?,
+            provider: ProviderId::try_from(header.provider)?,
             session: header.session,
             content_type,
             accept_type,
