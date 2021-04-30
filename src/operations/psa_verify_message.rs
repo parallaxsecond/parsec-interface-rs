@@ -94,6 +94,7 @@ mod tests {
     #[test]
     fn cannot_sign() {
         let mut attrs = get_attrs();
+        attrs.policy.usage_flags.verify_hash = false;
         attrs.policy.usage_flags.verify_message = false;
         assert_eq!(
             (Operation {
