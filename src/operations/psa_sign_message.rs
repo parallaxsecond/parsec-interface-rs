@@ -1,4 +1,4 @@
-// Copyright 2019 Contributors to the Parsec project.
+// Copyright 2021 Contributors to the Parsec project.
 // SPDX-License-Identifier: Apache-2.0
 //! # PsaSignMessage operation
 //!
@@ -15,7 +15,7 @@ pub struct Operation {
     /// An asymmetric signature algorithm that separates the hash and sign operations, that is
     /// compatible with the type of key.
     pub alg: AsymmetricSignature,
-    /// The input whose signature is to be verified. This is usually the hash of a message.
+    /// The message to sign.
     pub message: zeroize::Zeroizing<Vec<u8>>,
 }
 

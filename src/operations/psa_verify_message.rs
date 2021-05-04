@@ -1,8 +1,8 @@
-// Copyright 2019 Contributors to the Parsec project.
+// Copyright 2021 Contributors to the Parsec project.
 // SPDX-License-Identifier: Apache-2.0
 //! # PsaVerifyMessage operation
 //!
-//! Verify the signature of a hash or short message using a public key.
+//! Verify the signature of a message using a public key.
 use super::psa_key_attributes::Attributes;
 use crate::operations::psa_algorithm::AsymmetricSignature;
 
@@ -14,7 +14,7 @@ pub struct Operation {
     /// An asymmetric signature algorithm that separates the hash and sign operations, that is
     /// compatible with the type of key.
     pub alg: AsymmetricSignature,
-    /// The `message` contains a short message for the
+    /// The `message` whose signature is to be verified for the
     /// asymmetric signing operation.
     pub message: zeroize::Zeroizing<Vec<u8>>,
     /// Buffer containing the signature to verify.
