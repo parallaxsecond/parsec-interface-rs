@@ -123,6 +123,10 @@ pub enum Opcode {
     PsaAeadDecrypt = 0x0012,
     /// PsaRawKeyAgreement operation
     PsaRawKeyAgreement = 0x0013,
+    /// PsaSignMessage operation
+    PsaSignMessage = 0x0018,
+    /// PsaVerifyMessage operation
+    PsaVerifyMessage = 0x0019,
     /// ListKeys operation
     ListKeys = 0x001A,
     /// ListClients operation (admin operation)
@@ -147,6 +151,8 @@ impl Opcode {
             | Opcode::PsaDestroyKey
             | Opcode::PsaSignHash
             | Opcode::PsaVerifyHash
+            | Opcode::PsaSignMessage
+            | Opcode::PsaVerifyMessage
             | Opcode::PsaImportKey
             | Opcode::PsaExportPublicKey
             | Opcode::PsaAsymmetricEncrypt
@@ -175,6 +181,8 @@ impl Opcode {
             | Opcode::PsaDestroyKey
             | Opcode::PsaSignHash
             | Opcode::PsaVerifyHash
+            | Opcode::PsaSignMessage
+            | Opcode::PsaVerifyMessage
             | Opcode::PsaImportKey
             | Opcode::PsaExportPublicKey
             | Opcode::PsaAsymmetricEncrypt

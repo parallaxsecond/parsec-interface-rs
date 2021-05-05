@@ -17,6 +17,8 @@ macro_rules! include_protobuf_as_module {
 
 include_protobuf_as_module!(psa_sign_hash);
 include_protobuf_as_module!(psa_verify_hash);
+include_protobuf_as_module!(psa_sign_message);
+include_protobuf_as_module!(psa_verify_message);
 include_protobuf_as_module!(psa_asymmetric_encrypt);
 include_protobuf_as_module!(psa_asymmetric_decrypt);
 include_protobuf_as_module!(psa_aead_encrypt);
@@ -159,6 +161,7 @@ empty_clear_message!(psa_export_public_key::Operation);
 empty_clear_message!(psa_export_key::Operation);
 empty_clear_message!(psa_import_key::Result);
 empty_clear_message!(psa_verify_hash::Result);
+empty_clear_message!(psa_verify_message::Result);
 empty_clear_message!(psa_generate_random::Operation);
 empty_clear_message!(psa_hash_compare::Result);
 
@@ -177,6 +180,25 @@ impl ClearProtoMessage for psa_sign_hash::Result {
 impl ClearProtoMessage for psa_verify_hash::Operation {
     fn clear_message(&mut self) {
         self.hash.zeroize();
+        self.signature.zeroize();
+    }
+}
+
+impl ClearProtoMessage for psa_sign_message::Operation {
+    fn clear_message(&mut self) {
+        self.message.zeroize();
+    }
+}
+
+impl ClearProtoMessage for psa_sign_message::Result {
+    fn clear_message(&mut self) {
+        self.signature.zeroize();
+    }
+}
+
+impl ClearProtoMessage for psa_verify_message::Operation {
+    fn clear_message(&mut self) {
+        self.message.zeroize();
         self.signature.zeroize();
     }
 }

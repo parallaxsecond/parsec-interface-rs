@@ -23,6 +23,8 @@ pub mod psa_asymmetric_encrypt;
 pub mod psa_asymmetric_decrypt;
 pub mod psa_aead_encrypt;
 pub mod psa_aead_decrypt;
+pub mod psa_sign_message;
+pub mod psa_verify_message;
 pub mod list_opcodes;
 pub mod list_providers;
 pub mod list_authenticators;
@@ -85,6 +87,10 @@ pub enum NativeOperation {
     PsaGenerateRandom(psa_generate_random::Operation),
     /// PsaRawKeyAgreement operation
     PsaRawKeyAgreement(psa_raw_key_agreement::Operation),
+    /// PsaSignMessage operation
+    PsaSignMessage(psa_sign_message::Operation),
+    /// PsaVerifyMessage operation
+    PsaVerifyMessage(psa_verify_message::Operation),
 }
 
 impl NativeOperation {
@@ -113,6 +119,8 @@ impl NativeOperation {
             NativeOperation::PsaAeadDecrypt(_) => Opcode::PsaAeadDecrypt,
             NativeOperation::PsaGenerateRandom(_) => Opcode::PsaGenerateRandom,
             NativeOperation::PsaRawKeyAgreement(_) => Opcode::PsaRawKeyAgreement,
+            NativeOperation::PsaSignMessage(_) => Opcode::PsaSignMessage,
+            NativeOperation::PsaVerifyMessage(_) => Opcode::PsaVerifyMessage,
         }
     }
 }
@@ -165,6 +173,10 @@ pub enum NativeResult {
     PsaGenerateRandom(psa_generate_random::Result),
     /// PsaRawKeyAgreement result
     PsaRawKeyAgreement(psa_raw_key_agreement::Result),
+    /// PsaSignMessage result
+    PsaSignMessage(psa_sign_message::Result),
+    /// PsaVerifyMessage result
+    PsaVerifyMessage(psa_verify_message::Result),
 }
 
 impl NativeResult {
@@ -193,6 +205,8 @@ impl NativeResult {
             NativeResult::PsaAeadDecrypt(_) => Opcode::PsaAeadDecrypt,
             NativeResult::PsaGenerateRandom(_) => Opcode::PsaGenerateRandom,
             NativeResult::PsaRawKeyAgreement(_) => Opcode::PsaRawKeyAgreement,
+            NativeResult::PsaSignMessage(_) => Opcode::PsaSignMessage,
+            NativeResult::PsaVerifyMessage(_) => Opcode::PsaVerifyMessage,
         }
     }
 }
@@ -358,6 +372,16 @@ impl From<psa_raw_key_agreement::Operation> for NativeOperation {
         NativeOperation::PsaRawKeyAgreement(op)
     }
 }
+impl From<psa_sign_message::Operation> for NativeOperation {
+    fn from(op: psa_sign_message::Operation) -> Self {
+        NativeOperation::PsaSignMessage(op)
+    }
+}
+impl From<psa_verify_message::Operation> for NativeOperation {
+    fn from(op: psa_verify_message::Operation) -> Self {
+        NativeOperation::PsaVerifyMessage(op)
+    }
+}
 
 impl From<list_providers::Result> for NativeResult {
     fn from(op: list_providers::Result) -> Self {
@@ -488,5 +512,17 @@ impl From<psa_generate_random::Result> for NativeResult {
 impl From<psa_raw_key_agreement::Result> for NativeResult {
     fn from(op: psa_raw_key_agreement::Result) -> Self {
         NativeResult::PsaRawKeyAgreement(op)
+    }
+}
+
+impl From<psa_sign_message::Result> for NativeResult {
+    fn from(op: psa_sign_message::Result) -> Self {
+        NativeResult::PsaSignMessage(op)
+    }
+}
+
+impl From<psa_verify_message::Result> for NativeResult {
+    fn from(op: psa_verify_message::Result) -> Self {
+        NativeResult::PsaVerifyMessage(op)
     }
 }
