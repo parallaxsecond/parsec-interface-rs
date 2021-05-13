@@ -15,7 +15,7 @@ impl TryFrom<OperationProto> for Operation {
             attributes: proto_op
                 .attributes
                 .ok_or_else(|| {
-                    error!("attributes field of PsaGenerateKey::Operation message is empty.");
+                    error!("The attributes field of PsaGenerateKey::Operation message is not set (mandatory field).");
                     ResponseStatus::InvalidEncoding
                 })?
                 .try_into()?,

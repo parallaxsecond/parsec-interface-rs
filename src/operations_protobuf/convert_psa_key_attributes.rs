@@ -65,7 +65,7 @@ impl TryFrom<KeyPolicyProto> for Policy {
         let permitted_algorithms: Algorithm = key_policy_proto
             .key_algorithm
             .ok_or_else(|| {
-                error!("permitted_algorithms field of Policy message is empty.");
+                error!("The permitted_algorithms field of Policy message is not set (mandatory field).");
                 ResponseStatus::InvalidEncoding
             })?
             .try_into()?;
@@ -73,7 +73,7 @@ impl TryFrom<KeyPolicyProto> for Policy {
             usage_flags: key_policy_proto
                 .key_usage_flags
                 .ok_or_else(|| {
-                    error!("usage_flags field of Policy message is empty.");
+                    error!("The usage_flags field of Policy message is not set (mandatory field).");
                     ResponseStatus::InvalidEncoding
                 })?
                 .try_into()?,
@@ -101,7 +101,7 @@ impl TryFrom<EccFamilyProto> for EccFamily {
     fn try_from(ecc_family_val: EccFamilyProto) -> Result<Self> {
         match ecc_family_val {
             EccFamilyProto::None => {
-                error!("The None value of EccFamily enumeration is not allowed.");
+                error!("The None value of EccFamily enumeration is not allowed (mandatory field).");
                 Err(ResponseStatus::InvalidEncoding)
             }
             EccFamilyProto::SecpK1 => Ok(EccFamily::SecpK1),
@@ -257,7 +257,9 @@ impl TryFrom<KeyAttributesProto> for Attributes {
             key_type: key_attributes_proto
                 .key_type
                 .ok_or_else(|| {
-                    error!("key_type field of Attributes message is empty.");
+                    error!(
+                        "The key_type field of Attributes message is not set (mandatory field)."
+                    );
                     ResponseStatus::InvalidEncoding
                 })?
                 .try_into()?,
@@ -268,7 +270,7 @@ impl TryFrom<KeyAttributesProto> for Attributes {
             policy: key_attributes_proto
                 .key_policy
                 .ok_or_else(|| {
-                    error!("policy field of Attributes message is empty.");
+                    error!("The policy field of Attributes message is not set (mandatory field).");
                     ResponseStatus::InvalidEncoding
                 })?
                 .try_into()?,
@@ -301,7 +303,8 @@ mod test {
     };
     use crate::operations::psa_algorithm::{Algorithm, AsymmetricSignature, Hash};
     use crate::operations::psa_key_attributes::{self, Attributes, Lifetime, Policy, UsageFlags};
-    use std::convert::TryInto;
+    use crate::requests::ResponseStatus;
+    use std::convert::{TryFrom, TryInto};
 
     #[test]
     fn key_attrs_to_proto() {
@@ -429,5 +432,202 @@ mod test {
         };
 
         assert_eq!(key_attrs, key_attrs_expected);
+    }
+
+    #[test]
+    fn proto_key_type_variant_not_recognised() {
+        let key_attrs_proto = KeyAttributesProto {
+            key_type: Some(key_attributes_proto::KeyType { variant: None }),
+            key_bits: 1024,
+            key_policy: Some(key_attributes_proto::KeyPolicy {
+                key_usage_flags: Some(key_attributes_proto::UsageFlags {
+                    export: true,
+                    copy: true,
+                    cache: true,
+                    encrypt: true,
+                    decrypt: true,
+                    sign_message: true,
+                    verify_message: true,
+                    sign_hash: true,
+                    verify_hash: true,
+                    derive: true,
+                }),
+                key_algorithm: Some(algorithm_proto::Algorithm {
+                    variant: Some(algorithm_proto::algorithm::Variant::None(
+                        algorithm_proto::algorithm::None {},
+                    )),
+                }),
+            }),
+        };
+
+        assert_eq!(
+            Attributes::try_from(key_attrs_proto).unwrap_err(),
+            ResponseStatus::InvalidEncoding
+        );
+    }
+
+    #[test]
+    fn proto_key_type_not_set() {
+        let key_attrs_proto = KeyAttributesProto {
+            key_type: None,
+            key_bits: 1024,
+            key_policy: Some(key_attributes_proto::KeyPolicy {
+                key_usage_flags: Some(key_attributes_proto::UsageFlags {
+                    export: true,
+                    copy: true,
+                    cache: true,
+                    encrypt: true,
+                    decrypt: true,
+                    sign_message: true,
+                    verify_message: true,
+                    sign_hash: true,
+                    verify_hash: true,
+                    derive: true,
+                }),
+                key_algorithm: Some(algorithm_proto::Algorithm {
+                    variant: Some(algorithm_proto::algorithm::Variant::None(
+                        algorithm_proto::algorithm::None {},
+                    )),
+                }),
+            }),
+        };
+
+        assert_eq!(
+            Attributes::try_from(key_attrs_proto).unwrap_err(),
+            ResponseStatus::InvalidEncoding
+        );
+    }
+
+    #[test]
+    fn proto_usage_flags_not_set() {
+        let key_attrs_proto = KeyAttributesProto {
+            key_type: Some(key_attributes_proto::KeyType {
+                variant: Some(key_attributes_proto::key_type::Variant::RsaKeyPair(
+                    key_attributes_proto::key_type::RsaKeyPair {},
+                )),
+            }),
+            key_bits: 1024,
+            key_policy: Some(key_attributes_proto::KeyPolicy {
+                key_usage_flags: None,
+                key_algorithm: Some(algorithm_proto::Algorithm {
+                    variant: Some(algorithm_proto::algorithm::Variant::None(
+                        algorithm_proto::algorithm::None {},
+                    )),
+                }),
+            }),
+        };
+
+        assert_eq!(
+            Attributes::try_from(key_attrs_proto).unwrap_err(),
+            ResponseStatus::InvalidEncoding
+        );
+    }
+
+    #[test]
+    fn proto_key_alg_not_recognised() {
+        let key_attrs_proto = KeyAttributesProto {
+            key_type: Some(key_attributes_proto::KeyType {
+                variant: Some(key_attributes_proto::key_type::Variant::RsaKeyPair(
+                    key_attributes_proto::key_type::RsaKeyPair {},
+                )),
+            }),
+            key_bits: 1024,
+            key_policy: Some(key_attributes_proto::KeyPolicy {
+                key_usage_flags: Some(key_attributes_proto::UsageFlags {
+                    export: true,
+                    copy: true,
+                    cache: true,
+                    encrypt: true,
+                    decrypt: true,
+                    sign_message: true,
+                    verify_message: true,
+                    sign_hash: true,
+                    verify_hash: true,
+                    derive: true,
+                }),
+                key_algorithm: Some(algorithm_proto::Algorithm { variant: None }),
+            }),
+        };
+
+        assert_eq!(
+            Attributes::try_from(key_attrs_proto).unwrap_err(),
+            ResponseStatus::InvalidEncoding
+        );
+    }
+
+    #[test]
+    fn proto_key_alg_not_recognised2() {
+        let key_attrs_proto = KeyAttributesProto {
+            key_type: Some(key_attributes_proto::KeyType {
+                variant: Some(key_attributes_proto::key_type::Variant::RsaKeyPair(
+                    key_attributes_proto::key_type::RsaKeyPair {},
+                )),
+            }),
+            key_bits: 1024,
+            key_policy: Some(key_attributes_proto::KeyPolicy {
+                key_usage_flags: Some(key_attributes_proto::UsageFlags {
+                    export: true,
+                    copy: true,
+                    cache: true,
+                    encrypt: true,
+                    decrypt: true,
+                    sign_message: true,
+                    verify_message: true,
+                    sign_hash: true,
+                    verify_hash: true,
+                    derive: true,
+                }),
+                key_algorithm: Some(algorithm_proto::Algorithm {
+                    variant: Some(algorithm_proto::algorithm::Variant::AsymmetricSignature(
+                        algorithm_proto::algorithm::AsymmetricSignature { variant: None },
+                    )),
+                }),
+            }),
+        };
+
+        assert_eq!(
+            Attributes::try_from(key_attrs_proto).unwrap_err(),
+            ResponseStatus::InvalidEncoding
+        );
+    }
+
+    #[test]
+    fn proto_key_alg_not_recognised3() {
+        let key_attrs_proto = KeyAttributesProto {
+            key_type: Some(key_attributes_proto::KeyType {
+                variant: Some(key_attributes_proto::key_type::Variant::RsaKeyPair(key_attributes_proto::key_type::RsaKeyPair {})),
+            }),
+            key_bits: 1024,
+            key_policy: Some(key_attributes_proto::KeyPolicy {
+                key_usage_flags: Some(key_attributes_proto::UsageFlags {
+                    export: true,
+                    copy: true,
+                    cache: true,
+                    encrypt: true,
+                    decrypt: true,
+                    sign_message: true,
+                    verify_message: true,
+                    sign_hash: true,
+                    verify_hash: true,
+                    derive: true,
+                }),
+                key_algorithm: Some(algorithm_proto::Algorithm {
+                    variant: Some(algorithm_proto::algorithm::Variant::AsymmetricSignature(algorithm_proto::algorithm::AsymmetricSignature {
+                        variant: Some(algorithm_proto::algorithm::asymmetric_signature::Variant::RsaPkcs1v15Sign(algorithm_proto::algorithm::asymmetric_signature::RsaPkcs1v15Sign {
+                            hash_alg: Some(algorithm_proto::algorithm::asymmetric_signature::SignHash {
+                                variant: Some(algorithm_proto::algorithm::asymmetric_signature::sign_hash::Variant::Specific(
+                                    78,
+                                )),
+                            }),
+                        })),
+                    }))
+                }),
+            }),
+        };
+
+        assert_eq!(
+            Attributes::try_from(key_attrs_proto).unwrap_err(),
+            ResponseStatus::InvalidEncoding
+        );
     }
 }
