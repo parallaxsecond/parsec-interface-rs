@@ -23,7 +23,7 @@ impl TryFrom<OperationProto> for Operation {
             alg: proto_op
                 .alg
                 .ok_or_else(|| {
-                    error!("alg field of PsaAsymmetricEncrypt::Operation message is empty.");
+                    error!("The alg field of PsaAsymmetricEncrypt::Operation message is not set (mandatory field).");
                     ResponseStatus::InvalidEncoding
                 })?
                 .try_into()?,

@@ -53,7 +53,7 @@ impl TryFrom<i32> for Cipher {
     fn try_from(cipher_val: i32) -> Result<Self> {
         Cipher::from_i32(cipher_val).ok_or_else(|| {
             error!(
-                "Value {} not recognised as a valid cipher algorithm encoding.",
+                "Value {} not supported as a cipher algorithm encoding.",
                 cipher_val
             );
             ResponseStatus::InvalidEncoding
@@ -66,7 +66,7 @@ impl TryFrom<i32> for Hash {
     fn try_from(hash_val: i32) -> Result<Self> {
         Hash::from_i32(hash_val).ok_or_else(|| {
             error!(
-                "Value {} not recognised as a valid hash algorithm encoding.",
+                "Value {} not supported as a hash algorithm encoding.",
                 hash_val
             );
             ResponseStatus::InvalidEncoding
@@ -79,7 +79,7 @@ impl TryFrom<i32> for AeadWithDefaultLengthTag {
     fn try_from(aead_val: i32) -> Result<Self> {
         AeadWithDefaultLengthTag::from_i32(aead_val).ok_or_else(|| {
             error!(
-                "Value {} not recognised as a valid AEAD with default tag length algorithm encoding.",
+                "Value {} not supported as an AEAD with default tag length algorithm encoding.",
                 aead_val
             );
             ResponseStatus::InvalidEncoding
@@ -92,7 +92,7 @@ impl TryFrom<i32> for Raw {
     fn try_from(key_agreement_val: i32) -> Result<Self> {
         Raw::from_i32(key_agreement_val).ok_or_else(|| {
             error!(
-                "Value {} not recognised as a valid raw key agreement algorithm encoding.",
+                "Value {} not supported as a raw key agreement algorithm encoding.",
                 key_agreement_val
             );
             ResponseStatus::InvalidEncoding
@@ -105,7 +105,7 @@ impl TryFrom<i32> for EccFamily {
     fn try_from(ecc_family_val: i32) -> Result<Self> {
         EccFamily::from_i32(ecc_family_val).ok_or_else(|| {
             error!(
-                "Value {} not recognised as a valid ECC family encoding.",
+                "Value {} not supported as an ECC family encoding.",
                 ecc_family_val
             );
             ResponseStatus::InvalidEncoding
@@ -118,7 +118,7 @@ impl TryFrom<i32> for DhFamily {
     fn try_from(dh_family_val: i32) -> Result<Self> {
         DhFamily::from_i32(dh_family_val).ok_or_else(|| {
             error!(
-                "Value {} not recognised as a valid DH family encoding.",
+                "Value {} not supported as a DH family encoding.",
                 dh_family_val
             );
             ResponseStatus::InvalidEncoding
@@ -298,4 +298,14 @@ impl ClearProtoMessage for psa_raw_key_agreement::Result {
     fn clear_message(&mut self) {
         self.shared_secret.zeroize();
     }
+}
+
+#[test]
+fn i32_conversions() {
+    assert_eq!(Cipher::try_from(56).unwrap_err(), ResponseStatus::InvalidEncoding);
+    assert_eq!(Cipher::try_from(-5).unwrap_err(), ResponseStatus::InvalidEncoding);
+    assert_eq!(Hash::try_from(89).unwrap_err(), ResponseStatus::InvalidEncoding);
+    assert_eq!(Hash::try_from(-4).unwrap_err(), ResponseStatus::InvalidEncoding);
+    assert_eq!(EccFamily::try_from(78).unwrap_err(), ResponseStatus::InvalidEncoding);
+
 }

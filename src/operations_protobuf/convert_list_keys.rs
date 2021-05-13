@@ -37,7 +37,7 @@ impl TryFrom<KeyInfoProto> for KeyInfo {
         let attributes = proto_info
             .attributes
             .ok_or_else(|| {
-                error!("attributes field of KeyInfo protobuf message is empty.");
+                error!("The attributes field of KeyInfo protobuf message is not set (mandatory field).");
                 ResponseStatus::InvalidEncoding
             })?
             .try_into()?;

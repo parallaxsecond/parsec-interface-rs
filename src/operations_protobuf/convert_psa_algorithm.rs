@@ -40,7 +40,7 @@ impl TryFrom<HashProto> for Hash {
     fn try_from(hash_val: HashProto) -> Result<Self> {
         match hash_val {
             HashProto::None => {
-                error!("The None value of Hash enumeration is not allowed.");
+                error!("The None value of Hash enumeration is not allowed (mandatory field).");
                 Err(ResponseStatus::InvalidEncoding)
             }
             #[allow(deprecated)]
@@ -102,7 +102,7 @@ impl TryFrom<SignHashProto> for SignHash {
 
     fn try_from(sign_hash_val: SignHashProto) -> Result<Self> {
         match sign_hash_val.variant.ok_or_else(|| {
-            error!("variant field of SignHash message is empty.");
+            error!("The SignHash variant used is not supported.");
             ResponseStatus::InvalidEncoding
         })? {
             sign_hash::Variant::Any(_) => Ok(SignHash::Any),
@@ -132,7 +132,7 @@ impl TryFrom<FullLengthMacProto> for FullLengthMac {
 
     fn try_from(alg: FullLengthMacProto) -> Result<Self> {
         match alg.variant.ok_or_else(|| {
-            error!("variant field of mac::FullLength message is empty.");
+            error!("The FullLengthMac variant used is not supported.");
             ResponseStatus::InvalidEncoding
         })? {
             mac::full_length::Variant::Hmac(hmac) => Ok(FullLengthMac::Hmac {
@@ -173,13 +173,13 @@ impl TryFrom<MacProto> for Mac {
 
     fn try_from(alg: MacProto) -> Result<Self> {
         match alg.variant.ok_or_else(|| {
-            error!("variant field of Mac message is empty.");
+            error!("The Mac variant used is not supported.");
             ResponseStatus::InvalidEncoding
         })? {
             mac::Variant::FullLength(full_length) => Ok(Mac::FullLength(full_length.try_into()?)),
             mac::Variant::Truncated(truncated) => Ok(Mac::Truncated {
                 mac_alg: truncated.mac_alg.ok_or_else(|| {
-                    error!("mac_alg field of mac::Truncated message is empty.");
+                    error!("The mac_alg field of mac::Truncated message is not set (mandatory field).");
                     ResponseStatus::InvalidEncoding
                 })?.try_into()?,
                 mac_length: truncated.mac_length.try_into().map_err(|e| {
@@ -226,7 +226,7 @@ impl TryFrom<CipherProto> for Cipher {
     fn try_from(cipher_val: CipherProto) -> Result<Self> {
         match cipher_val {
             CipherProto::None => {
-                error!("The None value of Cipher enumeration is not allowed.");
+                error!("The None value of Cipher enumeration is not allowed (mandatory field).");
                 Err(ResponseStatus::InvalidEncoding)
             }
             CipherProto::StreamCipher => Ok(Cipher::StreamCipher),
@@ -262,7 +262,7 @@ impl TryFrom<AeadWithDefaultLengthTagProto> for AeadWithDefaultLengthTag {
     fn try_from(aead_val: AeadWithDefaultLengthTagProto) -> Result<Self> {
         match aead_val {
             AeadWithDefaultLengthTagProto::None => {
-                error!("The None value of AeadWithDefaultLengthTag enumeration is not allowed.");
+                error!("The None value of AeadWithDefaultLengthTag enumeration is not allowed (mandatory field).");
                 Err(ResponseStatus::InvalidEncoding)
             }
             AeadWithDefaultLengthTagProto::Ccm => Ok(AeadWithDefaultLengthTag::Ccm),
@@ -291,7 +291,7 @@ impl TryFrom<AeadProto> for Aead {
 
     fn try_from(alg: AeadProto) -> Result<Self> {
         match alg.variant.ok_or_else(|| {
-            error!("variant field of Aead message is empty.");
+            error!("The Aead variant used is not supported.");
             ResponseStatus::InvalidEncoding
         })? {
             aead::Variant::AeadWithDefaultLengthTag(aead_with_default_length_tag) => {
@@ -336,7 +336,7 @@ impl TryFrom<AsymmetricSignatureProto> for AsymmetricSignature {
 
     fn try_from(alg: AsymmetricSignatureProto) -> Result<Self> {
         match alg.variant.ok_or_else(|| {
-            error!("variant field of Asym message is empty.");
+            error!("The AsymmetricSignature variant used is not supported.");
             ResponseStatus::InvalidEncoding
         })? {
             asymmetric_signature::Variant::RsaPkcs1v15Sign(rsa_pkcs1v15_sign) => {
@@ -344,7 +344,7 @@ impl TryFrom<AsymmetricSignatureProto> for AsymmetricSignature {
                     hash_alg: rsa_pkcs1v15_sign
                         .hash_alg
                         .ok_or_else(|| {
-                            error!("hash_alg field of RsaPkcs1v15Sign message is empty.");
+                            error!("The hash_alg field of RsaPkcs1v15Sign message is not set (mandatory field).");
                             ResponseStatus::InvalidEncoding
                         })?
                         .try_into()?,
@@ -357,7 +357,7 @@ impl TryFrom<AsymmetricSignatureProto> for AsymmetricSignature {
                 hash_alg: rsa_pss
                     .hash_alg
                     .ok_or_else(|| {
-                        error!("hash_alg field of RsaPss message is empty.");
+                        error!("The hash_alg field of RsaPss message is not set (mandatory field).");
                         ResponseStatus::InvalidEncoding
                     })?
                     .try_into()?,
@@ -366,7 +366,7 @@ impl TryFrom<AsymmetricSignatureProto> for AsymmetricSignature {
                 hash_alg: ecdsa
                     .hash_alg
                     .ok_or_else(|| {
-                        error!("hash_alg field of Ecdsa message is empty.");
+                        error!("The hash_alg field of Ecdsa message is not set (mandatory field).");
                         ResponseStatus::InvalidEncoding
                     })?
                     .try_into()?,
@@ -377,7 +377,7 @@ impl TryFrom<AsymmetricSignatureProto> for AsymmetricSignature {
                     hash_alg: deterministic_ecdsa
                         .hash_alg
                         .ok_or_else(|| {
-                            error!("hash_alg field of DeterministicEcdsa message is empty.");
+                            error!("The hash_alg field of DeterministicEcdsa message is not set (mandatory field).");
                             ResponseStatus::InvalidEncoding
                         })?
                         .try_into()?,
@@ -441,7 +441,7 @@ impl TryFrom<AsymmetricEncryptionProto> for AsymmetricEncryption {
 
     fn try_from(alg: AsymmetricEncryptionProto) -> Result<Self> {
         match alg.variant.ok_or_else(|| {
-            error!("variant field of AsymmetricSignature message is empty.");
+            error!("The AsymmetricSignature variant used is not supported.");
             ResponseStatus::InvalidEncoding
         })? {
             asymmetric_encryption::Variant::RsaPkcs1v15Crypt(_) => {
@@ -485,7 +485,7 @@ impl TryFrom<RawKeyAgreementProto> for RawKeyAgreement {
     fn try_from(raw_key_agreement_val: RawKeyAgreementProto) -> Result<Self> {
         match raw_key_agreement_val {
             RawKeyAgreementProto::None => {
-                error!("The None value of RawKeyAgreement enumeration is not allowed.");
+                error!("The None value of RawKeyAgreement enumeration is not allowed (mandatory field).");
                 Err(ResponseStatus::InvalidEncoding)
             }
             RawKeyAgreementProto::Ffdh => Ok(RawKeyAgreement::Ffdh),
@@ -514,14 +514,14 @@ impl TryFrom<KeyAgreementProto> for KeyAgreement {
 
     fn try_from(alg: KeyAgreementProto) -> Result<Self> {
         match alg.variant.ok_or_else(|| {
-            error!("variant field of KeyAgreement message is empty.");
+            error!("The KeyAgreement variant used is not supported.");
             ResponseStatus::InvalidEncoding
         })? {
             key_agreement::Variant::Raw(raw) => Ok(KeyAgreement::Raw(RawKeyAgreementProto::try_from(raw)?.try_into()?)),
             key_agreement::Variant::WithKeyDerivation(with_key_derivation) => Ok(KeyAgreement::WithKeyDerivation {
                 ka_alg: RawKeyAgreementProto::try_from(with_key_derivation.ka_alg)?.try_into()?,
                 kdf_alg: with_key_derivation.kdf_alg.ok_or_else(|| {
-                    error!("kdf_alg field of key_agreement::WithKeyDerivation message is empty.");
+                    error!("The kdf_alg field of key_agreement::WithKeyDerivation message is not set (mandatory field).");
                     ResponseStatus::InvalidEncoding
                 })?.try_into()?,
             }),
@@ -558,7 +558,7 @@ impl TryFrom<KeyDerivationProto> for KeyDerivation {
 
     fn try_from(alg: KeyDerivationProto) -> Result<Self> {
         match alg.variant.ok_or_else(|| {
-            error!("variant field of KeyDerivation message is empty.");
+            error!("The KeyDerivation variant used is not supported.");
             ResponseStatus::InvalidEncoding
         })? {
             key_derivation::Variant::Hkdf(hkdf) => Ok(KeyDerivation::Hkdf {
@@ -611,7 +611,7 @@ impl TryFrom<AlgorithmProto> for Algorithm {
 
     fn try_from(alg: AlgorithmProto) -> Result<Self> {
         match alg.variant.ok_or_else(|| {
-            error!("variant field of Algorithm message is empty.");
+            error!("The Algorithm variant used is not supported.");
             ResponseStatus::InvalidEncoding
         })? {
             algorithm::Variant::None(_) => Ok(Algorithm::None),
