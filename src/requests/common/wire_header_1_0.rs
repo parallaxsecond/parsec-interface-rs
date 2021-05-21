@@ -95,8 +95,8 @@ impl WireHeader {
     /// Deserialise a request header from the given stream.
     ///
     /// # Errors
-    /// - if either the magic number or the header size are invalid values,
-    /// `ResponseStatus::InvalidHeader` is returned.
+    /// - if either the magic number, the header size or the reserved fields
+    /// are invalid values, `ResponseStatus::InvalidHeader` is returned.
     /// - if reading the fields after magic number and header size fails,
     /// `ResponseStatus::ConnectionError` is returned
     ///     - the read may fail due to a timeout if not enough bytes are
@@ -135,6 +135,12 @@ impl WireHeader {
             return Err(ResponseStatus::WireProtocolVersionNotSupported);
         }
 
-        Ok(bincode::deserialize(&bytes)?)
+        let wire_header: WireHeader = bincode::deserialize(&bytes)?;
+
+        if wire_header.reserved1 != 0x00 || wire_header.reserved2 != 0x00 {
+            Err(ResponseStatus::InvalidHeader)
+        } else {
+            Ok(wire_header)
+        }
     }
 }
