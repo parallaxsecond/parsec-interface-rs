@@ -4,6 +4,7 @@ use crate::requests::Result;
 #[cfg(feature = "fuzz")]
 use arbitrary::Arbitrary;
 use std::io::{Read, Write};
+use std::ops::{Deref, DerefMut};
 use zeroize::Zeroize;
 
 /// Wrapper around the body of a request.
@@ -14,6 +15,20 @@ use zeroize::Zeroize;
 #[zeroize(drop)]
 pub struct RequestBody {
     buffer: Vec<u8>,
+}
+
+impl Deref for RequestBody {
+    type Target = [u8];
+
+    fn deref(&self) -> &Self::Target {
+        &self.buffer
+    }
+}
+
+impl DerefMut for RequestBody {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.buffer
+    }
 }
 
 impl RequestBody {
