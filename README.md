@@ -17,6 +17,11 @@ trying to compile otherwise it will not work ("`No such file or directory`").
 $ git submodule update --init
 ```
 
+By default, the crate will use the pre-generated Rust Protobuf files in
+`src/operations_protobuf/generated_ops`. To re-generate them from the `parsec-operations`
+submodule, compile this
+crate with the feature `regenerate-protobuf`.
+
 ## License
 
 The software is provided under Apache-2.0. Contributions to this project are accepted under the same license.

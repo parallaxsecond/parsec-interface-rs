@@ -1,46 +1,34 @@
 // Copyright 2020 Contributors to the Parsec project.
 // SPDX-License-Identifier: Apache-2.0
-// Include the Rust generated file in its own module.
+
+pub mod psa_sign_hash;
+pub mod psa_verify_hash;
+pub mod psa_sign_message;
+pub mod psa_verify_message;
+pub mod psa_asymmetric_encrypt;
+pub mod psa_asymmetric_decrypt;
+pub mod psa_aead_encrypt;
+pub mod psa_aead_decrypt;
+pub mod psa_generate_key;
+pub mod psa_destroy_key;
+pub mod psa_export_public_key;
+pub mod psa_export_key;
+pub mod psa_import_key;
+pub mod list_opcodes;
+pub mod list_providers;
+pub mod list_authenticators;
+pub mod list_keys;
+pub mod list_clients;
+pub mod delete_client;
+pub mod ping;
+pub mod psa_key_attributes;
+pub mod psa_algorithm;
+pub mod psa_generate_random;
+pub mod psa_hash_compute;
+pub mod psa_hash_compare;
+pub mod psa_raw_key_agreement;
+
 use zeroize::Zeroize;
-
-macro_rules! include_protobuf_as_module {
-    ($name:ident) => {
-        pub mod $name {
-            #[allow(unused)]
-            #[macro_export]
-            use zeroize::Zeroize;
-            // The generated Rust file is in OUT_DIR, named $name.rs
-            include!(concat!(env!("OUT_DIR"), "/", stringify!($name), ".rs"));
-        }
-    };
-}
-
-include_protobuf_as_module!(psa_sign_hash);
-include_protobuf_as_module!(psa_verify_hash);
-include_protobuf_as_module!(psa_sign_message);
-include_protobuf_as_module!(psa_verify_message);
-include_protobuf_as_module!(psa_asymmetric_encrypt);
-include_protobuf_as_module!(psa_asymmetric_decrypt);
-include_protobuf_as_module!(psa_aead_encrypt);
-include_protobuf_as_module!(psa_aead_decrypt);
-include_protobuf_as_module!(psa_generate_key);
-include_protobuf_as_module!(psa_destroy_key);
-include_protobuf_as_module!(psa_export_public_key);
-include_protobuf_as_module!(psa_export_key);
-include_protobuf_as_module!(psa_import_key);
-include_protobuf_as_module!(list_opcodes);
-include_protobuf_as_module!(list_providers);
-include_protobuf_as_module!(list_authenticators);
-include_protobuf_as_module!(list_keys);
-include_protobuf_as_module!(list_clients);
-include_protobuf_as_module!(delete_client);
-include_protobuf_as_module!(ping);
-include_protobuf_as_module!(psa_key_attributes);
-include_protobuf_as_module!(psa_algorithm);
-include_protobuf_as_module!(psa_generate_random);
-include_protobuf_as_module!(psa_hash_compute);
-include_protobuf_as_module!(psa_hash_compare);
-include_protobuf_as_module!(psa_raw_key_agreement);
 
 use crate::requests::{ResponseStatus, Result};
 use log::error;
