@@ -4,11 +4,16 @@
 // This one is hard to avoid.
 #![allow(clippy::multiple_crate_versions)]
 
-use std::fs::read_dir;
-use std::io::{Error, ErrorKind, Result};
-use std::path::Path;
+use std::io::Result;
 
+// Replace the committed protobuf files with the generated one.
+#[cfg(feature = "regenerate-protobuf")]
 fn generate_proto_sources() -> Result<()> {
+    use std::fs::read_dir;
+    use std::io::{Error, ErrorKind};
+    use std::path::Path;
+    use std::process::Command;
+
     let path = String::from("parsec-operations/protobuf");
     let dir_entries = read_dir(Path::new(&path))?;
     let files: Result<Vec<String>> = dir_entries
@@ -31,9 +36,31 @@ fn generate_proto_sources() -> Result<()> {
         .filter(|string| string.ends_with(".proto"))
         .collect();
     let files_slices: Vec<&str> = proto_files.iter().map(|file| &file[..]).collect();
-    prost_build::compile_protos(&files_slices, &[&path])
+
+    prost_build::compile_protos(&files_slices, &[&path])?;
+
+    // Copy all files generated in src/operations_protobuf/generated_ops
+    let status = Command::new("bash")
+        .arg("-c")
+        .arg(format!(
+            "cp {}/*.rs src/operations_protobuf/generated_ops",
+            std::env::var("OUT_DIR").expect("OUT_DIR env var is empty")
+        ))
+        .status()?;
+
+    if !status.success() {
+        Err(Error::new(
+            ErrorKind::InvalidData,
+            "failed copying generated protobuf files",
+        ))
+    } else {
+        Ok(())
+    }
 }
 
 fn main() -> Result<()> {
-    generate_proto_sources()
+    #[cfg(feature = "regenerate-protobuf")]
+    generate_proto_sources()?;
+
+    Ok(())
 }

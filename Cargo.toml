@@ -11,7 +11,7 @@ categories = ["encoding"]
 edition = "2018"
 
 [build-dependencies]
-prost-build = "0.6.1"
+prost-build = { version = "0.6.1", optional = true }
 
 [dependencies]
 serde = { version = "1.0.115", features = ["derive"] }
@@ -31,3 +31,4 @@ derivative = "2.1.1"
 [features]
 testing = []
 fuzz = ["arbitrary"]
+regenerate-protobuf = ["prost-build"]

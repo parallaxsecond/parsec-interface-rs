@@ -19,6 +19,7 @@ git submodule update --init
 ##############
 RUST_BACKTRACE=1 cargo build
 RUST_BACKTRACE=1 cargo build --features testing
+RUST_BACKTRACE=1 cargo build --features regenerate-protobuf
 
 #################
 # Static checks #
