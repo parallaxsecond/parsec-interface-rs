@@ -67,15 +67,15 @@ mod tests {
     use psa_crypto::types::algorithm::Aead;
 
     fn get_attrs() -> Attributes {
+        let mut usage_flags = UsageFlags::default();
+        let _ = usage_flags.set_decrypt();
+
         Attributes {
             lifetime: Lifetime::Persistent,
             key_type: Type::Aes,
             bits: 0,
             policy: Policy {
-                usage_flags: UsageFlags {
-                    decrypt: true,
-                    ..Default::default()
-                },
+                usage_flags,
                 permitted_algorithms: Aead::AeadWithDefaultLengthTag(AeadWithDefaultLengthTag::Ccm)
                     .into(),
             },
@@ -98,7 +98,7 @@ mod tests {
     #[test]
     fn cannot_decrypt() {
         let mut attrs = get_attrs();
-        attrs.policy.usage_flags.decrypt = false;
+        attrs.policy.usage_flags = UsageFlags::default();
         assert_eq!(
             (Operation {
                 key_name: String::from("some key"),

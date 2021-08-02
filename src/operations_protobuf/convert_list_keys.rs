@@ -107,23 +107,25 @@ mod test {
     fn proto_to_resp() {
         let mut proto: ResultProto = Default::default();
 
+        let mut usage_flags = UsageFlags::default();
+        let _ = usage_flags
+            .set_decrypt()
+            .set_export()
+            .set_copy()
+            .set_cache()
+            .set_encrypt()
+            .set_decrypt()
+            .set_sign_message()
+            .set_verify_message()
+            .set_sign_hash()
+            .set_verify_hash()
+            .set_derive();
         let key_attrs = Attributes {
             lifetime: Lifetime::Persistent,
             key_type: psa_key_attributes::Type::RsaKeyPair,
             bits: 1024,
             policy: Policy {
-                usage_flags: UsageFlags {
-                    export: true,
-                    copy: true,
-                    cache: true,
-                    encrypt: true,
-                    decrypt: true,
-                    sign_message: true,
-                    verify_message: true,
-                    sign_hash: true,
-                    verify_hash: true,
-                    derive: true,
-                },
+                usage_flags,
                 permitted_algorithms: Algorithm::AsymmetricSignature(
                     AsymmetricSignature::RsaPkcs1v15Sign {
                         hash_alg: Hash::Sha1.into(),
@@ -151,23 +153,25 @@ mod test {
     #[test]
     fn resp_to_proto() {
         let mut resp: Result = Result { keys: Vec::new() };
+        let mut usage_flags = UsageFlags::default();
+        let _ = usage_flags
+            .set_decrypt()
+            .set_export()
+            .set_copy()
+            .set_cache()
+            .set_encrypt()
+            .set_decrypt()
+            .set_sign_message()
+            .set_verify_message()
+            .set_sign_hash()
+            .set_verify_hash()
+            .set_derive();
         let key_attributes = Attributes {
             lifetime: Lifetime::Persistent,
             key_type: psa_key_attributes::Type::RsaKeyPair,
             bits: 1024,
             policy: Policy {
-                usage_flags: UsageFlags {
-                    export: true,
-                    copy: true,
-                    cache: true,
-                    encrypt: true,
-                    decrypt: true,
-                    sign_message: true,
-                    verify_message: true,
-                    sign_hash: true,
-                    verify_hash: true,
-                    derive: true,
-                },
+                usage_flags,
                 permitted_algorithms: Algorithm::AsymmetricSignature(
                     AsymmetricSignature::RsaPkcs1v15Sign {
                         hash_alg: Hash::Sha1.into(),
@@ -241,6 +245,19 @@ mod test {
     #[test]
     fn result_list_keys_from_native() {
         let mut list_keys = Result { keys: Vec::new() };
+        let mut usage_flags = UsageFlags::default();
+        let _ = usage_flags
+            .set_decrypt()
+            .set_export()
+            .set_copy()
+            .set_cache()
+            .set_encrypt()
+            .set_decrypt()
+            .set_sign_message()
+            .set_verify_message()
+            .set_sign_hash()
+            .set_verify_hash()
+            .set_derive();
         let key_info = KeyInfo {
             provider_id: ProviderId::MbedCrypto,
             name: String::from("Bar"),
@@ -249,18 +266,7 @@ mod test {
                 key_type: psa_key_attributes::Type::RsaKeyPair,
                 bits: 1024,
                 policy: Policy {
-                    usage_flags: UsageFlags {
-                        export: true,
-                        copy: true,
-                        cache: true,
-                        encrypt: true,
-                        decrypt: true,
-                        sign_message: true,
-                        verify_message: true,
-                        sign_hash: true,
-                        verify_hash: true,
-                        derive: true,
-                    },
+                    usage_flags,
                     permitted_algorithms: Algorithm::AsymmetricSignature(
                         AsymmetricSignature::RsaPkcs1v15Sign {
                             hash_alg: Hash::Sha1.into(),
@@ -279,6 +285,19 @@ mod test {
 
     #[test]
     fn list_keys_result_e2e() {
+        let mut usage_flags = UsageFlags::default();
+        let _ = usage_flags
+            .set_decrypt()
+            .set_export()
+            .set_copy()
+            .set_cache()
+            .set_encrypt()
+            .set_decrypt()
+            .set_sign_message()
+            .set_verify_message()
+            .set_sign_hash()
+            .set_verify_hash()
+            .set_derive();
         let mut list_keys = Result { keys: Vec::new() };
         let key_info = KeyInfo {
             provider_id: ProviderId::MbedCrypto,
@@ -288,18 +307,7 @@ mod test {
                 key_type: psa_key_attributes::Type::RsaKeyPair,
                 bits: 1024,
                 policy: Policy {
-                    usage_flags: UsageFlags {
-                        export: true,
-                        copy: true,
-                        cache: true,
-                        encrypt: true,
-                        decrypt: true,
-                        sign_message: true,
-                        verify_message: true,
-                        sign_hash: true,
-                        verify_hash: true,
-                        derive: true,
-                    },
+                    usage_flags,
                     permitted_algorithms: Algorithm::AsymmetricSignature(
                         AsymmetricSignature::RsaPkcs1v15Sign {
                             hash_alg: Hash::Sha1.into(),

@@ -22,18 +22,38 @@ impl TryFrom<UsageFlagsProto> for UsageFlags {
     type Error = ResponseStatus;
 
     fn try_from(usage_flags_proto: UsageFlagsProto) -> Result<Self> {
-        Ok(UsageFlags {
-            export: usage_flags_proto.export,
-            copy: usage_flags_proto.copy,
-            cache: usage_flags_proto.cache,
-            encrypt: usage_flags_proto.encrypt,
-            decrypt: usage_flags_proto.decrypt,
-            sign_message: usage_flags_proto.sign_message,
-            verify_message: usage_flags_proto.verify_message,
-            sign_hash: usage_flags_proto.sign_hash,
-            verify_hash: usage_flags_proto.verify_hash,
-            derive: usage_flags_proto.derive,
-        })
+        let mut usage_flags = UsageFlags::default();
+        if usage_flags_proto.export {
+            let _ = usage_flags.set_export();
+        }
+        if usage_flags_proto.copy {
+            let _ = usage_flags.set_copy();
+        }
+        if usage_flags_proto.cache {
+            let _ = usage_flags.set_cache();
+        }
+        if usage_flags_proto.encrypt {
+            let _ = usage_flags.set_encrypt();
+        }
+        if usage_flags_proto.decrypt {
+            let _ = usage_flags.set_decrypt();
+        }
+        if usage_flags_proto.sign_message {
+            let _ = usage_flags.set_sign_message();
+        }
+        if usage_flags_proto.verify_message {
+            let _ = usage_flags.set_verify_message();
+        }
+        if usage_flags_proto.sign_hash {
+            let _ = usage_flags.set_sign_hash();
+        }
+        if usage_flags_proto.verify_hash {
+            let _ = usage_flags.set_verify_hash();
+        }
+        if usage_flags_proto.derive {
+            let _ = usage_flags.set_derive();
+        }
+        Ok(usage_flags)
     }
 }
 
@@ -43,16 +63,16 @@ impl TryFrom<UsageFlags> for UsageFlagsProto {
 
     fn try_from(usage_flags: UsageFlags) -> Result<Self> {
         Ok(UsageFlagsProto {
-            export: usage_flags.export,
-            copy: usage_flags.copy,
-            cache: usage_flags.cache,
-            encrypt: usage_flags.encrypt,
-            decrypt: usage_flags.decrypt,
-            sign_message: usage_flags.sign_message,
-            verify_message: usage_flags.verify_message,
-            sign_hash: usage_flags.sign_hash,
-            verify_hash: usage_flags.verify_hash,
-            derive: usage_flags.derive,
+            export: usage_flags.export(),
+            copy: usage_flags.copy(),
+            cache: usage_flags.cache(),
+            encrypt: usage_flags.encrypt(),
+            decrypt: usage_flags.decrypt(),
+            sign_message: usage_flags.sign_message(),
+            verify_message: usage_flags.verify_message(),
+            sign_hash: usage_flags.sign_hash(),
+            verify_hash: usage_flags.verify_hash(),
+            derive: usage_flags.derive(),
         })
     }
 }
@@ -308,23 +328,25 @@ mod test {
 
     #[test]
     fn key_attrs_to_proto() {
+        let mut usage_flags = UsageFlags::default();
+        let _ = usage_flags
+            .set_decrypt()
+            .set_export()
+            .set_copy()
+            .set_cache()
+            .set_encrypt()
+            .set_decrypt()
+            .set_sign_message()
+            .set_verify_message()
+            .set_sign_hash()
+            .set_verify_hash()
+            .set_derive();
         let key_attrs = Attributes {
             lifetime: Lifetime::Persistent,
             key_type: psa_key_attributes::Type::RsaKeyPair,
             bits: 1024,
             policy: Policy {
-                usage_flags: UsageFlags {
-                    export: true,
-                    copy: true,
-                    cache: true,
-                    encrypt: true,
-                    decrypt: true,
-                    sign_message: true,
-                    verify_message: true,
-                    sign_hash: true,
-                    verify_hash: true,
-                    derive: true,
-                },
+                usage_flags,
                 permitted_algorithms: Algorithm::AsymmetricSignature(
                     AsymmetricSignature::RsaPkcs1v15Sign {
                         hash_alg: Hash::Sha1.into(),
@@ -406,23 +428,25 @@ mod test {
 
         let key_attrs: Attributes = key_attrs_proto.try_into().unwrap();
 
+        let mut usage_flags = UsageFlags::default();
+        let _ = usage_flags
+            .set_decrypt()
+            .set_export()
+            .set_copy()
+            .set_cache()
+            .set_encrypt()
+            .set_decrypt()
+            .set_sign_message()
+            .set_verify_message()
+            .set_sign_hash()
+            .set_verify_hash()
+            .set_derive();
         let key_attrs_expected = Attributes {
             lifetime: Lifetime::Persistent,
             key_type: psa_key_attributes::Type::RsaKeyPair,
             bits: 1024,
             policy: Policy {
-                usage_flags: UsageFlags {
-                    export: true,
-                    copy: true,
-                    cache: true,
-                    encrypt: true,
-                    decrypt: true,
-                    sign_message: true,
-                    verify_message: true,
-                    sign_hash: true,
-                    verify_hash: true,
-                    derive: true,
-                },
+                usage_flags,
                 permitted_algorithms: Algorithm::AsymmetricSignature(
                     AsymmetricSignature::RsaPkcs1v15Sign {
                         hash_alg: Hash::Sha1.into(),

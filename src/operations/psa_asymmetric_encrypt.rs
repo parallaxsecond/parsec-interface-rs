@@ -63,23 +63,14 @@ mod tests {
     use crate::operations::psa_key_attributes::{Lifetime, Policy, Type, UsageFlags};
 
     fn get_attrs() -> Attributes {
+        let mut usage_flags = UsageFlags::default();
+        let _ = usage_flags.set_encrypt();
         Attributes {
             lifetime: Lifetime::Persistent,
             key_type: Type::RsaKeyPair,
             bits: 256,
             policy: Policy {
-                usage_flags: UsageFlags {
-                    export: false,
-                    copy: false,
-                    cache: false,
-                    encrypt: true,
-                    decrypt: false,
-                    sign_message: false,
-                    verify_message: false,
-                    sign_hash: false,
-                    verify_hash: false,
-                    derive: false,
-                },
+                usage_flags,
                 permitted_algorithms: AsymmetricEncryption::RsaPkcs1v15Crypt.into(),
             },
         }
@@ -100,7 +91,7 @@ mod tests {
     #[test]
     fn cannot_encrypt() {
         let mut attrs = get_attrs();
-        attrs.policy.usage_flags.encrypt = false;
+        attrs.policy.usage_flags = UsageFlags::default();
         assert_eq!(
             (Operation {
                 key_name: String::from("some key"),

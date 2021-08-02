@@ -56,6 +56,8 @@ mod tests {
     use crate::requests::ResponseStatus;
 
     fn get_attrs() -> Attributes {
+        let mut usage_flags = UsageFlags::default();
+        let _ = usage_flags.set_derive();
         Attributes {
             lifetime: Lifetime::Persistent,
             key_type: Type::EccKeyPair {
@@ -63,18 +65,7 @@ mod tests {
             },
             bits: 256,
             policy: Policy {
-                usage_flags: UsageFlags {
-                    export: false,
-                    copy: false,
-                    cache: false,
-                    encrypt: false,
-                    decrypt: false,
-                    sign_message: false,
-                    verify_message: false,
-                    sign_hash: false,
-                    verify_hash: false,
-                    derive: true,
-                },
+                usage_flags,
                 permitted_algorithms: KeyAgreement::Raw(RawKeyAgreement::Ecdh).into(),
             },
         }
@@ -94,7 +85,7 @@ mod tests {
     #[test]
     fn cannot_derive() {
         let mut attrs = get_attrs();
-        attrs.policy.usage_flags.derive = false;
+        attrs.policy.usage_flags = UsageFlags::default();
         assert_eq!(
             (Operation {
                 private_key_name: String::from("some key"),

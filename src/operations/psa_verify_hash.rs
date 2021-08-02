@@ -55,6 +55,8 @@ mod tests {
     use crate::operations::psa_key_attributes::{EccFamily, Lifetime, Policy, Type, UsageFlags};
 
     fn get_attrs() -> Attributes {
+        let mut usage_flags = UsageFlags::default();
+        let _ = usage_flags.set_verify_hash();
         Attributes {
             lifetime: Lifetime::Persistent,
             key_type: Type::EccKeyPair {
@@ -62,18 +64,7 @@ mod tests {
             },
             bits: 256,
             policy: Policy {
-                usage_flags: UsageFlags {
-                    export: false,
-                    copy: false,
-                    cache: false,
-                    encrypt: false,
-                    decrypt: false,
-                    sign_message: false,
-                    verify_message: false,
-                    sign_hash: false,
-                    verify_hash: true,
-                    derive: false,
-                },
+                usage_flags,
                 permitted_algorithms: Algorithm::AsymmetricSignature(AsymmetricSignature::Ecdsa {
                     hash_alg: Hash::Sha256.into(),
                 }),
@@ -98,7 +89,7 @@ mod tests {
     #[test]
     fn cannot_sign() {
         let mut attrs = get_attrs();
-        attrs.policy.usage_flags.verify_hash = false;
+        attrs.policy.usage_flags = UsageFlags::default();
         assert_eq!(
             (Operation {
                 key_name: String::from("some key"),

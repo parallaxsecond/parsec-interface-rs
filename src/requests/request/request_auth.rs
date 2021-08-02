@@ -35,7 +35,7 @@ impl RequestAuth {
 
     /// Write request authentication field to stream.
     pub(super) fn write_to_stream(&self, stream: &mut impl Write) -> Result<()> {
-        stream.write_all(&self.buffer.expose_secret())?;
+        stream.write_all(self.buffer.expose_secret())?;
         Ok(())
     }
 }
