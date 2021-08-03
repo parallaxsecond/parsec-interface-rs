@@ -128,23 +128,25 @@ mod test {
     }
 
     fn get_key_attrs() -> Attributes {
+        let mut usage_flags = UsageFlags::default();
+        let _ = usage_flags
+            .set_decrypt()
+            .set_export()
+            .set_copy()
+            .set_cache()
+            .set_encrypt()
+            .set_decrypt()
+            .set_sign_message()
+            .set_verify_message()
+            .set_sign_hash()
+            .set_verify_hash()
+            .set_derive();
         Attributes {
             lifetime: Lifetime::Persistent,
             key_type: psa_key_attributes::Type::RsaKeyPair,
             bits: 1024,
             policy: Policy {
-                usage_flags: UsageFlags {
-                    export: true,
-                    copy: true,
-                    cache: true,
-                    encrypt: true,
-                    decrypt: true,
-                    sign_message: true,
-                    verify_message: true,
-                    sign_hash: true,
-                    verify_hash: true,
-                    derive: true,
-                },
+                usage_flags,
                 permitted_algorithms: Algorithm::AsymmetricSignature(
                     AsymmetricSignature::RsaPkcs1v15Sign {
                         hash_alg: Hash::Sha1.into(),

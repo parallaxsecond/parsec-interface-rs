@@ -31,7 +31,7 @@ mod convert_psa_generate_random;
 mod convert_psa_raw_key_agreement;
 
 #[rustfmt::skip]
-#[allow(unused_qualifications, missing_copy_implementations, clippy::pedantic, clippy::module_inception, clippy::upper_case_acronyms)]
+#[allow(unused_qualifications, missing_copy_implementations, clippy::pedantic, clippy::module_inception, clippy::upper_case_acronyms, clippy::enum_variant_names)]
 mod generated_ops;
 
 use crate::operations::{Convert, NativeOperation, NativeResult};

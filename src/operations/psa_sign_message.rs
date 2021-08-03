@@ -51,6 +51,8 @@ mod tests {
     use crate::requests::ResponseStatus;
 
     fn get_attrs() -> Attributes {
+        let mut usage_flags = UsageFlags::default();
+        let _ = usage_flags.set_sign_hash();
         Attributes {
             lifetime: Lifetime::Persistent,
             key_type: Type::EccKeyPair {
@@ -58,18 +60,7 @@ mod tests {
             },
             bits: 256,
             policy: Policy {
-                usage_flags: UsageFlags {
-                    export: false,
-                    copy: false,
-                    cache: false,
-                    encrypt: false,
-                    decrypt: false,
-                    sign_message: true,
-                    verify_message: false,
-                    sign_hash: true,
-                    verify_hash: false,
-                    derive: false,
-                },
+                usage_flags,
                 permitted_algorithms: Algorithm::AsymmetricSignature(AsymmetricSignature::Ecdsa {
                     hash_alg: Hash::Sha256.into(),
                 }),
@@ -93,8 +84,7 @@ mod tests {
     #[test]
     fn cannot_sign() {
         let mut attrs = get_attrs();
-        attrs.policy.usage_flags.sign_hash = false;
-        attrs.policy.usage_flags.sign_message = false;
+        attrs.policy.usage_flags = UsageFlags::default();
         assert_eq!(
             (Operation {
                 key_name: String::from("some key"),
