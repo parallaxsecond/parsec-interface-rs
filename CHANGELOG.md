@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.25.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.25.0) (2021-08-03)
+
+[Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.24.0...0.25.0)
+
+**Implemented enhancements:**
+
+- Investigate pre-generating Rust protobuf code [\#98](https://github.com/parallaxsecond/parsec-interface-rs/issues/98)
+- Implement Deref on RequestBody and ResponseBody [\#61](https://github.com/parallaxsecond/parsec-interface-rs/issues/61)
+
+**Fixed bugs:**
+
+- Check that reserved fields are zero [\#109](https://github.com/parallaxsecond/parsec-interface-rs/pull/109) ([hug-dev](https://github.com/hug-dev))
+
+**Security fixes:**
+
+- Bump prost crate versions [\#112](https://github.com/parallaxsecond/parsec-interface-rs/pull/112) ([ionut-arm](https://github.com/ionut-arm))
+
+**Merged pull requests:**
+
+- Prepare for next release [\#118](https://github.com/parallaxsecond/parsec-interface-rs/pull/118) ([hug-dev](https://github.com/hug-dev))
+- Commit the generated Rust protobuf files in tree [\#117](https://github.com/parallaxsecond/parsec-interface-rs/pull/117) ([hug-dev](https://github.com/hug-dev))
+- Implement Deref\(Mut\) on bodies [\#116](https://github.com/parallaxsecond/parsec-interface-rs/pull/116) ([hug-dev](https://github.com/hug-dev))
+- Add a cargo audit config [\#114](https://github.com/parallaxsecond/parsec-interface-rs/pull/114) ([hug-dev](https://github.com/hug-dev))
+- Revert "Bump prost crate versions" [\#113](https://github.com/parallaxsecond/parsec-interface-rs/pull/113) ([ionut-arm](https://github.com/ionut-arm))
+- Update psa-crypto [\#110](https://github.com/parallaxsecond/parsec-interface-rs/pull/110) ([hug-dev](https://github.com/hug-dev))
+- Add more precision to error messages [\#108](https://github.com/parallaxsecond/parsec-interface-rs/pull/108) ([hug-dev](https://github.com/hug-dev))
+- Fix latest clippy lints [\#106](https://github.com/parallaxsecond/parsec-interface-rs/pull/106) ([hug-dev](https://github.com/hug-dev))
+- Add PsaSignMessage and PsaVerifyMessage operations [\#105](https://github.com/parallaxsecond/parsec-interface-rs/pull/105) ([akazimierskigl](https://github.com/akazimierskigl))
+- Add updated changelog [\#104](https://github.com/parallaxsecond/parsec-interface-rs/pull/104) ([hug-dev](https://github.com/hug-dev))
+
 ## [0.24.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.24.0) (2021-03-18)
 
 [Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.23.0...0.24.0)
