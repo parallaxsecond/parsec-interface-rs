@@ -133,6 +133,8 @@ pub enum Opcode {
     ListClients = 0x001B,
     /// DeleteClient operation (admin operation)
     DeleteClient = 0x001C,
+    /// CanDoCrypto operation
+    CanDoCrypto = 0x0020,
 }
 
 impl Opcode {
@@ -163,7 +165,8 @@ impl Opcode {
             | Opcode::PsaHashCompare
             | Opcode::PsaAeadEncrypt
             | Opcode::PsaAeadDecrypt
-            | Opcode::PsaRawKeyAgreement => false,
+            | Opcode::PsaRawKeyAgreement
+            | Opcode::CanDoCrypto => false,
         }
     }
 
@@ -193,7 +196,8 @@ impl Opcode {
             | Opcode::PsaHashCompare
             | Opcode::PsaAeadEncrypt
             | Opcode::PsaAeadDecrypt
-            | Opcode::PsaRawKeyAgreement => false,
+            | Opcode::PsaRawKeyAgreement
+            | Opcode::CanDoCrypto => false,
         }
     }
 

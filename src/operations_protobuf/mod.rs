@@ -29,6 +29,7 @@ mod convert_psa_aead_encrypt;
 mod convert_psa_aead_decrypt;
 mod convert_psa_generate_random;
 mod convert_psa_raw_key_agreement;
+mod convert_can_do_crypto;
 
 #[rustfmt::skip]
 #[allow(unused_qualifications, missing_copy_implementations, clippy::pedantic, clippy::module_inception, clippy::upper_case_acronyms, clippy::enum_variant_names)]
@@ -38,6 +39,7 @@ use crate::operations::{Convert, NativeOperation, NativeResult};
 use crate::requests::{
     request::RequestBody, response::ResponseBody, BodyType, Opcode, ResponseStatus, Result,
 };
+use generated_ops::can_do_crypto as can_do_crypto_proto;
 use generated_ops::delete_client as delete_client_proto;
 use generated_ops::list_authenticators as list_authenticators_proto;
 use generated_ops::list_clients as list_clients_proto;
@@ -195,6 +197,10 @@ impl Convert for ProtobufConverter {
                 body.bytes(),
                 psa_raw_key_agreement_proto::Operation
             ))),
+            Opcode::CanDoCrypto => Ok(NativeOperation::CanDoCrypto(wire_to_native!(
+                body.bytes(),
+                can_do_crypto_proto::Operation
+            ))),
         }
     }
 
@@ -273,6 +279,9 @@ impl Convert for ProtobufConverter {
             )),
             NativeOperation::PsaRawKeyAgreement(operation) => Ok(RequestBody::from_bytes(
                 native_to_wire!(operation, psa_raw_key_agreement_proto::Operation),
+            )),
+            NativeOperation::CanDoCrypto(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, can_do_crypto_proto::Operation),
             )),
         }
     }
@@ -373,6 +382,10 @@ impl Convert for ProtobufConverter {
                 body.bytes(),
                 psa_raw_key_agreement_proto::Result
             ))),
+            Opcode::CanDoCrypto => Ok(NativeResult::CanDoCrypto(wire_to_native!(
+                body.bytes(),
+                can_do_crypto_proto::Result
+            ))),
         }
     }
 
@@ -467,6 +480,10 @@ impl Convert for ProtobufConverter {
             NativeResult::PsaRawKeyAgreement(result) => Ok(ResponseBody::from_bytes(
                 native_to_wire!(result, psa_raw_key_agreement_proto::Result),
             )),
+            NativeResult::CanDoCrypto(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+                result,
+                can_do_crypto_proto::Result
+            ))),
         }
     }
 }
