@@ -33,6 +33,7 @@ pub mod delete_client;
 pub mod list_clients;
 pub mod psa_generate_random;
 pub mod psa_raw_key_agreement;
+pub mod can_do_crypto;
 
 pub use psa_crypto::types::algorithm as psa_algorithm;
 pub use psa_crypto::types::key as psa_key_attributes;
@@ -91,6 +92,8 @@ pub enum NativeOperation {
     PsaSignMessage(psa_sign_message::Operation),
     /// PsaVerifyMessage operation
     PsaVerifyMessage(psa_verify_message::Operation),
+    /// CanDoCrypto operation
+    CanDoCrypto(can_do_crypto::Operation),
 }
 
 impl NativeOperation {
@@ -121,6 +124,7 @@ impl NativeOperation {
             NativeOperation::PsaRawKeyAgreement(_) => Opcode::PsaRawKeyAgreement,
             NativeOperation::PsaSignMessage(_) => Opcode::PsaSignMessage,
             NativeOperation::PsaVerifyMessage(_) => Opcode::PsaVerifyMessage,
+            NativeOperation::CanDoCrypto(_) => Opcode::CanDoCrypto,
         }
     }
 }
@@ -177,6 +181,8 @@ pub enum NativeResult {
     PsaSignMessage(psa_sign_message::Result),
     /// PsaVerifyMessage result
     PsaVerifyMessage(psa_verify_message::Result),
+    /// CanDoCrypto result
+    CanDoCrypto(can_do_crypto::Result),
 }
 
 impl NativeResult {
@@ -207,6 +213,7 @@ impl NativeResult {
             NativeResult::PsaRawKeyAgreement(_) => Opcode::PsaRawKeyAgreement,
             NativeResult::PsaSignMessage(_) => Opcode::PsaSignMessage,
             NativeResult::PsaVerifyMessage(_) => Opcode::PsaVerifyMessage,
+            NativeResult::CanDoCrypto(_) => Opcode::CanDoCrypto,
         }
     }
 }
@@ -383,6 +390,12 @@ impl From<psa_verify_message::Operation> for NativeOperation {
     }
 }
 
+impl From<can_do_crypto::Operation> for NativeOperation {
+    fn from(op: can_do_crypto::Operation) -> Self {
+        NativeOperation::CanDoCrypto(op)
+    }
+}
+
 impl From<list_providers::Result> for NativeResult {
     fn from(op: list_providers::Result) -> Self {
         NativeResult::ListProviders(op)
@@ -524,5 +537,11 @@ impl From<psa_sign_message::Result> for NativeResult {
 impl From<psa_verify_message::Result> for NativeResult {
     fn from(op: psa_verify_message::Result) -> Self {
         NativeResult::PsaVerifyMessage(op)
+    }
+}
+
+impl From<can_do_crypto::Result> for NativeResult {
+    fn from(op: can_do_crypto::Result) -> Self {
+        NativeResult::CanDoCrypto(op)
     }
 }
