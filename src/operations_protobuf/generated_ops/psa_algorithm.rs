@@ -1,8 +1,9 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Algorithm {
     #[prost(oneof="algorithm::Variant", tags="1, 2, 3, 4, 5, 6, 7, 8, 9")]
-    pub variant: ::std::option::Option<algorithm::Variant>,
+    pub variant: ::core::option::Option<algorithm::Variant>,
 }
+/// Nested message and enum types in `Algorithm`.
 pub mod algorithm {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct None {
@@ -10,14 +11,16 @@ pub mod algorithm {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Mac {
         #[prost(oneof="mac::Variant", tags="1, 2")]
-        pub variant: ::std::option::Option<mac::Variant>,
+        pub variant: ::core::option::Option<mac::Variant>,
     }
+    /// Nested message and enum types in `Mac`.
     pub mod mac {
         #[derive(Clone, PartialEq, ::prost::Message)]
         pub struct FullLength {
             #[prost(oneof="full_length::Variant", tags="1, 2, 3")]
-            pub variant: ::std::option::Option<full_length::Variant>,
+            pub variant: ::core::option::Option<full_length::Variant>,
         }
+        /// Nested message and enum types in `FullLength`.
         pub mod full_length {
             #[derive(Clone, PartialEq, ::prost::Message)]
             pub struct Hmac {
@@ -43,7 +46,7 @@ pub mod algorithm {
         #[derive(Clone, PartialEq, ::prost::Message)]
         pub struct Truncated {
             #[prost(message, optional, tag="1")]
-            pub mac_alg: ::std::option::Option<FullLength>,
+            pub mac_alg: ::core::option::Option<FullLength>,
             #[prost(uint32, tag="2")]
             pub mac_length: u32,
         }
@@ -58,8 +61,9 @@ pub mod algorithm {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Aead {
         #[prost(oneof="aead::Variant", tags="1, 2")]
-        pub variant: ::std::option::Option<aead::Variant>,
+        pub variant: ::core::option::Option<aead::Variant>,
     }
+    /// Nested message and enum types in `Aead`.
     pub mod aead {
         #[derive(Clone, PartialEq, ::prost::Message)]
         pub struct AeadWithShortenedTag {
@@ -88,14 +92,16 @@ pub mod algorithm {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct AsymmetricSignature {
         #[prost(oneof="asymmetric_signature::Variant", tags="1, 2, 3, 4, 5, 6")]
-        pub variant: ::std::option::Option<asymmetric_signature::Variant>,
+        pub variant: ::core::option::Option<asymmetric_signature::Variant>,
     }
+    /// Nested message and enum types in `AsymmetricSignature`.
     pub mod asymmetric_signature {
         #[derive(Clone, PartialEq, ::prost::Message)]
         pub struct SignHash {
             #[prost(oneof="sign_hash::Variant", tags="1, 2")]
-            pub variant: ::std::option::Option<sign_hash::Variant>,
+            pub variant: ::core::option::Option<sign_hash::Variant>,
         }
+        /// Nested message and enum types in `SignHash`.
         pub mod sign_hash {
             #[derive(Clone, PartialEq, ::prost::Message)]
             pub struct Any {
@@ -111,7 +117,7 @@ pub mod algorithm {
         #[derive(Clone, PartialEq, ::prost::Message)]
         pub struct RsaPkcs1v15Sign {
             #[prost(message, optional, tag="1")]
-            pub hash_alg: ::std::option::Option<SignHash>,
+            pub hash_alg: ::core::option::Option<SignHash>,
         }
         #[derive(Clone, PartialEq, ::prost::Message)]
         pub struct RsaPkcs1v15SignRaw {
@@ -119,12 +125,12 @@ pub mod algorithm {
         #[derive(Clone, PartialEq, ::prost::Message)]
         pub struct RsaPss {
             #[prost(message, optional, tag="1")]
-            pub hash_alg: ::std::option::Option<SignHash>,
+            pub hash_alg: ::core::option::Option<SignHash>,
         }
         #[derive(Clone, PartialEq, ::prost::Message)]
         pub struct Ecdsa {
             #[prost(message, optional, tag="1")]
-            pub hash_alg: ::std::option::Option<SignHash>,
+            pub hash_alg: ::core::option::Option<SignHash>,
         }
         #[derive(Clone, PartialEq, ::prost::Message)]
         pub struct EcdsaAny {
@@ -132,7 +138,7 @@ pub mod algorithm {
         #[derive(Clone, PartialEq, ::prost::Message)]
         pub struct DeterministicEcdsa {
             #[prost(message, optional, tag="1")]
-            pub hash_alg: ::std::option::Option<SignHash>,
+            pub hash_alg: ::core::option::Option<SignHash>,
         }
         #[derive(Clone, PartialEq, ::prost::Oneof)]
         pub enum Variant {
@@ -153,8 +159,9 @@ pub mod algorithm {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct AsymmetricEncryption {
         #[prost(oneof="asymmetric_encryption::Variant", tags="1, 2")]
-        pub variant: ::std::option::Option<asymmetric_encryption::Variant>,
+        pub variant: ::core::option::Option<asymmetric_encryption::Variant>,
     }
+    /// Nested message and enum types in `AsymmetricEncryption`.
     pub mod asymmetric_encryption {
         #[derive(Clone, PartialEq, ::prost::Message)]
         pub struct RsaPkcs1v15Crypt {
@@ -175,15 +182,16 @@ pub mod algorithm {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct KeyAgreement {
         #[prost(oneof="key_agreement::Variant", tags="1, 2")]
-        pub variant: ::std::option::Option<key_agreement::Variant>,
+        pub variant: ::core::option::Option<key_agreement::Variant>,
     }
+    /// Nested message and enum types in `KeyAgreement`.
     pub mod key_agreement {
         #[derive(Clone, PartialEq, ::prost::Message)]
         pub struct WithKeyDerivation {
             #[prost(enumeration="Raw", tag="1")]
             pub ka_alg: i32,
             #[prost(message, optional, tag="2")]
-            pub kdf_alg: ::std::option::Option<super::KeyDerivation>,
+            pub kdf_alg: ::core::option::Option<super::KeyDerivation>,
         }
         #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
         #[repr(i32)]
@@ -204,8 +212,9 @@ pub mod algorithm {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct KeyDerivation {
         #[prost(oneof="key_derivation::Variant", tags="1, 2, 3")]
-        pub variant: ::std::option::Option<key_derivation::Variant>,
+        pub variant: ::core::option::Option<key_derivation::Variant>,
     }
+    /// Nested message and enum types in `KeyDerivation`.
     pub mod key_derivation {
         #[derive(Clone, PartialEq, ::prost::Message)]
         pub struct Hkdf {
