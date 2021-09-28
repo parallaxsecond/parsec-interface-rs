@@ -1,17 +1,18 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct KeyAttributes {
     #[prost(message, optional, tag="1")]
-    pub key_type: ::std::option::Option<KeyType>,
+    pub key_type: ::core::option::Option<KeyType>,
     #[prost(uint32, tag="2")]
     pub key_bits: u32,
     #[prost(message, optional, tag="3")]
-    pub key_policy: ::std::option::Option<KeyPolicy>,
+    pub key_policy: ::core::option::Option<KeyPolicy>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct KeyType {
     #[prost(oneof="key_type::Variant", tags="1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14")]
-    pub variant: ::std::option::Option<key_type::Variant>,
+    pub variant: ::core::option::Option<key_type::Variant>,
 }
+/// Nested message and enum types in `KeyType`.
 pub mod key_type {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct RawData {
@@ -125,9 +126,9 @@ pub mod key_type {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct KeyPolicy {
     #[prost(message, optional, tag="1")]
-    pub key_usage_flags: ::std::option::Option<UsageFlags>,
+    pub key_usage_flags: ::core::option::Option<UsageFlags>,
     #[prost(message, optional, tag="2")]
-    pub key_algorithm: ::std::option::Option<super::psa_algorithm::Algorithm>,
+    pub key_algorithm: ::core::option::Option<super::psa_algorithm::Algorithm>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct UsageFlags {

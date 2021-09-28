@@ -6,5 +6,5 @@ pub struct Operation {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Result {
     #[prost(uint32, repeated, tag="1")]
-    pub opcodes: ::std::vec::Vec<u32>,
+    pub opcodes: ::prost::alloc::vec::Vec<u32>,
 }
