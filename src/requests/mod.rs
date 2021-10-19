@@ -123,6 +123,10 @@ pub enum Opcode {
     PsaAeadDecrypt = 0x0012,
     /// PsaRawKeyAgreement operation
     PsaRawKeyAgreement = 0x0013,
+    /// PsaCipherEncrypt
+    PsaCipherEncrypt = 0x0014,
+    /// PsaCipherDecrypt
+    PsaCipherDecrypt = 0x0015,
     /// PsaSignMessage operation
     PsaSignMessage = 0x0018,
     /// PsaVerifyMessage operation
@@ -163,6 +167,8 @@ impl Opcode {
             | Opcode::PsaHashCompare
             | Opcode::PsaAeadEncrypt
             | Opcode::PsaAeadDecrypt
+            | Opcode::PsaCipherEncrypt
+            | Opcode::PsaCipherDecrypt
             | Opcode::PsaRawKeyAgreement => false,
         }
     }
@@ -193,6 +199,8 @@ impl Opcode {
             | Opcode::PsaHashCompare
             | Opcode::PsaAeadEncrypt
             | Opcode::PsaAeadDecrypt
+            | Opcode::PsaCipherEncrypt
+            | Opcode::PsaCipherDecrypt
             | Opcode::PsaRawKeyAgreement => false,
         }
     }

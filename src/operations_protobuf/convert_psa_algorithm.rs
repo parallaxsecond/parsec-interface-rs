@@ -241,8 +241,14 @@ impl TryFrom<CipherProto> for Cipher {
     }
 }
 
+// Cipher algorithms: from protobuf to native
+pub fn i32_to_cipher(cipher_val: i32) -> Result<Cipher> {
+    let cipher_proto_alg: CipherProto = cipher_val.try_into()?;
+    cipher_proto_alg.try_into()
+}
+
 // Cipher algorithms: from native to protobuf
-fn cipher_to_i32(cipher: Cipher) -> i32 {
+pub fn cipher_to_i32(cipher: Cipher) -> i32 {
     match cipher {
         Cipher::StreamCipher => CipherProto::StreamCipher.into(),
         Cipher::Ctr => CipherProto::Ctr.into(),

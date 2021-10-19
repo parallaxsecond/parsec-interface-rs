@@ -9,6 +9,8 @@ pub mod psa_asymmetric_encrypt;
 pub mod psa_asymmetric_decrypt;
 pub mod psa_aead_encrypt;
 pub mod psa_aead_decrypt;
+pub mod psa_cipher_encrypt;
+pub mod psa_cipher_decrypt;
 pub mod psa_generate_key;
 pub mod psa_destroy_key;
 pub mod psa_export_public_key;
@@ -255,6 +257,26 @@ impl ClearProtoMessage for psa_aead_decrypt::Result {
     fn clear_message(&mut self) {
         self.plaintext.zeroize()
     }
+}
+
+impl ClearProtoMessage for psa_cipher_encrypt::Operation {
+    fn clear_message(&mut self) {
+        self.plaintext.zeroize();
+    }
+}
+
+impl ClearProtoMessage for psa_cipher_decrypt::Operation {
+    fn clear_message(&mut self) {
+        self.ciphertext.zeroize();
+    }
+}
+
+impl ClearProtoMessage for psa_cipher_encrypt::Result {
+    fn clear_message(&mut self) { self.ciphertext.zeroize(); }
+}
+
+impl ClearProtoMessage for psa_cipher_decrypt::Result {
+    fn clear_message(&mut self) { self.plaintext.zeroize(); }
 }
 
 impl ClearProtoMessage for psa_generate_random::Result {
