@@ -1,11 +1,11 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ProviderInfo {
     #[prost(string, tag="1")]
-    pub uuid: std::string::String,
+    pub uuid: ::prost::alloc::string::String,
     #[prost(string, tag="2")]
-    pub description: std::string::String,
+    pub description: ::prost::alloc::string::String,
     #[prost(string, tag="3")]
-    pub vendor: std::string::String,
+    pub vendor: ::prost::alloc::string::String,
     #[prost(uint32, tag="4")]
     pub version_maj: u32,
     #[prost(uint32, tag="5")]
@@ -21,5 +21,5 @@ pub struct Operation {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Result {
     #[prost(message, repeated, tag="1")]
-    pub providers: ::std::vec::Vec<ProviderInfo>,
+    pub providers: ::prost::alloc::vec::Vec<ProviderInfo>,
 }
