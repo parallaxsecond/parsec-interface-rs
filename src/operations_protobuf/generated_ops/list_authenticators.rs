@@ -1,7 +1,7 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AuthenticatorInfo {
     #[prost(string, tag="1")]
-    pub description: std::string::String,
+    pub description: ::prost::alloc::string::String,
     #[prost(uint32, tag="2")]
     pub version_maj: u32,
     #[prost(uint32, tag="3")]
@@ -17,5 +17,5 @@ pub struct Operation {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Result {
     #[prost(message, repeated, tag="1")]
-    pub authenticators: ::std::vec::Vec<AuthenticatorInfo>,
+    pub authenticators: ::prost::alloc::vec::Vec<AuthenticatorInfo>,
 }

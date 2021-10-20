@@ -2,11 +2,11 @@
 pub struct Operation {
     #[prost(enumeration="super::psa_algorithm::algorithm::Hash", tag="1")]
     pub alg: i32,
-    #[prost(bytes, tag="2")]
-    pub input: std::vec::Vec<u8>,
+    #[prost(bytes="vec", tag="2")]
+    pub input: ::prost::alloc::vec::Vec<u8>,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Result {
-    #[prost(bytes, tag="1")]
-    pub hash: std::vec::Vec<u8>,
+    #[prost(bytes="vec", tag="1")]
+    pub hash: ::prost::alloc::vec::Vec<u8>,
 }
