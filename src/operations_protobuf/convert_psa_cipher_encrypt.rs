@@ -1,7 +1,9 @@
 // Copyright 2021 Contributors to the Parsec project.
 // SPDX-License-Identifier: Apache-2.0
 use super::convert_psa_algorithm;
-use super::generated_ops::psa_cipher_encrypt::{Operation as OperationProto, Result as ResultProto};
+use super::generated_ops::psa_cipher_encrypt::{
+    Operation as OperationProto, Result as ResultProto,
+};
 use crate::operations::psa_cipher_encrypt::{Operation, Result};
 use crate::requests::ResponseStatus;
 use std::convert::TryFrom;

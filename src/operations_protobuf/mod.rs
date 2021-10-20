@@ -479,14 +479,12 @@ impl Convert for ProtobufConverter {
                 result,
                 psa_aead_decrypt_proto::Result
             ))),
-            NativeResult::PsaCipherEncrypt(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
-                result,
-                psa_cipher_encrypt_proto::Result
-            ))),
-            NativeResult::PsaCipherDecrypt(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
-                result,
-                psa_cipher_decrypt_proto::Result
-            ))),
+            NativeResult::PsaCipherEncrypt(result) => Ok(ResponseBody::from_bytes(
+                native_to_wire!(result, psa_cipher_encrypt_proto::Result),
+            )),
+            NativeResult::PsaCipherDecrypt(result) => Ok(ResponseBody::from_bytes(
+                native_to_wire!(result, psa_cipher_decrypt_proto::Result),
+            )),
             NativeResult::PsaGenerateRandom(result) => Ok(ResponseBody::from_bytes(
                 native_to_wire!(result, psa_generate_random_proto::Result),
             )),

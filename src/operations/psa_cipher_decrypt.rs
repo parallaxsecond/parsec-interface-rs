@@ -34,8 +34,7 @@ impl Operation {
         key_attributes.can_decrypt_message()?;
         key_attributes.permits_alg(self.alg.into())?;
         key_attributes.compatible_with_alg(self.alg.into())?;
-        if self.ciphertext.is_empty()
-        {
+        if self.ciphertext.is_empty() {
             return Err(ResponseStatus::PsaErrorInvalidArgument);
         }
         Ok(())
