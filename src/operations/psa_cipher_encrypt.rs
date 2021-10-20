@@ -61,11 +61,11 @@ mod tests {
         let _ = usage_flags.set_encrypt();
         Attributes {
             lifetime: Lifetime::Persistent,
-            key_type: Type::RsaKeyPair,
+            key_type: Type::Arc4,
             bits: 256,
             policy: Policy {
                 usage_flags,
-                permitted_algorithms: Cipher::CbcNoPadding.into(),
+                permitted_algorithms: Cipher::StreamCipher.into(),
             },
         }
     }
@@ -74,7 +74,7 @@ mod tests {
     fn validate_success() {
         (Operation {
             key_name: String::from("some key"),
-            alg: Cipher::CbcNoPadding,
+            alg: Cipher::StreamCipher,
             plaintext: vec![0xff, 32].into(),
         })
         .validate(get_attrs())
@@ -88,7 +88,7 @@ mod tests {
         assert_eq!(
             (Operation {
                 key_name: String::from("some key"),
-                alg: Cipher::CbcNoPadding,
+                alg: Cipher::StreamCipher,
                 plaintext: vec![0xff, 32].into(),
             })
             .validate(attrs)
@@ -116,7 +116,7 @@ mod tests {
         assert_eq!(
             (Operation {
                 key_name: String::from("some key"),
-                alg: Cipher::CbcNoPadding,
+                alg: Cipher::StreamCipher,
                 plaintext: vec![].into(),
             })
             .validate(get_attrs())

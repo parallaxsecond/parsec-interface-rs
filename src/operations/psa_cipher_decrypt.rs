@@ -52,3 +52,79 @@ pub struct Result {
     #[derivative(Debug = "ignore")]
     pub plaintext: zeroize::Zeroizing<Vec<u8>>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::operations::psa_algorithm::Cipher;
+    use crate::operations::psa_key_attributes::{Lifetime, Policy, Type, UsageFlags};
+
+    fn get_attrs() -> Attributes {
+        let mut usage_flags = UsageFlags::default();
+        let _ = usage_flags.set_decrypt();
+        Attributes {
+            lifetime: Lifetime::Persistent,
+            key_type: Type::Arc4,
+            bits: 256,
+            policy: Policy {
+                usage_flags,
+                permitted_algorithms: Cipher::StreamCipher.into(),
+            },
+        }
+    }
+
+    #[test]
+    fn validate_success() {
+        (Operation {
+            key_name: String::from("some key"),
+            alg: Cipher::StreamCipher,
+            ciphertext: vec![0xff, 32].into(),
+        })
+        .validate(get_attrs())
+        .unwrap();
+    }
+
+    #[test]
+    fn cannot_decrypt() {
+        let mut attrs = get_attrs();
+        attrs.policy.usage_flags = UsageFlags::default();
+        assert_eq!(
+            (Operation {
+                key_name: String::from("some key"),
+                alg: Cipher::StreamCipher,
+                ciphertext: vec![0xff, 32].into(),
+            })
+            .validate(attrs)
+            .unwrap_err(),
+            ResponseStatus::PsaErrorNotPermitted
+        );
+    }
+
+    #[test]
+    fn wrong_algorithm() {
+        assert_eq!(
+            (Operation {
+                key_name: String::from("some key"),
+                alg: Cipher::Cfb,
+                ciphertext: vec![0xff, 32].into(),
+            })
+            .validate(get_attrs())
+            .unwrap_err(),
+            ResponseStatus::PsaErrorNotPermitted
+        );
+    }
+
+    #[test]
+    fn invalid_ciphertext() {
+        assert_eq!(
+            (Operation {
+                key_name: String::from("some key"),
+                alg: Cipher::StreamCipher,
+                ciphertext: vec![].into(),
+            })
+            .validate(get_attrs())
+            .unwrap_err(),
+            ResponseStatus::PsaErrorInvalidArgument
+        );
+    }
+}
