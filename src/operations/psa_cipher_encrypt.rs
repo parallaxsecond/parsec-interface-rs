@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //! # PsaCipherEncrypt operation
 //!
-//! Encrypt a short message with a random initialisation vector.
+//! Encrypt a short message with a symmetric cipher
 
 use super::psa_key_attributes::Attributes;
 use crate::operations::psa_algorithm::Cipher;

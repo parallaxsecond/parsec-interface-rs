@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //! # PsaCipherDecrypt operation
 //!
-//! Decrypt a short message with a public key.
+//! Decrypt a short message with a symmetric cipher
 
 use super::psa_key_attributes::Attributes;
 use crate::operations::psa_algorithm::Cipher;
@@ -13,7 +13,7 @@ use derivative::Derivative;
 #[derive(Derivative)]
 #[derivative(Debug)]
 pub struct Operation {
-    /// Defines which key should be used for the signing operation.
+    /// Defines which key should be used for the decryption operation.
     pub key_name: String,
     /// An cipher encryption algorithm to be used for decryption, that is compatible with the type of key.
     pub alg: Cipher,
