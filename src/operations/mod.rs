@@ -35,6 +35,8 @@ pub mod delete_client;
 pub mod list_clients;
 pub mod psa_generate_random;
 pub mod psa_raw_key_agreement;
+pub mod attest_key;
+pub mod prepare_key_attestation;
 
 pub use psa_crypto::types::algorithm as psa_algorithm;
 pub use psa_crypto::types::key as psa_key_attributes;
@@ -97,6 +99,10 @@ pub enum NativeOperation {
     PsaSignMessage(psa_sign_message::Operation),
     /// PsaVerifyMessage operation
     PsaVerifyMessage(psa_verify_message::Operation),
+    /// AttestKey operation
+    AttestKey(attest_key::Operation),
+    /// PrepareKeyAttestation operation
+    PrepareKeyAttestation(prepare_key_attestation::Operation),
 }
 
 impl NativeOperation {
@@ -129,6 +135,8 @@ impl NativeOperation {
             NativeOperation::PsaRawKeyAgreement(_) => Opcode::PsaRawKeyAgreement,
             NativeOperation::PsaSignMessage(_) => Opcode::PsaSignMessage,
             NativeOperation::PsaVerifyMessage(_) => Opcode::PsaVerifyMessage,
+            NativeOperation::AttestKey(_) => Opcode::AttestKey,
+            NativeOperation::PrepareKeyAttestation(_) => Opcode::PrepareKeyAttestation,
         }
     }
 }
@@ -189,6 +197,10 @@ pub enum NativeResult {
     PsaSignMessage(psa_sign_message::Result),
     /// PsaVerifyMessage result
     PsaVerifyMessage(psa_verify_message::Result),
+    /// AttestKey result
+    AttestKey(attest_key::Result),
+    /// AttestKey result
+    PrepareKeyAttestation(prepare_key_attestation::Result),
 }
 
 impl NativeResult {
@@ -221,6 +233,8 @@ impl NativeResult {
             NativeResult::PsaRawKeyAgreement(_) => Opcode::PsaRawKeyAgreement,
             NativeResult::PsaSignMessage(_) => Opcode::PsaSignMessage,
             NativeResult::PsaVerifyMessage(_) => Opcode::PsaVerifyMessage,
+            NativeResult::AttestKey(_) => Opcode::AttestKey,
+            NativeResult::PrepareKeyAttestation(_) => Opcode::PrepareKeyAttestation,
         }
     }
 }
@@ -393,19 +407,33 @@ impl From<psa_hash_compare::Operation> for NativeOperation {
         NativeOperation::PsaHashCompare(op)
     }
 }
+
 impl From<psa_raw_key_agreement::Operation> for NativeOperation {
     fn from(op: psa_raw_key_agreement::Operation) -> Self {
         NativeOperation::PsaRawKeyAgreement(op)
     }
 }
+
 impl From<psa_sign_message::Operation> for NativeOperation {
     fn from(op: psa_sign_message::Operation) -> Self {
         NativeOperation::PsaSignMessage(op)
     }
 }
+
 impl From<psa_verify_message::Operation> for NativeOperation {
     fn from(op: psa_verify_message::Operation) -> Self {
         NativeOperation::PsaVerifyMessage(op)
+    }
+}
+
+impl From<attest_key::Operation> for NativeOperation {
+    fn from(op: attest_key::Operation) -> Self {
+        NativeOperation::AttestKey(op)
+    }
+}
+impl From<prepare_key_attestation::Operation> for NativeOperation {
+    fn from(op: prepare_key_attestation::Operation) -> Self {
+        NativeOperation::PrepareKeyAttestation(op)
     }
 }
 
@@ -562,5 +590,17 @@ impl From<psa_sign_message::Result> for NativeResult {
 impl From<psa_verify_message::Result> for NativeResult {
     fn from(op: psa_verify_message::Result) -> Self {
         NativeResult::PsaVerifyMessage(op)
+    }
+}
+
+impl From<attest_key::Result> for NativeResult {
+    fn from(op: attest_key::Result) -> Self {
+        NativeResult::AttestKey(op)
+    }
+}
+
+impl From<prepare_key_attestation::Result> for NativeResult {
+    fn from(op: prepare_key_attestation::Result) -> Self {
+        NativeResult::PrepareKeyAttestation(op)
     }
 }

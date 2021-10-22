@@ -137,6 +137,10 @@ pub enum Opcode {
     ListClients = 0x001B,
     /// DeleteClient operation (admin operation)
     DeleteClient = 0x001C,
+    /// AttestKey operation
+    AttestKey = 0x001E,
+    /// PrepareKeyAttestation operation
+    PrepareKeyAttestation = 0x001F,
 }
 
 impl Opcode {
@@ -169,7 +173,9 @@ impl Opcode {
             | Opcode::PsaAeadDecrypt
             | Opcode::PsaCipherEncrypt
             | Opcode::PsaCipherDecrypt
-            | Opcode::PsaRawKeyAgreement => false,
+            | Opcode::PsaRawKeyAgreement
+            | Opcode::AttestKey
+            | Opcode::PrepareKeyAttestation => false,
         }
     }
 
@@ -201,7 +207,9 @@ impl Opcode {
             | Opcode::PsaAeadDecrypt
             | Opcode::PsaCipherEncrypt
             | Opcode::PsaCipherDecrypt
-            | Opcode::PsaRawKeyAgreement => false,
+            | Opcode::PsaRawKeyAgreement
+            | Opcode::AttestKey
+            | Opcode::PrepareKeyAttestation => false,
         }
     }
 
