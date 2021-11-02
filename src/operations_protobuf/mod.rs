@@ -27,6 +27,8 @@ mod convert_psa_asymmetric_encrypt;
 mod convert_psa_asymmetric_decrypt;
 mod convert_psa_aead_encrypt;
 mod convert_psa_aead_decrypt;
+mod convert_psa_cipher_encrypt;
+mod convert_psa_cipher_decrypt;
 mod convert_psa_generate_random;
 mod convert_psa_raw_key_agreement;
 
@@ -49,6 +51,8 @@ use generated_ops::psa_aead_decrypt as psa_aead_decrypt_proto;
 use generated_ops::psa_aead_encrypt as psa_aead_encrypt_proto;
 use generated_ops::psa_asymmetric_decrypt as psa_asymmetric_decrypt_proto;
 use generated_ops::psa_asymmetric_encrypt as psa_asymmetric_encrypt_proto;
+use generated_ops::psa_cipher_decrypt as psa_cipher_decrypt_proto;
+use generated_ops::psa_cipher_encrypt as psa_cipher_encrypt_proto;
 use generated_ops::psa_destroy_key as psa_destroy_key_proto;
 use generated_ops::psa_export_key as psa_export_key_proto;
 use generated_ops::psa_export_public_key as psa_export_public_key_proto;
@@ -179,6 +183,14 @@ impl Convert for ProtobufConverter {
                 body.bytes(),
                 psa_aead_decrypt_proto::Operation
             ))),
+            Opcode::PsaCipherEncrypt => Ok(NativeOperation::PsaCipherEncrypt(wire_to_native!(
+                body.bytes(),
+                psa_cipher_encrypt_proto::Operation
+            ))),
+            Opcode::PsaCipherDecrypt => Ok(NativeOperation::PsaCipherDecrypt(wire_to_native!(
+                body.bytes(),
+                psa_cipher_decrypt_proto::Operation
+            ))),
             Opcode::PsaGenerateRandom => Ok(NativeOperation::PsaGenerateRandom(wire_to_native!(
                 body.bytes(),
                 psa_generate_random_proto::Operation
@@ -261,6 +273,12 @@ impl Convert for ProtobufConverter {
             )),
             NativeOperation::PsaAeadDecrypt(operation) => Ok(RequestBody::from_bytes(
                 native_to_wire!(operation, psa_aead_decrypt_proto::Operation),
+            )),
+            NativeOperation::PsaCipherEncrypt(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_cipher_encrypt_proto::Operation),
+            )),
+            NativeOperation::PsaCipherDecrypt(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, psa_cipher_decrypt_proto::Operation),
             )),
             NativeOperation::PsaGenerateRandom(operation) => Ok(RequestBody::from_bytes(
                 native_to_wire!(operation, psa_generate_random_proto::Operation),
@@ -356,6 +374,14 @@ impl Convert for ProtobufConverter {
             Opcode::PsaAeadDecrypt => Ok(NativeResult::PsaAeadDecrypt(wire_to_native!(
                 body.bytes(),
                 psa_aead_decrypt_proto::Result
+            ))),
+            Opcode::PsaCipherEncrypt => Ok(NativeResult::PsaCipherEncrypt(wire_to_native!(
+                body.bytes(),
+                psa_cipher_encrypt_proto::Result
+            ))),
+            Opcode::PsaCipherDecrypt => Ok(NativeResult::PsaCipherDecrypt(wire_to_native!(
+                body.bytes(),
+                psa_cipher_decrypt_proto::Result
             ))),
             Opcode::PsaGenerateRandom => Ok(NativeResult::PsaGenerateRandom(wire_to_native!(
                 body.bytes(),
@@ -453,6 +479,12 @@ impl Convert for ProtobufConverter {
                 result,
                 psa_aead_decrypt_proto::Result
             ))),
+            NativeResult::PsaCipherEncrypt(result) => Ok(ResponseBody::from_bytes(
+                native_to_wire!(result, psa_cipher_encrypt_proto::Result),
+            )),
+            NativeResult::PsaCipherDecrypt(result) => Ok(ResponseBody::from_bytes(
+                native_to_wire!(result, psa_cipher_decrypt_proto::Result),
+            )),
             NativeResult::PsaGenerateRandom(result) => Ok(ResponseBody::from_bytes(
                 native_to_wire!(result, psa_generate_random_proto::Result),
             )),

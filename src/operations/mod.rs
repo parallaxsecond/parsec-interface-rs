@@ -23,6 +23,8 @@ pub mod psa_asymmetric_encrypt;
 pub mod psa_asymmetric_decrypt;
 pub mod psa_aead_encrypt;
 pub mod psa_aead_decrypt;
+pub mod psa_cipher_encrypt;
+pub mod psa_cipher_decrypt;
 pub mod psa_sign_message;
 pub mod psa_verify_message;
 pub mod list_opcodes;
@@ -83,6 +85,10 @@ pub enum NativeOperation {
     PsaAeadEncrypt(psa_aead_encrypt::Operation),
     /// PsaAeadDecrypt operation
     PsaAeadDecrypt(psa_aead_decrypt::Operation),
+    /// PsaCipherEncrypt operation
+    PsaCipherEncrypt(psa_cipher_encrypt::Operation),
+    /// PsaCipherDecrypt operation
+    PsaCipherDecrypt(psa_cipher_decrypt::Operation),
     /// PsaGenerateRandom operation
     PsaGenerateRandom(psa_generate_random::Operation),
     /// PsaRawKeyAgreement operation
@@ -117,6 +123,8 @@ impl NativeOperation {
             NativeOperation::PsaAsymmetricDecrypt(_) => Opcode::PsaAsymmetricDecrypt,
             NativeOperation::PsaAeadEncrypt(_) => Opcode::PsaAeadEncrypt,
             NativeOperation::PsaAeadDecrypt(_) => Opcode::PsaAeadDecrypt,
+            NativeOperation::PsaCipherEncrypt(_) => Opcode::PsaCipherEncrypt,
+            NativeOperation::PsaCipherDecrypt(_) => Opcode::PsaCipherDecrypt,
             NativeOperation::PsaGenerateRandom(_) => Opcode::PsaGenerateRandom,
             NativeOperation::PsaRawKeyAgreement(_) => Opcode::PsaRawKeyAgreement,
             NativeOperation::PsaSignMessage(_) => Opcode::PsaSignMessage,
@@ -169,6 +177,10 @@ pub enum NativeResult {
     PsaAeadEncrypt(psa_aead_encrypt::Result),
     /// PsaAeadDecrypt result
     PsaAeadDecrypt(psa_aead_decrypt::Result),
+    /// PsaCipherEncrypt result
+    PsaCipherEncrypt(psa_cipher_encrypt::Result),
+    /// PsaCipherDecrypt result
+    PsaCipherDecrypt(psa_cipher_decrypt::Result),
     /// PsaGenerateRandom result
     PsaGenerateRandom(psa_generate_random::Result),
     /// PsaRawKeyAgreement result
@@ -203,6 +215,8 @@ impl NativeResult {
             NativeResult::PsaAsymmetricDecrypt(_) => Opcode::PsaAsymmetricDecrypt,
             NativeResult::PsaAeadEncrypt(_) => Opcode::PsaAeadEncrypt,
             NativeResult::PsaAeadDecrypt(_) => Opcode::PsaAeadDecrypt,
+            NativeResult::PsaCipherEncrypt(_) => Opcode::PsaCipherEncrypt,
+            NativeResult::PsaCipherDecrypt(_) => Opcode::PsaCipherDecrypt,
             NativeResult::PsaGenerateRandom(_) => Opcode::PsaGenerateRandom,
             NativeResult::PsaRawKeyAgreement(_) => Opcode::PsaRawKeyAgreement,
             NativeResult::PsaSignMessage(_) => Opcode::PsaSignMessage,
@@ -347,6 +361,18 @@ impl From<psa_aead_encrypt::Operation> for NativeOperation {
 impl From<psa_aead_decrypt::Operation> for NativeOperation {
     fn from(op: psa_aead_decrypt::Operation) -> Self {
         NativeOperation::PsaAeadDecrypt(op)
+    }
+}
+
+impl From<psa_cipher_encrypt::Operation> for NativeOperation {
+    fn from(op: psa_cipher_encrypt::Operation) -> Self {
+        NativeOperation::PsaCipherEncrypt(op)
+    }
+}
+
+impl From<psa_cipher_decrypt::Operation> for NativeOperation {
+    fn from(op: psa_cipher_decrypt::Operation) -> Self {
+        NativeOperation::PsaCipherDecrypt(op)
     }
 }
 
@@ -500,6 +526,18 @@ impl From<psa_aead_encrypt::Result> for NativeResult {
 impl From<psa_aead_decrypt::Result> for NativeResult {
     fn from(op: psa_aead_decrypt::Result) -> Self {
         NativeResult::PsaAeadDecrypt(op)
+    }
+}
+
+impl From<psa_cipher_encrypt::Result> for NativeResult {
+    fn from(op: psa_cipher_encrypt::Result) -> Self {
+        NativeResult::PsaCipherEncrypt(op)
+    }
+}
+
+impl From<psa_cipher_decrypt::Result> for NativeResult {
+    fn from(op: psa_cipher_decrypt::Result) -> Self {
+        NativeResult::PsaCipherDecrypt(op)
     }
 }
 
