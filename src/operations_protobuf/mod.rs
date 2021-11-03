@@ -31,6 +31,8 @@ mod convert_psa_cipher_encrypt;
 mod convert_psa_cipher_decrypt;
 mod convert_psa_generate_random;
 mod convert_psa_raw_key_agreement;
+mod convert_attest_key;
+mod convert_prepare_key_attestation;
 
 #[rustfmt::skip]
 #[allow(unused_qualifications, missing_copy_implementations, clippy::pedantic, clippy::module_inception, clippy::upper_case_acronyms, clippy::enum_variant_names)]
@@ -40,6 +42,7 @@ use crate::operations::{Convert, NativeOperation, NativeResult};
 use crate::requests::{
     request::RequestBody, response::ResponseBody, BodyType, Opcode, ResponseStatus, Result,
 };
+use generated_ops::attest_key as attest_key_proto;
 use generated_ops::delete_client as delete_client_proto;
 use generated_ops::list_authenticators as list_authenticators_proto;
 use generated_ops::list_clients as list_clients_proto;
@@ -47,6 +50,7 @@ use generated_ops::list_keys as list_keys_proto;
 use generated_ops::list_opcodes as list_opcodes_proto;
 use generated_ops::list_providers as list_providers_proto;
 use generated_ops::ping as ping_proto;
+use generated_ops::prepare_key_attestation as prepare_key_attestation_proto;
 use generated_ops::psa_aead_decrypt as psa_aead_decrypt_proto;
 use generated_ops::psa_aead_encrypt as psa_aead_encrypt_proto;
 use generated_ops::psa_asymmetric_decrypt as psa_asymmetric_decrypt_proto;
@@ -207,6 +211,13 @@ impl Convert for ProtobufConverter {
                 body.bytes(),
                 psa_raw_key_agreement_proto::Operation
             ))),
+            Opcode::AttestKey => Ok(NativeOperation::AttestKey(wire_to_native!(
+                body.bytes(),
+                attest_key_proto::Operation
+            ))),
+            Opcode::PrepareKeyAttestation => Ok(NativeOperation::PrepareKeyAttestation(
+                wire_to_native!(body.bytes(), prepare_key_attestation_proto::Operation),
+            )),
         }
     }
 
@@ -291,6 +302,13 @@ impl Convert for ProtobufConverter {
             )),
             NativeOperation::PsaRawKeyAgreement(operation) => Ok(RequestBody::from_bytes(
                 native_to_wire!(operation, psa_raw_key_agreement_proto::Operation),
+            )),
+            NativeOperation::AttestKey(operation) => Ok(RequestBody::from_bytes(native_to_wire!(
+                operation,
+                attest_key_proto::Operation
+            ))),
+            NativeOperation::PrepareKeyAttestation(operation) => Ok(RequestBody::from_bytes(
+                native_to_wire!(operation, prepare_key_attestation_proto::Operation),
             )),
         }
     }
@@ -399,6 +417,13 @@ impl Convert for ProtobufConverter {
                 body.bytes(),
                 psa_raw_key_agreement_proto::Result
             ))),
+            Opcode::AttestKey => Ok(NativeResult::AttestKey(wire_to_native!(
+                body.bytes(),
+                attest_key_proto::Result
+            ))),
+            Opcode::PrepareKeyAttestation => Ok(NativeResult::PrepareKeyAttestation(
+                wire_to_native!(body.bytes(), prepare_key_attestation_proto::Result),
+            )),
         }
     }
 
@@ -498,6 +523,13 @@ impl Convert for ProtobufConverter {
             ))),
             NativeResult::PsaRawKeyAgreement(result) => Ok(ResponseBody::from_bytes(
                 native_to_wire!(result, psa_raw_key_agreement_proto::Result),
+            )),
+            NativeResult::AttestKey(result) => Ok(ResponseBody::from_bytes(native_to_wire!(
+                result,
+                attest_key_proto::Result
+            ))),
+            NativeResult::PrepareKeyAttestation(result) => Ok(ResponseBody::from_bytes(
+                native_to_wire!(result, prepare_key_attestation_proto::Result),
             )),
         }
     }

@@ -29,6 +29,8 @@ pub mod psa_generate_random;
 pub mod psa_hash_compute;
 pub mod psa_hash_compare;
 pub mod psa_raw_key_agreement;
+pub mod attest_key;
+pub mod prepare_key_attestation;
 
 use zeroize::Zeroize;
 
@@ -154,6 +156,7 @@ empty_clear_message!(psa_verify_hash::Result);
 empty_clear_message!(psa_verify_message::Result);
 empty_clear_message!(psa_generate_random::Operation);
 empty_clear_message!(psa_hash_compare::Result);
+empty_clear_message!(prepare_key_attestation::Operation);
 
 impl ClearProtoMessage for psa_sign_hash::Operation {
     fn clear_message(&mut self) {
@@ -226,11 +229,15 @@ impl ClearProtoMessage for psa_asymmetric_decrypt::Operation {
 }
 
 impl ClearProtoMessage for psa_asymmetric_encrypt::Result {
-    fn clear_message(&mut self) { self.ciphertext.zeroize(); }
+    fn clear_message(&mut self) {
+        self.ciphertext.zeroize();
+    }
 }
 
 impl ClearProtoMessage for psa_asymmetric_decrypt::Result {
-    fn clear_message(&mut self) { self.plaintext.zeroize(); }
+    fn clear_message(&mut self) {
+        self.plaintext.zeroize();
+    }
 }
 
 impl ClearProtoMessage for psa_aead_encrypt::Operation {
@@ -250,7 +257,9 @@ impl ClearProtoMessage for psa_aead_decrypt::Operation {
 }
 
 impl ClearProtoMessage for psa_aead_encrypt::Result {
-    fn clear_message(&mut self) { self.ciphertext.zeroize(); }
+    fn clear_message(&mut self) {
+        self.ciphertext.zeroize();
+    }
 }
 
 impl ClearProtoMessage for psa_aead_decrypt::Result {
@@ -280,15 +289,21 @@ impl ClearProtoMessage for psa_cipher_decrypt::Result {
 }
 
 impl ClearProtoMessage for psa_generate_random::Result {
-    fn clear_message(&mut self) { self.random_bytes.zeroize(); }
+    fn clear_message(&mut self) {
+        self.random_bytes.zeroize();
+    }
 }
 
 impl ClearProtoMessage for psa_hash_compute::Operation {
-    fn clear_message(&mut self) { self.input.zeroize(); }
+    fn clear_message(&mut self) {
+        self.input.zeroize();
+    }
 }
 
 impl ClearProtoMessage for psa_hash_compute::Result {
-    fn clear_message(&mut self) { self.hash.zeroize(); }
+    fn clear_message(&mut self) {
+        self.hash.zeroize();
+    }
 }
 
 impl ClearProtoMessage for psa_hash_compare::Operation {
@@ -310,12 +325,82 @@ impl ClearProtoMessage for psa_raw_key_agreement::Result {
     }
 }
 
+impl ClearProtoMessage for attest_key::Operation {
+    fn clear_message(&mut self) {
+        if let attest_key::Operation {
+            parameters:
+                Some(attest_key::AttestationMechanismParams {
+                    mechanism:
+                        Some(attest_key::attestation_mechanism_params::Mechanism::ActivateCredential(
+                            attest_key::attestation_mechanism_params::ActivateCredential {
+                                credential_blob,
+                                secret,
+                            },
+                        )),
+                }),
+            ..
+        } = self
+        {
+            credential_blob.zeroize();
+            secret.zeroize();
+        }
+    }
+}
+
+impl ClearProtoMessage for attest_key::Result {
+    fn clear_message(&mut self) {
+        if let attest_key::Result {
+            output:
+                Some(attest_key::AttestationOutput {
+                    mechanism:
+                        Some(attest_key::attestation_output::Mechanism::ActivateCredential(
+                            attest_key::attestation_output::ActivateCredential { credential },
+                        )),
+                }),
+        } = self
+        {
+            credential.zeroize();
+        }
+    }
+}
+
+impl ClearProtoMessage for prepare_key_attestation::Result {
+    fn clear_message(&mut self) {
+        if let prepare_key_attestation::Result { output: Some(prepare_key_attestation::PrepareKeyAttestationOutput {
+                mechanism: Some(prepare_key_attestation::prepare_key_attestation_output::Mechanism::ActivateCredential(
+                    prepare_key_attestation::prepare_key_attestation_output::ActivateCredential {
+                        name, public, attesting_key_pub
+                    }
+                ))
+            })
+            } = self {
+                name.zeroize();
+                public.zeroize();
+                attesting_key_pub.zeroize();
+            }
+    }
+}
+
 #[test]
 fn i32_conversions() {
-    assert_eq!(Cipher::try_from(56).unwrap_err(), ResponseStatus::InvalidEncoding);
-    assert_eq!(Cipher::try_from(-5).unwrap_err(), ResponseStatus::InvalidEncoding);
-    assert_eq!(Hash::try_from(89).unwrap_err(), ResponseStatus::InvalidEncoding);
-    assert_eq!(Hash::try_from(-4).unwrap_err(), ResponseStatus::InvalidEncoding);
-    assert_eq!(EccFamily::try_from(78).unwrap_err(), ResponseStatus::InvalidEncoding);
-
+    assert_eq!(
+        Cipher::try_from(56).unwrap_err(),
+        ResponseStatus::InvalidEncoding
+    );
+    assert_eq!(
+        Cipher::try_from(-5).unwrap_err(),
+        ResponseStatus::InvalidEncoding
+    );
+    assert_eq!(
+        Hash::try_from(89).unwrap_err(),
+        ResponseStatus::InvalidEncoding
+    );
+    assert_eq!(
+        Hash::try_from(-4).unwrap_err(),
+        ResponseStatus::InvalidEncoding
+    );
+    assert_eq!(
+        EccFamily::try_from(78).unwrap_err(),
+        ResponseStatus::InvalidEncoding
+    );
 }
