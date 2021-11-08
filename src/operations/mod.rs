@@ -23,6 +23,8 @@ pub mod psa_asymmetric_encrypt;
 pub mod psa_asymmetric_decrypt;
 pub mod psa_aead_encrypt;
 pub mod psa_aead_decrypt;
+pub mod psa_cipher_encrypt;
+pub mod psa_cipher_decrypt;
 pub mod psa_sign_message;
 pub mod psa_verify_message;
 pub mod list_opcodes;
@@ -34,6 +36,8 @@ pub mod list_clients;
 pub mod psa_generate_random;
 pub mod psa_raw_key_agreement;
 pub mod can_do_crypto;
+pub mod attest_key;
+pub mod prepare_key_attestation;
 
 pub use psa_crypto::types::algorithm as psa_algorithm;
 pub use psa_crypto::types::key as psa_key_attributes;
@@ -84,6 +88,10 @@ pub enum NativeOperation {
     PsaAeadEncrypt(psa_aead_encrypt::Operation),
     /// PsaAeadDecrypt operation
     PsaAeadDecrypt(psa_aead_decrypt::Operation),
+    /// PsaCipherEncrypt operation
+    PsaCipherEncrypt(psa_cipher_encrypt::Operation),
+    /// PsaCipherDecrypt operation
+    PsaCipherDecrypt(psa_cipher_decrypt::Operation),
     /// PsaGenerateRandom operation
     PsaGenerateRandom(psa_generate_random::Operation),
     /// PsaRawKeyAgreement operation
@@ -94,6 +102,10 @@ pub enum NativeOperation {
     PsaVerifyMessage(psa_verify_message::Operation),
     /// CanDoCrypto operation
     CanDoCrypto(can_do_crypto::Operation),
+    /// AttestKey operation
+    AttestKey(attest_key::Operation),
+    /// PrepareKeyAttestation operation
+    PrepareKeyAttestation(prepare_key_attestation::Operation),
 }
 
 impl NativeOperation {
@@ -120,11 +132,15 @@ impl NativeOperation {
             NativeOperation::PsaAsymmetricDecrypt(_) => Opcode::PsaAsymmetricDecrypt,
             NativeOperation::PsaAeadEncrypt(_) => Opcode::PsaAeadEncrypt,
             NativeOperation::PsaAeadDecrypt(_) => Opcode::PsaAeadDecrypt,
+            NativeOperation::PsaCipherEncrypt(_) => Opcode::PsaCipherEncrypt,
+            NativeOperation::PsaCipherDecrypt(_) => Opcode::PsaCipherDecrypt,
             NativeOperation::PsaGenerateRandom(_) => Opcode::PsaGenerateRandom,
             NativeOperation::PsaRawKeyAgreement(_) => Opcode::PsaRawKeyAgreement,
             NativeOperation::PsaSignMessage(_) => Opcode::PsaSignMessage,
             NativeOperation::PsaVerifyMessage(_) => Opcode::PsaVerifyMessage,
             NativeOperation::CanDoCrypto(_) => Opcode::CanDoCrypto,
+            NativeOperation::AttestKey(_) => Opcode::AttestKey,
+            NativeOperation::PrepareKeyAttestation(_) => Opcode::PrepareKeyAttestation,
         }
     }
 }
@@ -173,6 +189,10 @@ pub enum NativeResult {
     PsaAeadEncrypt(psa_aead_encrypt::Result),
     /// PsaAeadDecrypt result
     PsaAeadDecrypt(psa_aead_decrypt::Result),
+    /// PsaCipherEncrypt result
+    PsaCipherEncrypt(psa_cipher_encrypt::Result),
+    /// PsaCipherDecrypt result
+    PsaCipherDecrypt(psa_cipher_decrypt::Result),
     /// PsaGenerateRandom result
     PsaGenerateRandom(psa_generate_random::Result),
     /// PsaRawKeyAgreement result
@@ -183,6 +203,10 @@ pub enum NativeResult {
     PsaVerifyMessage(psa_verify_message::Result),
     /// CanDoCrypto result
     CanDoCrypto(can_do_crypto::Result),
+    /// AttestKey result
+    AttestKey(attest_key::Result),
+    /// AttestKey result
+    PrepareKeyAttestation(prepare_key_attestation::Result),
 }
 
 impl NativeResult {
@@ -209,11 +233,15 @@ impl NativeResult {
             NativeResult::PsaAsymmetricDecrypt(_) => Opcode::PsaAsymmetricDecrypt,
             NativeResult::PsaAeadEncrypt(_) => Opcode::PsaAeadEncrypt,
             NativeResult::PsaAeadDecrypt(_) => Opcode::PsaAeadDecrypt,
+            NativeResult::PsaCipherEncrypt(_) => Opcode::PsaCipherEncrypt,
+            NativeResult::PsaCipherDecrypt(_) => Opcode::PsaCipherDecrypt,
             NativeResult::PsaGenerateRandom(_) => Opcode::PsaGenerateRandom,
             NativeResult::PsaRawKeyAgreement(_) => Opcode::PsaRawKeyAgreement,
             NativeResult::PsaSignMessage(_) => Opcode::PsaSignMessage,
             NativeResult::PsaVerifyMessage(_) => Opcode::PsaVerifyMessage,
             NativeResult::CanDoCrypto(_) => Opcode::CanDoCrypto,
+            NativeResult::AttestKey(_) => Opcode::AttestKey,
+            NativeResult::PrepareKeyAttestation(_) => Opcode::PrepareKeyAttestation,
         }
     }
 }
@@ -357,6 +385,18 @@ impl From<psa_aead_decrypt::Operation> for NativeOperation {
     }
 }
 
+impl From<psa_cipher_encrypt::Operation> for NativeOperation {
+    fn from(op: psa_cipher_encrypt::Operation) -> Self {
+        NativeOperation::PsaCipherEncrypt(op)
+    }
+}
+
+impl From<psa_cipher_decrypt::Operation> for NativeOperation {
+    fn from(op: psa_cipher_decrypt::Operation) -> Self {
+        NativeOperation::PsaCipherDecrypt(op)
+    }
+}
+
 impl From<psa_generate_random::Operation> for NativeOperation {
     fn from(op: psa_generate_random::Operation) -> Self {
         NativeOperation::PsaGenerateRandom(op)
@@ -374,16 +414,19 @@ impl From<psa_hash_compare::Operation> for NativeOperation {
         NativeOperation::PsaHashCompare(op)
     }
 }
+
 impl From<psa_raw_key_agreement::Operation> for NativeOperation {
     fn from(op: psa_raw_key_agreement::Operation) -> Self {
         NativeOperation::PsaRawKeyAgreement(op)
     }
 }
+
 impl From<psa_sign_message::Operation> for NativeOperation {
     fn from(op: psa_sign_message::Operation) -> Self {
         NativeOperation::PsaSignMessage(op)
     }
 }
+
 impl From<psa_verify_message::Operation> for NativeOperation {
     fn from(op: psa_verify_message::Operation) -> Self {
         NativeOperation::PsaVerifyMessage(op)
@@ -393,6 +436,16 @@ impl From<psa_verify_message::Operation> for NativeOperation {
 impl From<can_do_crypto::Operation> for NativeOperation {
     fn from(op: can_do_crypto::Operation) -> Self {
         NativeOperation::CanDoCrypto(op)
+    }
+}
+impl From<attest_key::Operation> for NativeOperation {
+    fn from(op: attest_key::Operation) -> Self {
+        NativeOperation::AttestKey(op)
+    }
+}
+impl From<prepare_key_attestation::Operation> for NativeOperation {
+    fn from(op: prepare_key_attestation::Operation) -> Self {
+        NativeOperation::PrepareKeyAttestation(op)
     }
 }
 
@@ -516,6 +569,18 @@ impl From<psa_aead_decrypt::Result> for NativeResult {
     }
 }
 
+impl From<psa_cipher_encrypt::Result> for NativeResult {
+    fn from(op: psa_cipher_encrypt::Result) -> Self {
+        NativeResult::PsaCipherEncrypt(op)
+    }
+}
+
+impl From<psa_cipher_decrypt::Result> for NativeResult {
+    fn from(op: psa_cipher_decrypt::Result) -> Self {
+        NativeResult::PsaCipherDecrypt(op)
+    }
+}
+
 impl From<psa_generate_random::Result> for NativeResult {
     fn from(op: psa_generate_random::Result) -> Self {
         NativeResult::PsaGenerateRandom(op)
@@ -543,5 +608,17 @@ impl From<psa_verify_message::Result> for NativeResult {
 impl From<can_do_crypto::Result> for NativeResult {
     fn from(op: can_do_crypto::Result) -> Self {
         NativeResult::CanDoCrypto(op)
+    }
+}
+
+impl From<attest_key::Result> for NativeResult {
+    fn from(op: attest_key::Result) -> Self {
+        NativeResult::AttestKey(op)
+    }
+}
+
+impl From<prepare_key_attestation::Result> for NativeResult {
+    fn from(op: prepare_key_attestation::Result) -> Self {
+        NativeResult::PrepareKeyAttestation(op)
     }
 }

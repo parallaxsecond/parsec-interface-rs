@@ -123,6 +123,10 @@ pub enum Opcode {
     PsaAeadDecrypt = 0x0012,
     /// PsaRawKeyAgreement operation
     PsaRawKeyAgreement = 0x0013,
+    /// PsaCipherEncrypt
+    PsaCipherEncrypt = 0x0014,
+    /// PsaCipherDecrypt
+    PsaCipherDecrypt = 0x0015,
     /// PsaSignMessage operation
     PsaSignMessage = 0x0018,
     /// PsaVerifyMessage operation
@@ -133,6 +137,10 @@ pub enum Opcode {
     ListClients = 0x001B,
     /// DeleteClient operation (admin operation)
     DeleteClient = 0x001C,
+    /// AttestKey operation
+    AttestKey = 0x001E,
+    /// PrepareKeyAttestation operation
+    PrepareKeyAttestation = 0x001F,
     /// CanDoCrypto operation
     CanDoCrypto = 0x0020,
 }
@@ -165,8 +173,12 @@ impl Opcode {
             | Opcode::PsaHashCompare
             | Opcode::PsaAeadEncrypt
             | Opcode::PsaAeadDecrypt
+            | Opcode::PsaCipherEncrypt
+            | Opcode::PsaCipherDecrypt
             | Opcode::PsaRawKeyAgreement
-            | Opcode::CanDoCrypto => false,
+            | Opcode::CanDoCrypto          
+            | Opcode::AttestKey
+            | Opcode::PrepareKeyAttestation => false,
         }
     }
 
@@ -196,8 +208,12 @@ impl Opcode {
             | Opcode::PsaHashCompare
             | Opcode::PsaAeadEncrypt
             | Opcode::PsaAeadDecrypt
+            | Opcode::PsaCipherEncrypt
+            | Opcode::PsaCipherDecrypt
             | Opcode::PsaRawKeyAgreement
-            | Opcode::CanDoCrypto => false,
+            | Opcode::CanDoCrypto
+            | Opcode::AttestKey
+            | Opcode::PrepareKeyAttestation => false,
         }
     }
 
