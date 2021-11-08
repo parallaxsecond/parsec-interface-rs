@@ -176,7 +176,7 @@ impl Opcode {
             | Opcode::PsaCipherEncrypt
             | Opcode::PsaCipherDecrypt
             | Opcode::PsaRawKeyAgreement
-            | Opcode::CanDoCrypto          
+            | Opcode::CanDoCrypto
             | Opcode::AttestKey
             | Opcode::PrepareKeyAttestation => false,
         }
