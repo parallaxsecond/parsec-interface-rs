@@ -29,6 +29,7 @@ pub mod psa_generate_random;
 pub mod psa_hash_compute;
 pub mod psa_hash_compare;
 pub mod psa_raw_key_agreement;
+pub mod can_do_crypto;
 pub mod attest_key;
 pub mod prepare_key_attestation;
 
@@ -38,6 +39,7 @@ use crate::requests::{ResponseStatus, Result};
 use log::error;
 use psa_algorithm::algorithm::{aead::AeadWithDefaultLengthTag, key_agreement::Raw, Cipher, Hash};
 use psa_key_attributes::key_type::{DhFamily, EccFamily};
+use can_do_crypto::CheckType;
 use std::convert::TryFrom;
 
 impl TryFrom<i32> for Cipher {
@@ -118,6 +120,19 @@ impl TryFrom<i32> for DhFamily {
     }
 }
 
+impl TryFrom<i32> for CheckType {
+    type Error = ResponseStatus;
+    fn try_from(check_type_val: i32) -> Result<Self> {
+        CheckType::from_i32(check_type_val).ok_or_else(|| {
+            error!(
+                "Value {} not supported as a check type.",
+                check_type_val
+            );
+            ResponseStatus::InvalidEncoding
+        })
+    }
+}
+
 pub(super) trait ClearProtoMessage {
     fn clear_message(&mut self) {}
 }
@@ -156,6 +171,8 @@ empty_clear_message!(psa_verify_hash::Result);
 empty_clear_message!(psa_verify_message::Result);
 empty_clear_message!(psa_generate_random::Operation);
 empty_clear_message!(psa_hash_compare::Result);
+empty_clear_message!(can_do_crypto::Operation);
+empty_clear_message!(can_do_crypto::Result);
 empty_clear_message!(prepare_key_attestation::Operation);
 
 impl ClearProtoMessage for psa_sign_hash::Operation {

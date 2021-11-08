@@ -35,6 +35,7 @@ pub mod delete_client;
 pub mod list_clients;
 pub mod psa_generate_random;
 pub mod psa_raw_key_agreement;
+pub mod can_do_crypto;
 pub mod attest_key;
 pub mod prepare_key_attestation;
 
@@ -99,6 +100,8 @@ pub enum NativeOperation {
     PsaSignMessage(psa_sign_message::Operation),
     /// PsaVerifyMessage operation
     PsaVerifyMessage(psa_verify_message::Operation),
+    /// CanDoCrypto operation
+    CanDoCrypto(can_do_crypto::Operation),
     /// AttestKey operation
     AttestKey(attest_key::Operation),
     /// PrepareKeyAttestation operation
@@ -135,6 +138,7 @@ impl NativeOperation {
             NativeOperation::PsaRawKeyAgreement(_) => Opcode::PsaRawKeyAgreement,
             NativeOperation::PsaSignMessage(_) => Opcode::PsaSignMessage,
             NativeOperation::PsaVerifyMessage(_) => Opcode::PsaVerifyMessage,
+            NativeOperation::CanDoCrypto(_) => Opcode::CanDoCrypto,
             NativeOperation::AttestKey(_) => Opcode::AttestKey,
             NativeOperation::PrepareKeyAttestation(_) => Opcode::PrepareKeyAttestation,
         }
@@ -197,6 +201,8 @@ pub enum NativeResult {
     PsaSignMessage(psa_sign_message::Result),
     /// PsaVerifyMessage result
     PsaVerifyMessage(psa_verify_message::Result),
+    /// CanDoCrypto result
+    CanDoCrypto(can_do_crypto::Result),
     /// AttestKey result
     AttestKey(attest_key::Result),
     /// AttestKey result
@@ -233,6 +239,7 @@ impl NativeResult {
             NativeResult::PsaRawKeyAgreement(_) => Opcode::PsaRawKeyAgreement,
             NativeResult::PsaSignMessage(_) => Opcode::PsaSignMessage,
             NativeResult::PsaVerifyMessage(_) => Opcode::PsaVerifyMessage,
+            NativeResult::CanDoCrypto(_) => Opcode::CanDoCrypto,
             NativeResult::AttestKey(_) => Opcode::AttestKey,
             NativeResult::PrepareKeyAttestation(_) => Opcode::PrepareKeyAttestation,
         }
@@ -426,6 +433,11 @@ impl From<psa_verify_message::Operation> for NativeOperation {
     }
 }
 
+impl From<can_do_crypto::Operation> for NativeOperation {
+    fn from(op: can_do_crypto::Operation) -> Self {
+        NativeOperation::CanDoCrypto(op)
+    }
+}
 impl From<attest_key::Operation> for NativeOperation {
     fn from(op: attest_key::Operation) -> Self {
         NativeOperation::AttestKey(op)
@@ -590,6 +602,12 @@ impl From<psa_sign_message::Result> for NativeResult {
 impl From<psa_verify_message::Result> for NativeResult {
     fn from(op: psa_verify_message::Result) -> Self {
         NativeResult::PsaVerifyMessage(op)
+    }
+}
+
+impl From<can_do_crypto::Result> for NativeResult {
+    fn from(op: can_do_crypto::Result) -> Self {
+        NativeResult::CanDoCrypto(op)
     }
 }
 

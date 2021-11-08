@@ -141,6 +141,8 @@ pub enum Opcode {
     AttestKey = 0x001E,
     /// PrepareKeyAttestation operation
     PrepareKeyAttestation = 0x001F,
+    /// CanDoCrypto operation
+    CanDoCrypto = 0x0020,
 }
 
 impl Opcode {
@@ -174,6 +176,7 @@ impl Opcode {
             | Opcode::PsaCipherEncrypt
             | Opcode::PsaCipherDecrypt
             | Opcode::PsaRawKeyAgreement
+            | Opcode::CanDoCrypto
             | Opcode::AttestKey
             | Opcode::PrepareKeyAttestation => false,
         }
@@ -208,6 +211,7 @@ impl Opcode {
             | Opcode::PsaCipherEncrypt
             | Opcode::PsaCipherDecrypt
             | Opcode::PsaRawKeyAgreement
+            | Opcode::CanDoCrypto
             | Opcode::AttestKey
             | Opcode::PrepareKeyAttestation => false,
         }
