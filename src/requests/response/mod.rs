@@ -162,6 +162,32 @@ mod tests {
     }
 
     #[test]
+    fn stream_to_fail_response_wrong_endians() {
+        let mut mock = test_utils::MockReadWrite {
+            buffer: get_response_bytes_big_endian_fixint_encoding(),
+        };
+        let response_status =
+            Response::read_from_stream(&mut mock, 1000).expect_err("Should have failed.");
+        assert_eq!(response_status, ResponseStatus::InvalidHeader);
+
+        let mut mock = test_utils::MockReadWrite {
+            buffer: get_response_bytes_big_endian_varint_encoding(),
+        };
+        let response_status =
+            Response::read_from_stream(&mut mock, 1000).expect_err("Should have failed.");
+        assert_eq!(response_status, ResponseStatus::InvalidHeader);
+    }
+    #[test]
+    fn stream_to_fail_response_wrong_int_encoding() {
+        let mut mock = test_utils::MockReadWrite {
+            buffer: get_response_bytes_little_endian_varint_encoding(),
+        };
+        let response_status =
+            Response::read_from_stream(&mut mock, 1000).expect_err("Should have failed.");
+        assert_eq!(response_status, ResponseStatus::InvalidHeader);
+    }
+
+    #[test]
     #[should_panic(expected = "Failed to read response")]
     fn failed_read() {
         let mut fail_mock = test_utils::MockFailReadWrite;
@@ -274,6 +300,77 @@ mod tests {
             0x00, // WireHeader::reserved1
             0x00, // WireHeader::reserved2
             0xB0, 0xB1, 0xB2, 0xB3, // ResponseBody
+        ]
+    }
+    fn get_response_bytes_big_endian_fixint_encoding() -> Vec<u8> {
+        vec![
+            0x5E, 0xC0, 0xA7, 0x10, // MAGIC_NUMBER
+            0x00, 0x1E, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, 0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x00, // WireHeader::auth_type
+            0x00, 0x00, 0x00, 0x03, // WireHeader::body_len
+            0x00, 0x00, // WireHeader::auth_len
+            0x00, 0x00, 0x00, 0x01, // WireHeader::opcode
+            0x00, 0x00, // WireHeader::status
+            0x00, // WireHeader::reserved1
+            0x00, // WireHeader::reserved2
+            0x70, 0x80, 0x90, // RequestBody
+        ]
+    }
+    fn get_response_bytes_little_endian_varint_encoding() -> Vec<u8> {
+        vec![
+            0xFC, // Encoding byte indicates that the following 4 bytes make a u32 int
+            //https://docs.rs/bincode/1.3.3/bincode/config/struct.VarintEncoding.html
+            0x5E, 0xC0, 0xA7, 0x10, // MAGIC_NUMBER
+            0x1E, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0xFD, // Encoding byte indicates that the following 8 bytes make a u64 int
+            //https://docs.rs/bincode/1.3.3/bincode/config/struct.VarintEncoding.html
+            0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x00, // WireHeader::auth_type
+            0x03, // WireHeader::body_len
+            0x00, // WireHeader::auth_len
+            0x01, // WireHeader::opcode
+            0x00, // WireHeader::status
+            0x00, // WireHeader::reserved1
+            0x00, // WireHeader::reserved2
+            0x70, 0x80, 0x90, // RequestBody
+        ]
+    }
+    fn get_response_bytes_big_endian_varint_encoding() -> Vec<u8> {
+        vec![
+            0xFC, // Encoding byte indicates that the following 4 bytes make a u32 int
+            //https://docs.rs/bincode/1.3.3/bincode/config/struct.VarintEncoding.html
+            0x10, 0xA7, 0xC0, 0x5E, // MAGIC_NUMBER
+            0x1E, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0xFD, // Encoding byte indicates that the following 8 bytes make a u64 int
+            //https://docs.rs/bincode/1.3.3/bincode/config/struct.VarintEncoding.html
+            0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x00, // WireHeader::auth_type
+            0x03, // WireHeader::body_len
+            0x00, // WireHeader::auth_len
+            0x01, // WireHeader::opcode
+            0x00, // WireHeader::status
+            0x00, // WireHeader::reserved1
+            0x00, // WireHeader::reserved2
+            0x70, 0x80, 0x90, // RequestBody
         ]
     }
 }
