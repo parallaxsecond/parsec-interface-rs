@@ -81,18 +81,18 @@ impl WireHeader {
     /// - if marshalling the header fails, `ResponseStatus::InvalidEncoding` is returned.
     /// - if writing the header bytes fails, `ResponseStatus::ConnectionError` is returned.
     pub fn write_to_stream<W: Write>(&self, stream: &mut W) -> Result<()> {
-        let serdes = bincode::DefaultOptions::new()
+        let serializer = bincode::DefaultOptions::new()
             .with_little_endian()
             .with_fixint_encoding();
 
-        stream.write_all(&serdes.serialize(&MAGIC_NUMBER)?)?;
+        stream.write_all(&serializer.serialize(&MAGIC_NUMBER)?)?;
 
-        stream.write_all(&serdes.serialize(&REQUEST_HDR_SIZE)?)?;
+        stream.write_all(&serializer.serialize(&REQUEST_HDR_SIZE)?)?;
 
-        stream.write_all(&serdes.serialize(&WIRE_PROTOCOL_VERSION_MAJ)?)?;
-        stream.write_all(&serdes.serialize(&WIRE_PROTOCOL_VERSION_MIN)?)?;
+        stream.write_all(&serializer.serialize(&WIRE_PROTOCOL_VERSION_MAJ)?)?;
+        stream.write_all(&serializer.serialize(&WIRE_PROTOCOL_VERSION_MIN)?)?;
 
-        stream.write_all(&serdes.serialize(&self)?)?;
+        stream.write_all(&serializer.serialize(&self)?)?;
 
         Ok(())
     }
@@ -140,10 +140,10 @@ impl WireHeader {
             return Err(ResponseStatus::WireProtocolVersionNotSupported);
         }
 
-        let serdes = bincode::DefaultOptions::new()
+        let deserializer = bincode::DefaultOptions::new()
             .with_little_endian()
             .with_fixint_encoding();
-        let wire_header: WireHeader = serdes.deserialize(&bytes)?;
+        let wire_header: WireHeader = deserializer.deserialize(&bytes)?;
 
         if wire_header.reserved1 != 0x00 || wire_header.reserved2 != 0x00 {
             Err(ResponseStatus::InvalidHeader)
