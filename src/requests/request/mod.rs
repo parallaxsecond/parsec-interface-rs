@@ -135,25 +135,54 @@ mod tests {
     use super::*;
 
     #[test]
-    fn request_to_stream() {
+    fn request_1_to_stream() {
         let mut mock = test_utils::MockReadWrite { buffer: Vec::new() };
-        let request = get_request();
+        let request = get_request_1();
 
         request
             .write_to_stream(&mut mock)
             .expect("Failed to write request");
 
-        assert_eq!(mock.buffer, get_request_bytes());
+        assert_eq!(mock.buffer, get_request_1_bytes());
     }
 
     #[test]
-    fn stream_to_request() {
+    fn request_2_to_stream() {
+        let mut mock = test_utils::MockReadWrite { buffer: Vec::new() };
+        let request = get_request_2();
+
+        request
+            .write_to_stream(&mut mock)
+            .expect("Failed to write request");
+
+        assert_eq!(mock.buffer, get_request_2_bytes());
+    }
+
+    #[test]
+    fn stream_to_request_1() {
         let mut mock = test_utils::MockReadWrite {
-            buffer: get_request_bytes(),
+            buffer: get_request_1_bytes(),
         };
 
         let request = Request::read_from_stream(&mut mock, 1000).expect("Failed to read request");
-        let exp_req = get_request();
+        let exp_req = get_request_1();
+
+        assert_eq!(request.header, exp_req.header);
+        assert_eq!(request.body, exp_req.body);
+        assert_eq!(
+            request.auth.buffer.expose_secret(),
+            exp_req.auth.buffer.expose_secret()
+        );
+    }
+
+    #[test]
+    fn stream_to_request_2() {
+        let mut mock = test_utils::MockReadWrite {
+            buffer: get_request_2_bytes(),
+        };
+
+        let request = Request::read_from_stream(&mut mock, 1000).expect("Failed to read request");
+        let exp_req = get_request_2();
 
         assert_eq!(request.header, exp_req.header);
         assert_eq!(request.body, exp_req.body);
@@ -200,6 +229,32 @@ mod tests {
     }
 
     #[test]
+    fn stream_to_fail_request_wrong_endians() {
+        let mut mock = test_utils::MockReadWrite {
+            buffer: get_request_bytes_big_endian_fixint_encoding(),
+        };
+        let response_status =
+            Request::read_from_stream(&mut mock, 1000).expect_err("Should have failed.");
+        assert_eq!(response_status, ResponseStatus::InvalidHeader);
+
+        let mut mock = test_utils::MockReadWrite {
+            buffer: get_request_bytes_big_endian_varint_encoding(),
+        };
+        let response_status =
+            Request::read_from_stream(&mut mock, 1000).expect_err("Should have failed.");
+        assert_eq!(response_status, ResponseStatus::InvalidHeader);
+    }
+    #[test]
+    fn stream_to_fail_request_wrong_int_encoding() {
+        let mut mock = test_utils::MockReadWrite {
+            buffer: get_request_bytes_little_endian_varint_encoding(),
+        };
+        let response_status =
+            Request::read_from_stream(&mut mock, 1000).expect_err("Should have failed.");
+        assert_eq!(response_status, ResponseStatus::InvalidHeader);
+    }
+
+    #[test]
     #[should_panic(expected = "Failed to read request")]
     fn failed_read() {
         let mut fail_mock = test_utils::MockFailReadWrite;
@@ -211,7 +266,7 @@ mod tests {
     #[should_panic(expected = "Request body too large")]
     fn body_too_large() {
         let mut mock = test_utils::MockReadWrite {
-            buffer: get_request_bytes(),
+            buffer: get_request_1_bytes(),
         };
 
         let _ = Request::read_from_stream(&mut mock, 0).expect("Request body too large");
@@ -220,7 +275,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Failed to write request")]
     fn failed_write() {
-        let request: Request = get_request();
+        let request: Request = get_request_1();
         let mut fail_mock = test_utils::MockFailReadWrite;
 
         request
@@ -230,7 +285,7 @@ mod tests {
 
     #[test]
     fn req_hdr_to_resp_hdr() {
-        let req_hdr = get_request().header;
+        let req_hdr = get_request_1().header;
         let resp_hdr: ResponseHeader = req_hdr.into();
 
         let mut resp_hdr_exp = ResponseHeader::new();
@@ -246,7 +301,7 @@ mod tests {
     #[test]
     fn wrong_version() {
         let mut mock = test_utils::MockReadWrite {
-            buffer: get_request_bytes(),
+            buffer: get_request_1_bytes(),
         };
         // Put an invalid version major field.
         mock.buffer[6] = 0xFF;
@@ -262,7 +317,7 @@ mod tests {
         );
     }
 
-    fn get_request() -> Request {
+    fn get_request_1() -> Request {
         let body = RequestBody::from_bytes(vec![0x70, 0x80, 0x90]);
         let auth = RequestAuth::new(vec![0xa0, 0xb0, 0xc0]);
         let header = RequestHeader {
@@ -276,35 +331,206 @@ mod tests {
         Request { header, body, auth }
     }
 
-    fn get_request_bytes() -> Vec<u8> {
+    fn get_request_2() -> Request {
+        let body = RequestBody::from_bytes(vec![0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5]);
+        let auth = RequestAuth::new(vec![0xA0, 0xA1, 0xA2, 0xA3, 0xA4]);
+        let header = RequestHeader {
+            provider: ProviderId::Core,
+            session: 0x88_99_AA_BB_CC_DD_EE_FF,
+            content_type: BodyType::Protobuf,
+            accept_type: BodyType::Protobuf,
+            auth_type: AuthType::Direct,
+            opcode: Opcode::Ping,
+        };
+        Request { header, body, auth }
+    }
+
+    fn get_request_1_bytes() -> Vec<u8> {
         vec![
-            0x10, 0xA7, 0xC0, 0x5E, 0x1e, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x88, 0x77, 0x66,
-            0x55, 0x44, 0x33, 0x22, 0x11, 0x00, 0x00, 0x01, 0x03, 0x00, 0x00, 0x00, 0x03, 0x00,
-            0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x80, 0x90, 0xa0, 0xb0, 0xc0,
+            0x10, 0xA7, 0xC0, 0x5E, // MAGIC_NUMBER
+            0x1E, 0x00, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, 0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x01, // WireHeader::auth_type
+            0x03, 0x00, 0x00, 0x00, // WireHeader::body_len
+            0x03, 0x00, // WireHeader::auth_len
+            0x01, 0x00, 0x00, 0x00, // WireHeader::opcode
+            0x00, 0x00, // WireHeader::status
+            0x00, // WireHeader::reserved1
+            0x00, // WireHeader::reserved2
+            0x70, 0x80, 0x90, // RequestBody
+            0xA0, 0xB0, 0xC0, // RequestAuth
+        ]
+    }
+
+    fn get_request_2_bytes() -> Vec<u8> {
+        vec![
+            0x10, 0xA7, 0xC0, 0x5E, // MAGIC_NUMBER
+            0x1E, 0x00, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, 0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99, 0x88, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x01, // WireHeader::auth_type
+            0x06, 0x00, 0x00, 0x00, // WireHeader::body_len
+            0x05, 0x00, // WireHeader::auth_len
+            0x01, 0x00, 0x00, 0x00, // WireHeader::opcode
+            0x00, 0x00, // WireHeader::status
+            0x00, // WireHeader::reserved1
+            0x00, // WireHeader::reserved2
+            0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, // RequestBody
+            0xA0, 0xA1, 0xA2, 0xA3, 0xA4, // RequestAuth
         ]
     }
 
     fn get_request_bytes_reserved_fields_both_not_zero() -> Vec<u8> {
         // reserved fields set to 0xDEAD
         vec![
-            0x10, 0xA7, 0xC0, 0x5E, 0x1e, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x88, 0x77, 0x66,
-            0x55, 0x44, 0x33, 0x22, 0x11, 0x00, 0x00, 0x01, 0x03, 0x00, 0x00, 0x00, 0x03, 0x00,
-            0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0xDE, 0xAD, 0x70, 0x80, 0x90, 0xa0, 0xb0, 0xc0,
+            0x10, 0xA7, 0xC0, 0x5E, // MAGIC_NUMBER
+            0x1E, 0x00, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, 0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99, 0x88, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x01, // WireHeader::auth_type
+            0x06, 0x00, 0x00, 0x00, // WireHeader::body_len
+            0x05, 0x00, // WireHeader::auth_len
+            0x01, 0x00, 0x00, 0x00, // WireHeader::opcode
+            0x00, 0x00, // WireHeader::status
+            0xDE, // WireHeader::reserved1
+            0xAD, // WireHeader::reserved2
+            0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, // RequestBody
+            0xA0, 0xA1, 0xA2, 0xA3, 0xA4, // RequestAuth
         ]
     }
 
     fn get_request_bytes_reserved_fields_first_not_zero() -> Vec<u8> {
         vec![
-            0x10, 0xA7, 0xC0, 0x5E, 0x1e, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x88, 0x77, 0x66,
-            0x55, 0x44, 0x33, 0x22, 0x11, 0x00, 0x00, 0x01, 0x03, 0x00, 0x00, 0x00, 0x03, 0x00,
-            0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0xDE, 0x00, 0x70, 0x80, 0x90, 0xa0, 0xb0, 0xc0,
+            0x10, 0xA7, 0xC0, 0x5E, // MAGIC_NUMBER
+            0x1E, 0x00, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, 0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99, 0x88, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x01, // WireHeader::auth_type
+            0x06, 0x00, 0x00, 0x00, // WireHeader::body_len
+            0x05, 0x00, // WireHeader::auth_len
+            0x01, 0x00, 0x00, 0x00, // WireHeader::opcode
+            0x00, 0x00, // WireHeader::status
+            0xDE, // WireHeader::reserved1
+            0x00, // WireHeader::reserved2
+            0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, // RequestBody
+            0xA0, 0xA1, 0xA2, 0xA3, 0xA4, // RequestAuth
         ]
     }
     fn get_request_bytes_reserved_fields_second_not_zero() -> Vec<u8> {
         vec![
-            0x10, 0xA7, 0xC0, 0x5E, 0x1e, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x88, 0x77, 0x66,
-            0x55, 0x44, 0x33, 0x22, 0x11, 0x00, 0x00, 0x01, 0x03, 0x00, 0x00, 0x00, 0x03, 0x00,
-            0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAD, 0x70, 0x80, 0x90, 0xa0, 0xb0, 0xc0,
+            0x10, 0xA7, 0xC0, 0x5E, // MAGIC_NUMBER
+            0x1E, 0x00, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, 0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99, 0x88, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x01, // WireHeader::auth_type
+            0x06, 0x00, 0x00, 0x00, // WireHeader::body_len
+            0x05, 0x00, // WireHeader::auth_len
+            0x01, 0x00, 0x00, 0x00, // WireHeader::opcode
+            0x00, 0x00, // WireHeader::status
+            0x00, // WireHeader::reserved1
+            0xAD, // WireHeader::reserved2
+            0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, // RequestBody
+            0xA0, 0xA1, 0xA2, 0xA3, 0xA4, // RequestAuth
+        ]
+    }
+    fn get_request_bytes_big_endian_fixint_encoding() -> Vec<u8> {
+        vec![
+            0x5E, 0xC0, 0xA7, 0x10, // MAGIC_NUMBER
+            0x00, 0x1E, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, 0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x01, // WireHeader::auth_type
+            0x00, 0x00, 0x00, 0x03, // WireHeader::body_len
+            0x00, 0x03, // WireHeader::auth_len
+            0x00, 0x00, 0x00, 0x01, // WireHeader::opcode
+            0x00, 0x00, // WireHeader::status
+            0x00, // WireHeader::reserved1
+            0x00, // WireHeader::reserved2
+            0x70, 0x80, 0x90, // RequestBody
+            0xa0, 0xb0, 0xc0, // RequestAuth
+        ]
+    }
+    fn get_request_bytes_little_endian_varint_encoding() -> Vec<u8> {
+        vec![
+            0xFC, // Encoding byte indicates that the following 4 bytes make a u32 int
+            //https://docs.rs/bincode/1.3.3/bincode/config/struct.VarintEncoding.html
+            0x5E, 0xC0, 0xA7, 0x10, // MAGIC_NUMBER
+            0x1E, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0xFD, // Encoding byte indicates that the following 8 bytes make a u64 int
+            //https://docs.rs/bincode/1.3.3/bincode/config/struct.VarintEncoding.html
+            0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x01, // WireHeader::auth_type
+            0x03, // WireHeader::body_len
+            0x03, // WireHeader::auth_len
+            0x01, // WireHeader::opcode
+            0x00, // WireHeader::status
+            0x00, // WireHeader::reserved1
+            0x00, // WireHeader::reserved2
+            0x70, 0x80, 0x90, // RequestBody
+            0xA0, 0xB0, 0xC0, // RequestAuth
+        ]
+    }
+    fn get_request_bytes_big_endian_varint_encoding() -> Vec<u8> {
+        vec![
+            0xFC, // Encoding byte indicates that the following 4 bytes make a u32 int
+            //https://docs.rs/bincode/1.3.3/bincode/config/struct.VarintEncoding.html
+            0x10, 0xA7, 0xC0, 0x5E, // MAGIC_NUMBER
+            0x1E, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0xFD, // Encoding byte indicates that the following 8 bytes make a u64 int
+            //https://docs.rs/bincode/1.3.3/bincode/config/struct.VarintEncoding.html
+            0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x01, // WireHeader::auth_type
+            0x03, // WireHeader::body_len
+            0x03, // WireHeader::auth_len
+            0x01, // WireHeader::opcode
+            0x00, // WireHeader::status
+            0x00, // WireHeader::reserved1
+            0x00, // WireHeader::reserved2
+            0x70, 0x80, 0x90, // RequestBody
+            0xA0, 0xB0, 0xC0, // RequestAuth
         ]
     }
 }

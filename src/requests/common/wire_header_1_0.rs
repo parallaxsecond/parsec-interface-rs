@@ -7,6 +7,7 @@ use crate::requests::common::MAGIC_NUMBER;
 use crate::requests::{ResponseStatus, Result};
 #[cfg(feature = "fuzz")]
 use arbitrary::Arbitrary;
+use bincode::Options;
 use log::error;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
@@ -80,14 +81,18 @@ impl WireHeader {
     /// - if marshalling the header fails, `ResponseStatus::InvalidEncoding` is returned.
     /// - if writing the header bytes fails, `ResponseStatus::ConnectionError` is returned.
     pub fn write_to_stream<W: Write>(&self, stream: &mut W) -> Result<()> {
-        stream.write_all(&bincode::serialize(&MAGIC_NUMBER)?)?;
+        let serializer = bincode::DefaultOptions::new()
+            .with_little_endian()
+            .with_fixint_encoding();
 
-        stream.write_all(&bincode::serialize(&REQUEST_HDR_SIZE)?)?;
+        stream.write_all(&serializer.serialize(&MAGIC_NUMBER)?)?;
 
-        stream.write_all(&bincode::serialize(&WIRE_PROTOCOL_VERSION_MAJ)?)?;
-        stream.write_all(&bincode::serialize(&WIRE_PROTOCOL_VERSION_MIN)?)?;
+        stream.write_all(&serializer.serialize(&REQUEST_HDR_SIZE)?)?;
 
-        stream.write_all(&bincode::serialize(&self)?)?;
+        stream.write_all(&serializer.serialize(&WIRE_PROTOCOL_VERSION_MAJ)?)?;
+        stream.write_all(&serializer.serialize(&WIRE_PROTOCOL_VERSION_MIN)?)?;
+
+        stream.write_all(&serializer.serialize(&self)?)?;
 
         Ok(())
     }
@@ -135,7 +140,10 @@ impl WireHeader {
             return Err(ResponseStatus::WireProtocolVersionNotSupported);
         }
 
-        let wire_header: WireHeader = bincode::deserialize(&bytes)?;
+        let deserializer = bincode::DefaultOptions::new()
+            .with_little_endian()
+            .with_fixint_encoding();
+        let wire_header: WireHeader = deserializer.deserialize(&bytes)?;
 
         if wire_header.reserved1 != 0x00 || wire_header.reserved2 != 0x00 {
             Err(ResponseStatus::InvalidHeader)

@@ -114,27 +114,77 @@ mod tests {
     use super::*;
 
     #[test]
-    fn response_to_stream() {
+    fn response_1_to_stream() {
         let mut mock = test_utils::MockReadWrite { buffer: Vec::new() };
-        let response = get_response();
+        let response = get_response_1();
 
         response
             .write_to_stream(&mut mock)
             .expect("Failed to write response");
 
-        assert_eq!(mock.buffer, get_response_bytes());
+        assert_eq!(mock.buffer, get_response_1_bytes());
     }
 
     #[test]
-    fn stream_to_response() {
+    fn response_2_to_stream() {
+        let mut mock = test_utils::MockReadWrite { buffer: Vec::new() };
+        let response = get_response_2();
+
+        response
+            .write_to_stream(&mut mock)
+            .expect("Failed to write response");
+
+        assert_eq!(mock.buffer, get_response_2_bytes());
+    }
+
+    #[test]
+    fn stream_to_response_1() {
         let mut mock = test_utils::MockReadWrite {
-            buffer: get_response_bytes(),
+            buffer: get_response_1_bytes(),
         };
 
         let response =
             Response::read_from_stream(&mut mock, 1000).expect("Failed to read response");
 
-        assert_eq!(response, get_response());
+        assert_eq!(response, get_response_1());
+    }
+
+    #[test]
+    fn stream_to_response_2() {
+        let mut mock = test_utils::MockReadWrite {
+            buffer: get_response_2_bytes(),
+        };
+
+        let response =
+            Response::read_from_stream(&mut mock, 1000).expect("Failed to read response");
+
+        assert_eq!(response, get_response_2());
+    }
+
+    #[test]
+    fn stream_to_fail_response_wrong_endians() {
+        let mut mock = test_utils::MockReadWrite {
+            buffer: get_response_bytes_big_endian_fixint_encoding(),
+        };
+        let response_status =
+            Response::read_from_stream(&mut mock, 1000).expect_err("Should have failed.");
+        assert_eq!(response_status, ResponseStatus::InvalidHeader);
+
+        let mut mock = test_utils::MockReadWrite {
+            buffer: get_response_bytes_big_endian_varint_encoding(),
+        };
+        let response_status =
+            Response::read_from_stream(&mut mock, 1000).expect_err("Should have failed.");
+        assert_eq!(response_status, ResponseStatus::InvalidHeader);
+    }
+    #[test]
+    fn stream_to_fail_response_wrong_int_encoding() {
+        let mut mock = test_utils::MockReadWrite {
+            buffer: get_response_bytes_little_endian_varint_encoding(),
+        };
+        let response_status =
+            Response::read_from_stream(&mut mock, 1000).expect_err("Should have failed.");
+        assert_eq!(response_status, ResponseStatus::InvalidHeader);
     }
 
     #[test]
@@ -149,7 +199,7 @@ mod tests {
     #[should_panic(expected = "Response body too large")]
     fn body_too_large() {
         let mut mock = test_utils::MockReadWrite {
-            buffer: get_response_bytes(),
+            buffer: get_response_1_bytes(),
         };
 
         let _ = Response::read_from_stream(&mut mock, 0).expect("Response body too large");
@@ -158,7 +208,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "Failed to write response")]
     fn failed_write() {
-        let response: Response = get_response();
+        let response: Response = get_response_1();
         let mut fail_mock = test_utils::MockFailReadWrite;
 
         response
@@ -169,7 +219,7 @@ mod tests {
     #[test]
     fn wrong_version() {
         let mut mock = test_utils::MockReadWrite {
-            buffer: get_response_bytes(),
+            buffer: get_response_1_bytes(),
         };
         // Put an invalid version major field.
         mock.buffer[6] = 0xFF;
@@ -185,7 +235,7 @@ mod tests {
         );
     }
 
-    fn get_response() -> Response {
+    fn get_response_1() -> Response {
         let body = ResponseBody::from_bytes(vec![0x70, 0x80, 0x90]);
         let header = ResponseHeader {
             provider: ProviderId::Core,
@@ -197,11 +247,130 @@ mod tests {
         Response { header, body }
     }
 
-    fn get_response_bytes() -> Vec<u8> {
+    fn get_response_2() -> Response {
+        let body = ResponseBody::from_bytes(vec![0xB0, 0xB1, 0xB2, 0xB3]);
+        let header = ResponseHeader {
+            provider: ProviderId::Core,
+            session: 0x88_99_AA_BB_CC_DD_EE_FF,
+            content_type: BodyType::Protobuf,
+            opcode: Opcode::Ping,
+            status: ResponseStatus::Success,
+        };
+        Response { header, body }
+    }
+
+    fn get_response_1_bytes() -> Vec<u8> {
         vec![
-            0x10, 0xA7, 0xC0, 0x5E, 0x1e, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x88, 0x77, 0x66,
-            0x55, 0x44, 0x33, 0x22, 0x11, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00,
-            0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x70, 0x80, 0x90,
+            0x10, 0xA7, 0xC0, 0x5E, // MAGIC_NUMBER
+            0x1E, 0x00, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, 0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x00, // WireHeader::auth_type
+            0x03, 0x00, 0x00, 0x00, // WireHeader::body_len
+            0x00, 0x00, // WireHeader::auth_len
+            0x01, 0x00, 0x00, 0x00, // WireHeader::opcode
+            0x00, 0x00, // WireHeader::status
+            0x00, // WireHeader::reserved1
+            0x00, // WireHeader::reserved2
+            0x70, 0x80, 0x90, // ResponseBody
+        ]
+    }
+
+    fn get_response_2_bytes() -> Vec<u8> {
+        vec![
+            0x10, 0xA7, 0xC0, 0x5E, // MAGIC_NUMBER
+            0x1E, 0x00, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, 0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0xFF, 0xEE, 0xDD, 0xCC, 0xBB, 0xAA, 0x99, 0x88, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x00, // WireHeader::auth_type
+            0x04, 0x00, 0x00, 0x00, // WireHeader::body_len
+            0x00, 0x00, // WireHeader::auth_len
+            0x01, 0x00, 0x00, 0x00, // WireHeader::opcode
+            0x00, 0x00, // WireHeader::status
+            0x00, // WireHeader::reserved1
+            0x00, // WireHeader::reserved2
+            0xB0, 0xB1, 0xB2, 0xB3, // ResponseBody
+        ]
+    }
+    fn get_response_bytes_big_endian_fixint_encoding() -> Vec<u8> {
+        vec![
+            0x5E, 0xC0, 0xA7, 0x10, // MAGIC_NUMBER
+            0x00, 0x1E, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, 0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x00, // WireHeader::auth_type
+            0x00, 0x00, 0x00, 0x03, // WireHeader::body_len
+            0x00, 0x00, // WireHeader::auth_len
+            0x00, 0x00, 0x00, 0x01, // WireHeader::opcode
+            0x00, 0x00, // WireHeader::status
+            0x00, // WireHeader::reserved1
+            0x00, // WireHeader::reserved2
+            0x70, 0x80, 0x90, // RequestBody
+        ]
+    }
+    fn get_response_bytes_little_endian_varint_encoding() -> Vec<u8> {
+        vec![
+            0xFC, // Encoding byte indicates that the following 4 bytes make a u32 int
+            //https://docs.rs/bincode/1.3.3/bincode/config/struct.VarintEncoding.html
+            0x5E, 0xC0, 0xA7, 0x10, // MAGIC_NUMBER
+            0x1E, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0xFD, // Encoding byte indicates that the following 8 bytes make a u64 int
+            //https://docs.rs/bincode/1.3.3/bincode/config/struct.VarintEncoding.html
+            0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x00, // WireHeader::auth_type
+            0x03, // WireHeader::body_len
+            0x00, // WireHeader::auth_len
+            0x01, // WireHeader::opcode
+            0x00, // WireHeader::status
+            0x00, // WireHeader::reserved1
+            0x00, // WireHeader::reserved2
+            0x70, 0x80, 0x90, // RequestBody
+        ]
+    }
+    fn get_response_bytes_big_endian_varint_encoding() -> Vec<u8> {
+        vec![
+            0xFC, // Encoding byte indicates that the following 4 bytes make a u32 int
+            //https://docs.rs/bincode/1.3.3/bincode/config/struct.VarintEncoding.html
+            0x10, 0xA7, 0xC0, 0x5E, // MAGIC_NUMBER
+            0x1E, // REQUEST_HDR_SIZE
+            0x01, // WIRE_PROTOCOL_VERSION_MAJ
+            0x00, // WIRE_PROTOCOL_VERSION_MIN
+            0x00, // WireHeader::flags
+            0x00, // WireHeader::provider
+            0xFD, // Encoding byte indicates that the following 8 bytes make a u64 int
+            //https://docs.rs/bincode/1.3.3/bincode/config/struct.VarintEncoding.html
+            0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, // WireHeader::session
+            0x00, // WireHeader::content_type
+            0x00, // WireHeader::accept_type
+            0x00, // WireHeader::auth_type
+            0x03, // WireHeader::body_len
+            0x00, // WireHeader::auth_len
+            0x01, // WireHeader::opcode
+            0x00, // WireHeader::status
+            0x00, // WireHeader::reserved1
+            0x00, // WireHeader::reserved2
+            0x70, 0x80, 0x90, // RequestBody
         ]
     }
 }
