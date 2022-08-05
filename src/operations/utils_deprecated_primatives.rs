@@ -4,22 +4,105 @@
 //! # Utilities for checking deprecated primatives
 //! # by PSA Crypto API 1.0.0
 
-use std::vec;
-
 use psa_crypto::types::algorithm::*;
 
-/// Check if any part of the algorithm is deprecated by PSA Crypto API
-pub fn is_algorithm_deprecated(_alg: Algorithm) -> bool {
+fn get_deprecated_hashes() -> Vec<Hash> {
+    vec![Hash::Md2, Hash::Md4, Hash::Md5, Hash::Sha1]
+}
+
+/// Check if hash is deprecated by PSA Crypto API
+pub fn is_hash_deprecated(hash: Hash) -> bool {
+    get_deprecated_hashes().contains(&hash)
+}
+
+/// Check if signhash is deprecated by PSA Crypto API
+pub fn is_signhash_deprecated(signhash: SignHash) -> bool {
+    match signhash {
+        SignHash::Specific(hash) => is_hash_deprecated(hash),
+        SignHash::Any => false,
+    }
+}
+
+/// Check if any part of the mac is deprecated by PSA Crypto API
+pub fn is_mac_deprecated(mac: Mac) -> bool {
+    pub fn is_full_length_mac_deprecated(full_length_mac: FullLengthMac) -> bool {
+        match full_length_mac {
+            FullLengthMac::Hmac { hash_alg } => is_hash_deprecated(hash_alg),
+            _ => false,
+        }
+    }
+    match mac {
+        Mac::FullLength(full_length_mac) => is_full_length_mac_deprecated(full_length_mac),
+        Mac::Truncated { mac_alg, .. } => is_full_length_mac_deprecated(mac_alg),
+    }
+}
+
+/// Check if any part of the cipher is deprecated by PSA Crypto API
+pub fn is_cipher_deprecated(_cipher: Cipher) -> bool {
     false
+}
+
+/// Check if any part of the aead is deprecated by PSA Crypto API
+pub fn is_aead_deprecated(_aead: Aead) -> bool {
+    false
+}
+
+/// Check if any part of the asymmetric signature is deprecated by PSA Crypto API
+pub fn is_asymmetric_signatiure_deprecated(asymm_sig: AsymmetricSignature) -> bool {
+    match asymm_sig {
+        AsymmetricSignature::RsaPkcs1v15Sign { hash_alg }
+        | AsymmetricSignature::RsaPss { hash_alg }
+        | AsymmetricSignature::Ecdsa { hash_alg }
+        | AsymmetricSignature::DeterministicEcdsa { hash_alg } => is_signhash_deprecated(hash_alg),
+        _ => false,
+    }
+}
+
+/// Check if any part of the asymmetric encryption is deprecated by PSA Crypto API
+pub fn is_asymmetric_encryption_deprecated(asymm_enc: AsymmetricEncryption) -> bool {
+    match asymm_enc {
+        AsymmetricEncryption::RsaOaep { hash_alg } => is_hash_deprecated(hash_alg),
+        _ => false,
+    }
+}
+
+/// Check if any part of the key agreement is deprecated by PSA Crypto API
+pub fn is_key_agreement_deprecated(key_agreement: KeyAgreement) -> bool {
+    match key_agreement {
+        KeyAgreement::WithKeyDerivation { kdf_alg, .. } => is_key_derivation_deprecated(kdf_alg),
+        _ => false,
+    }
+}
+
+/// Check if any part of the key derivation is deprecated by PSA Crypto API
+pub fn is_key_derivation_deprecated(keyderv: KeyDerivation) -> bool {
+    match keyderv {
+        KeyDerivation::Hkdf { hash_alg }
+        | KeyDerivation::Tls12Prf { hash_alg }
+        | KeyDerivation::Tls12PskToMs { hash_alg } => is_hash_deprecated(hash_alg),
+    }
+}
+
+/// Check if any part of the algorithm is deprecated by PSA Crypto API
+pub fn is_algorithm_deprecated(alg: Algorithm) -> bool {
+    match alg {
+        Algorithm::None => false,
+        Algorithm::Hash(hash) => is_hash_deprecated(hash),
+        Algorithm::Mac(mac) => is_mac_deprecated(mac),
+        Algorithm::Cipher(cipher) => is_cipher_deprecated(cipher),
+        Algorithm::Aead(aead) => is_aead_deprecated(aead),
+        Algorithm::AsymmetricSignature(asymm_sig) => is_asymmetric_signatiure_deprecated(asymm_sig),
+        Algorithm::AsymmetricEncryption(asymm_enc) => {
+            is_asymmetric_encryption_deprecated(asymm_enc)
+        }
+        Algorithm::KeyAgreement(key_agreement) => is_key_agreement_deprecated(key_agreement),
+        Algorithm::KeyDerivation(keyderv) => is_key_derivation_deprecated(keyderv),
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    fn get_deprecated_hashes() -> Vec<Hash> {
-        vec![Hash::Md2, Hash::Md4, Hash::Md5, Hash::Sha1]
-    }
-
     fn get_selection_non_deprecated_hashes() -> Vec<Hash> {
         vec![Hash::Sha256, Hash::Sha3_512, Hash::Sha384, Hash::Ripemd160]
     }
