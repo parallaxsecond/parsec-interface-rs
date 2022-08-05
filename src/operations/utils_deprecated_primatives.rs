@@ -5,6 +5,8 @@
 //! # by PSA Crypto API 1.0.0
 
 use psa_crypto::types::algorithm::*;
+use psa_crypto::types::key;
+use psa_crypto::types::key::Type;
 
 fn get_deprecated_hashes() -> Vec<Hash> {
     vec![Hash::Md2, Hash::Md4, Hash::Md5, Hash::Sha1]
@@ -98,6 +100,54 @@ pub fn is_algorithm_deprecated(alg: Algorithm) -> bool {
         Algorithm::KeyAgreement(key_agreement) => is_key_agreement_deprecated(key_agreement),
         Algorithm::KeyDerivation(keyderv) => is_key_derivation_deprecated(keyderv),
     }
+}
+
+/// Return a list of deprecated keys (type, size) if size is None, then the key type is deprecated
+fn get_deprecated_keys() -> Vec<(Type, Option<usize>)> {
+    vec![
+        (Type::Des, None),
+        (Type::Arc4, None),
+        (
+            Type::EccPublicKey {
+                curve_family: key::EccFamily::BrainpoolPR1,
+            },
+            Some(160),
+        ),
+        (
+            Type::EccPublicKey {
+                curve_family: key::EccFamily::SectR2,
+            },
+            None,
+        ),
+        (
+            Type::EccPublicKey {
+                curve_family: key::EccFamily::SectR1,
+            },
+            Some(163),
+        ),
+        (
+            Type::EccPublicKey {
+                curve_family: key::EccFamily::SectK1,
+            },
+            Some(163),
+        ),
+        (
+            Type::EccPublicKey {
+                curve_family: key::EccFamily::SecpR2,
+            },
+            None,
+        ),
+    ]
+}
+
+/// Check if the key or the key type is deprecated by PSA Crypto API
+pub fn is_key_deprecated(key_type: Type, key_size: usize) -> bool {
+    for (ktype, ksize) in get_deprecated_keys() {
+        if ktype == key_type && (ksize.is_none() || ksize == Some(key_size)) {
+            return true;
+        }
+    }
+    false
 }
 
 #[cfg(test)]
@@ -401,6 +451,109 @@ mod tests {
     fn non_deprecated_algorithms() {
         for algo in get_selection_non_deprecated_algorithms() {
             assert!(!is_algorithm_deprecated(algo), "algorithm: {:?}", algo);
+        }
+    }
+
+    #[test]
+    fn deprecated_keys() {
+        let test_keys = vec![
+            (
+                Type::EccPublicKey {
+                    curve_family: key::EccFamily::SecpR2,
+                },
+                160,
+            ),
+            (
+                Type::EccPublicKey {
+                    curve_family: key::EccFamily::SectK1,
+                },
+                163,
+            ),
+            (
+                Type::EccPublicKey {
+                    curve_family: key::EccFamily::SectR1,
+                },
+                163,
+            ),
+            (
+                Type::EccPublicKey {
+                    curve_family: key::EccFamily::SectR2,
+                },
+                163,
+            ),
+            (
+                Type::EccPublicKey {
+                    curve_family: key::EccFamily::BrainpoolPR1,
+                },
+                160,
+            ),
+            (Type::Des, 56),
+            (Type::Des, 56 * 2),
+            (Type::Des, 56 * 3),
+            (Type::Arc4, 40),
+            (Type::Arc4, 2048),
+        ];
+        for (ktype, ksize) in test_keys {
+            assert!(
+                is_key_deprecated(ktype, ksize),
+                "key: ({:?} : {:?})",
+                ktype,
+                ksize
+            );
+        }
+    }
+
+    #[test]
+    fn non_deprecated_keys() {
+        let test_keys = vec![
+            (
+                Type::EccPublicKey {
+                    curve_family: key::EccFamily::SecpK1,
+                },
+                192,
+            ),
+            (
+                Type::EccPublicKey {
+                    curve_family: key::EccFamily::SecpR1,
+                },
+                256,
+            ),
+            (
+                Type::EccPublicKey {
+                    curve_family: key::EccFamily::SectK1,
+                },
+                239,
+            ),
+            (
+                Type::EccPublicKey {
+                    curve_family: key::EccFamily::SectR1,
+                },
+                409,
+            ),
+            (
+                Type::EccPublicKey {
+                    curve_family: key::EccFamily::BrainpoolPR1,
+                },
+                192,
+            ),
+            (
+                Type::EccPublicKey {
+                    curve_family: key::EccFamily::BrainpoolPR1,
+                },
+                256,
+            ),
+            (Type::Aes, 256),
+            (Type::RsaPublicKey, 2048),
+            (Type::Hmac, 128),
+            (Type::Chacha20, 256),
+        ];
+        for (ktype, ksize) in test_keys {
+            assert!(
+                !is_key_deprecated(ktype, ksize),
+                "key: ({:?} : {:?})",
+                ktype,
+                ksize
+            );
         }
     }
 }
