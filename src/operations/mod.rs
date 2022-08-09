@@ -38,7 +38,7 @@ pub mod psa_raw_key_agreement;
 pub mod can_do_crypto;
 pub mod attest_key;
 pub mod prepare_key_attestation;
-pub mod utils_deprecated_primatives;
+pub mod utils_deprecated_primitives;
 
 pub use psa_crypto::types::algorithm as psa_algorithm;
 pub use psa_crypto::types::key as psa_key_attributes;

@@ -58,6 +58,8 @@ pub enum ResponseStatus {
     BodySizeExceedsLimit = 20,
     /// The operation requires admin privilege
     AdminOperation = 21,
+    /// The key template contains a deprecated type or algorithm
+    DeprecatedPrimitive = 22,
     /// An error occurred that does not correspond to any defined failure cause
     PsaErrorGenericError = 1132,
     /// The requested operation or a parameter is not supported by this implementation
@@ -182,6 +184,12 @@ impl fmt::Display for ResponseStatus {
             }
             ResponseStatus::AdminOperation => {
                 write!(f, "the operation requires admin privilege")
+            }
+            ResponseStatus::DeprecatedPrimitive => {
+                write!(
+                    f,
+                    "the key template contains a deprecated type or algorithm"
+                )
             }
             ResponseStatus::PsaErrorGenericError => {
                 write!(

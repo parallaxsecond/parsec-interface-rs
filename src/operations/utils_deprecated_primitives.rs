@@ -1,9 +1,10 @@
 // Copyright 2022 Contributors to the Parsec project.
 // SPDX-License-Identifier: Apache-2.0
 //!
-//! # Utilities for checking deprecated primatives
+//! # Utilities for checking deprecated primitives
 //! # by PSA Crypto API 1.0.0
 
+use crate::requests::{ResponseStatus, Result};
 use psa_crypto::types::algorithm::*;
 use psa_crypto::types::key;
 use psa_crypto::types::key::Type;
@@ -50,7 +51,7 @@ pub fn is_aead_deprecated(_aead: Aead) -> bool {
 }
 
 /// Check if any part of the asymmetric signature is deprecated by PSA Crypto API
-pub fn is_asymmetric_signatiure_deprecated(asymm_sig: AsymmetricSignature) -> bool {
+pub fn is_asymmetric_signature_deprecated(asymm_sig: AsymmetricSignature) -> bool {
     match asymm_sig {
         AsymmetricSignature::RsaPkcs1v15Sign { hash_alg }
         | AsymmetricSignature::RsaPss { hash_alg }
@@ -93,7 +94,7 @@ pub fn is_algorithm_deprecated(alg: Algorithm) -> bool {
         Algorithm::Mac(mac) => is_mac_deprecated(mac),
         Algorithm::Cipher(cipher) => is_cipher_deprecated(cipher),
         Algorithm::Aead(aead) => is_aead_deprecated(aead),
-        Algorithm::AsymmetricSignature(asymm_sig) => is_asymmetric_signatiure_deprecated(asymm_sig),
+        Algorithm::AsymmetricSignature(asymm_sig) => is_asymmetric_signature_deprecated(asymm_sig),
         Algorithm::AsymmetricEncryption(asymm_enc) => {
             is_asymmetric_encryption_deprecated(asymm_enc)
         }
@@ -148,6 +149,37 @@ pub fn is_key_deprecated(key_type: Type, key_size: usize) -> bool {
         }
     }
     false
+}
+
+/// Checks if any part of the key template is deprecated by PSA Crypto API
+pub trait CheckDeprecated {
+    /// Return Error with status ResponseStatus::DeprecatedPrimitive
+    /// if any part of the key template is deprecated by PSA Crypto API
+    fn check_deprecated(&self) -> Result<()>;
+}
+
+impl CheckDeprecated for crate::operations::psa_import_key::Operation {
+    /// Checks if any part of the key template is deprecated by PSA Crypto API
+    fn check_deprecated(&self) -> Result<()> {
+        if is_algorithm_deprecated(self.attributes.policy.permitted_algorithms)
+            || is_key_deprecated(self.attributes.key_type, self.attributes.bits)
+        {
+            return Err(ResponseStatus::DeprecatedPrimitive);
+        }
+        Ok(())
+    }
+}
+
+impl CheckDeprecated for crate::operations::psa_generate_key::Operation {
+    /// Check if any part of the key template is deprecated by PSA Crypto API
+    fn check_deprecated(&self) -> Result<()> {
+        if is_algorithm_deprecated(self.attributes.policy.permitted_algorithms)
+            || is_key_deprecated(self.attributes.key_type, self.attributes.bits)
+        {
+            return Err(ResponseStatus::DeprecatedPrimitive);
+        }
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -273,9 +305,8 @@ mod tests {
     fn get_deprecated_asymmetric_encryptions() -> Vec<AsymmetricEncryption> {
         let mut deprecated_asymmetric_encryptions = vec![];
         for hash in get_deprecated_hashes() {
-            deprecated_asymmetric_encryptions.push(AsymmetricEncryption::RsaOaep {
-                hash_alg: hash.into(),
-            });
+            deprecated_asymmetric_encryptions
+                .push(AsymmetricEncryption::RsaOaep { hash_alg: hash });
         }
         deprecated_asymmetric_encryptions
     }
@@ -284,9 +315,8 @@ mod tests {
         let mut selection_non_deprecated_asymmetric_encryptions =
             vec![AsymmetricEncryption::RsaPkcs1v15Crypt];
         for hash in get_selection_non_deprecated_hashes() {
-            selection_non_deprecated_asymmetric_encryptions.push(AsymmetricEncryption::RsaOaep {
-                hash_alg: hash.into(),
-            });
+            selection_non_deprecated_asymmetric_encryptions
+                .push(AsymmetricEncryption::RsaOaep { hash_alg: hash });
         }
         selection_non_deprecated_asymmetric_encryptions
     }
@@ -294,15 +324,9 @@ mod tests {
     fn get_deprecated_key_derivations() -> Vec<KeyDerivation> {
         let mut deprecated_key_derivations = vec![];
         for hash in get_deprecated_hashes() {
-            deprecated_key_derivations.push(KeyDerivation::Hkdf {
-                hash_alg: hash.into(),
-            });
-            deprecated_key_derivations.push(KeyDerivation::Tls12Prf {
-                hash_alg: hash.into(),
-            });
-            deprecated_key_derivations.push(KeyDerivation::Tls12PskToMs {
-                hash_alg: hash.into(),
-            });
+            deprecated_key_derivations.push(KeyDerivation::Hkdf { hash_alg: hash });
+            deprecated_key_derivations.push(KeyDerivation::Tls12Prf { hash_alg: hash });
+            deprecated_key_derivations.push(KeyDerivation::Tls12PskToMs { hash_alg: hash });
         }
         deprecated_key_derivations
     }
@@ -310,15 +334,11 @@ mod tests {
     fn get_selection_non_deprecated_key_derivations() -> Vec<KeyDerivation> {
         let mut selection_non_deprecated_key_derivations = vec![];
         for hash in get_selection_non_deprecated_hashes() {
-            selection_non_deprecated_key_derivations.push(KeyDerivation::Hkdf {
-                hash_alg: hash.into(),
-            });
-            selection_non_deprecated_key_derivations.push(KeyDerivation::Tls12Prf {
-                hash_alg: hash.into(),
-            });
-            selection_non_deprecated_key_derivations.push(KeyDerivation::Tls12PskToMs {
-                hash_alg: hash.into(),
-            });
+            selection_non_deprecated_key_derivations.push(KeyDerivation::Hkdf { hash_alg: hash });
+            selection_non_deprecated_key_derivations
+                .push(KeyDerivation::Tls12Prf { hash_alg: hash });
+            selection_non_deprecated_key_derivations
+                .push(KeyDerivation::Tls12PskToMs { hash_alg: hash });
         }
         selection_non_deprecated_key_derivations
     }
@@ -440,6 +460,7 @@ mod tests {
         }
         selection_non_deprecated_algorithms
     }
+
     #[test]
     fn deprecated_algorithms() {
         for algo in get_deprecated_algorithms() {
@@ -555,5 +576,94 @@ mod tests {
                 ksize
             );
         }
+    }
+
+    #[test]
+    fn op_check_deprecated_for_deprecated() {
+        use psa_crypto::types::key::{Attributes, Lifetime, Policy, UsageFlags};
+        let mut generate_key_op = crate::operations::psa_generate_key::Operation {
+            key_name: "dummy".to_string(),
+            attributes: Attributes {
+                lifetime: Lifetime::Persistent,
+                key_type: Type::RawData,
+                bits: 0,
+                policy: Policy {
+                    usage_flags: UsageFlags::default(),
+                    permitted_algorithms: Algorithm::None,
+                },
+            },
+        };
+        let mut import_key_op = crate::operations::psa_import_key::Operation {
+            key_name: "dummy".to_string(),
+            attributes: Attributes {
+                lifetime: Lifetime::Persistent,
+                key_type: Type::RawData,
+                bits: 0,
+                policy: Policy {
+                    usage_flags: UsageFlags::default(),
+                    permitted_algorithms: Algorithm::None,
+                },
+            },
+            data: secrecy::Secret::new(vec![]),
+        };
+
+        let (test_key_type, test_key_size) = get_deprecated_keys()[0];
+        let test_algorithm = Algorithm::Hash(Hash::Md2);
+        generate_key_op.attributes.key_type = test_key_type;
+        generate_key_op.attributes.bits = test_key_size.unwrap_or(0);
+        generate_key_op.attributes.policy.permitted_algorithms = test_algorithm;
+        assert_eq!(
+            generate_key_op.check_deprecated(),
+            Err(ResponseStatus::DeprecatedPrimitive)
+        );
+        import_key_op.attributes.key_type = test_key_type;
+        import_key_op.attributes.bits = test_key_size.unwrap_or(0);
+        import_key_op.attributes.policy.permitted_algorithms = test_algorithm;
+        assert_eq!(
+            import_key_op.check_deprecated(),
+            Err(ResponseStatus::DeprecatedPrimitive)
+        );
+    }
+
+    #[test]
+    fn op_check_deprecated_for_non_deprecated() {
+        use psa_crypto::types::key::{Attributes, Lifetime, Policy, UsageFlags};
+        let mut generate_key_op = crate::operations::psa_generate_key::Operation {
+            key_name: "dummy".to_string(),
+            attributes: Attributes {
+                lifetime: Lifetime::Persistent,
+                key_type: Type::RawData,
+                bits: 0,
+                policy: Policy {
+                    usage_flags: UsageFlags::default(),
+                    permitted_algorithms: Algorithm::None,
+                },
+            },
+        };
+        let mut import_key_op = crate::operations::psa_import_key::Operation {
+            key_name: "dummy".to_string(),
+            attributes: Attributes {
+                lifetime: Lifetime::Persistent,
+                key_type: Type::RawData,
+                bits: 0,
+                policy: Policy {
+                    usage_flags: UsageFlags::default(),
+                    permitted_algorithms: Algorithm::None,
+                },
+            },
+            data: secrecy::Secret::new(vec![]),
+        };
+
+        let test_key_type = Type::Aes;
+        let test_key_size: usize = 256;
+        let test_algorithm = Algorithm::Cipher(Cipher::CbcNoPadding);
+        generate_key_op.attributes.key_type = test_key_type;
+        generate_key_op.attributes.bits = test_key_size;
+        generate_key_op.attributes.policy.permitted_algorithms = test_algorithm;
+        assert_eq!(generate_key_op.check_deprecated(), Ok(()));
+        import_key_op.attributes.key_type = test_key_type;
+        import_key_op.attributes.bits = test_key_size;
+        import_key_op.attributes.policy.permitted_algorithms = test_algorithm;
+        assert_eq!(import_key_op.check_deprecated(), Ok(()));
     }
 }
