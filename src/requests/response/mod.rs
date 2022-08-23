@@ -20,7 +20,7 @@ pub use response_header::ResponseHeader;
 pub use super::common::wire_header_1_0::WireHeader as RawHeader;
 
 /// Native representation of the response wire format.
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct Response {
     /// Header of the response, containing the response status.
     pub header: ResponseHeader,
