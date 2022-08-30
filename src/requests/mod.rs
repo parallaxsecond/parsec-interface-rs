@@ -69,7 +69,7 @@ impl TryFrom<u8> for ProviderId {
 ///
 /// Passed in headers as `content_type` and `accept_type`.
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]
-#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u8)]
 pub enum BodyType {
     /// Protobuf format for operations.

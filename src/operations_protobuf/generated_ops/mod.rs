@@ -1,6 +1,7 @@
 // Copyright 2020 Contributors to the Parsec project.
 // SPDX-License-Identifier: Apache-2.0
 
+#![allow(clippy::derive_partial_eq_without_eq)]
 pub mod psa_sign_hash;
 pub mod psa_verify_hash;
 pub mod psa_sign_message;

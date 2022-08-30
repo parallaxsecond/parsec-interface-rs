@@ -13,7 +13,7 @@ use std::convert::TryFrom;
 /// Fields that are not relevant for application development (e.g. magic number) are
 /// not copied across from the raw header.
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct RequestHeader {
     /// Provider ID value
     pub provider: ProviderId,

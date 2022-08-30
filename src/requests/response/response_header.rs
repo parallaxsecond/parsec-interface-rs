@@ -9,7 +9,7 @@ use std::convert::TryFrom;
 ///
 /// Fields that are not relevant for application development (e.g. magic number) are
 /// not copied across from the raw header.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct ResponseHeader {
     /// Provider ID value
     pub provider: ProviderId,

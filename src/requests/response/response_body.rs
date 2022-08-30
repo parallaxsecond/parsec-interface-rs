@@ -9,7 +9,7 @@ use zeroize::Zeroize;
 /// Wrapper around the body of a response.
 ///
 /// Hides the contents and keeps them immutable.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Zeroize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Zeroize)]
 #[zeroize(drop)]
 pub struct ResponseBody {
     buffer: Vec<u8>,

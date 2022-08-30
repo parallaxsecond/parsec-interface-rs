@@ -11,7 +11,7 @@ use std::fmt;
 /// See the [status
 /// code](https://parallaxsecond.github.io/parsec-book/parsec_client/status_codes.html) page for a
 /// broader description of these codes.
-#[derive(Copy, Clone, Debug, PartialEq, FromPrimitive)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, FromPrimitive)]
 #[repr(u16)]
 pub enum ResponseStatus {
     /// Successful operation

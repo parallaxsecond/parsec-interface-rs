@@ -11,7 +11,7 @@ use zeroize::Zeroize;
 ///
 /// Hides the contents and keeps them immutable.
 #[cfg_attr(feature = "fuzz", derive(Arbitrary))]
-#[derive(Debug, PartialEq, Zeroize)]
+#[derive(Debug, PartialEq, Eq, Zeroize)]
 #[zeroize(drop)]
 pub struct RequestBody {
     buffer: Vec<u8>,
