@@ -7,7 +7,7 @@ use super::psa_key_attributes::Attributes;
 use crate::requests::ProviderId;
 
 /// Structure holding the basic information for a key in the application for client discovery.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct KeyInfo {
     /// The ID of the associated provider.
     pub provider_id: ProviderId,
