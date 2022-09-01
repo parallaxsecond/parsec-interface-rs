@@ -23,7 +23,7 @@ prost = "0.8.0"
 arbitrary = { version = "0.4.6", features = ["derive"], optional = true }
 uuid = "0.8.1"
 log = "0.4.11"
-psa-crypto = { version = "0.9.0", default-features = false }
+psa-crypto = { git = "https://github.com/parallaxsecond/rust-psa-crypto", rev = "22ebb4d8e479e1c0d853398cf8487d6389b1ed6f", default-features = false }
 zeroize = { version = "1.1.0", features = ["zeroize_derive"] }
 secrecy = { version = "0.7.0", features = ["serde"] }
 derivative = "2.1.1"
