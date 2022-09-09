@@ -1,5 +1,41 @@
 # Changelog
 
+## [0.27.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.27.0) (2022-09-09)
+
+[Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.26.0...0.27.0)
+
+**Implemented enhancements:**
+
+- Strongify wire header serialization [\#115](https://github.com/parallaxsecond/parsec-interface-rs/issues/115)
+- Validate hash length for psa\_sign\_hash [\#107](https://github.com/parallaxsecond/parsec-interface-rs/issues/107)
+- Find a way to represent deprecated primitives [\#33](https://github.com/parallaxsecond/parsec-interface-rs/issues/33)
+
+**Merged pull requests:**
+
+- Release prep 0.27.0 [\#132](https://github.com/parallaxsecond/parsec-interface-rs/pull/132) ([mohamedasaker-arm](https://github.com/mohamedasaker-arm))
+- Use psa-crypto with updated zeroize [\#131](https://github.com/parallaxsecond/parsec-interface-rs/pull/131) ([gowthamsk-arm](https://github.com/gowthamsk-arm))
+- Fix clippy warnings and ignore those under generated ops [\#130](https://github.com/parallaxsecond/parsec-interface-rs/pull/130) ([mohamedasaker-arm](https://github.com/mohamedasaker-arm))
+- Feature/33 represent check deprecated primitives [\#129](https://github.com/parallaxsecond/parsec-interface-rs/pull/129) ([mohamedasaker-arm](https://github.com/mohamedasaker-arm))
+- Configure bincode used in wire header serialization/deserialization  [\#128](https://github.com/parallaxsecond/parsec-interface-rs/pull/128) ([mohamedasaker-arm](https://github.com/mohamedasaker-arm))
+
+## [0.26.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.26.0) (2022-02-15)
+
+[Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.25.0...0.26.0)
+
+**Implemented enhancements:**
+
+- Add key attestation operations [\#124](https://github.com/parallaxsecond/parsec-interface-rs/pull/124) ([ionut-arm](https://github.com/ionut-arm))
+
+**Merged pull requests:**
+
+- Prepare for 0.26.0 release [\#126](https://github.com/parallaxsecond/parsec-interface-rs/pull/126) ([ionut-arm](https://github.com/ionut-arm))
+- Merge can-do-crypto branch into main [\#125](https://github.com/parallaxsecond/parsec-interface-rs/pull/125) ([anta5010](https://github.com/anta5010))
+- Merge origin/main into can-do-crypto  [\#123](https://github.com/parallaxsecond/parsec-interface-rs/pull/123) ([anta5010](https://github.com/anta5010))
+- Add PsaCipherEncrypt and PsaCipherDecrypt operations [\#122](https://github.com/parallaxsecond/parsec-interface-rs/pull/122) ([akazimierskigl](https://github.com/akazimierskigl))
+- Upgrade prost to 0.8.0 [\#121](https://github.com/parallaxsecond/parsec-interface-rs/pull/121) ([hug-dev](https://github.com/hug-dev))
+- Added the changes required for the CanDoCrypto operation. [\#120](https://github.com/parallaxsecond/parsec-interface-rs/pull/120) ([Kakemone](https://github.com/Kakemone))
+- Update CHANGELOG [\#119](https://github.com/parallaxsecond/parsec-interface-rs/pull/119) ([hug-dev](https://github.com/hug-dev))
+
 ## [0.25.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.25.0) (2021-08-03)
 
 [Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.24.0...0.25.0)
@@ -111,10 +147,6 @@
 - Re-export `uuid` crate [\#51](https://github.com/parallaxsecond/parsec-interface-rs/issues/51)
 - Upgrade dependencies [\#77](https://github.com/parallaxsecond/parsec-interface-rs/pull/77) ([hug-dev](https://github.com/hug-dev))
 
-**Fixed bugs:**
-
-- Fix clippy warnings [\#67](https://github.com/parallaxsecond/parsec-interface-rs/pull/67) ([ionut-arm](https://github.com/ionut-arm))
-
 **Security fixes:**
 
 - Audit response status code for information disclosure [\#59](https://github.com/parallaxsecond/parsec-interface-rs/issues/59)
@@ -127,6 +159,10 @@
 
 [Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.19.0...0.20.0)
 
+**Fixed bugs:**
+
+- Fix clippy warnings [\#67](https://github.com/parallaxsecond/parsec-interface-rs/pull/67) ([ionut-arm](https://github.com/ionut-arm))
+
 **Merged pull requests:**
 
 - Added raw key agreement interface [\#75](https://github.com/parallaxsecond/parsec-interface-rs/pull/75) ([sbailey-arm](https://github.com/sbailey-arm))
@@ -134,7 +170,7 @@
 - Added aead encrypt and decrypt [\#73](https://github.com/parallaxsecond/parsec-interface-rs/pull/73) ([sbailey-arm](https://github.com/sbailey-arm))
 - Add support for ListAuthenticators operation [\#72](https://github.com/parallaxsecond/parsec-interface-rs/pull/72) ([joechrisellis](https://github.com/joechrisellis))
 - Add new AuthType variants [\#71](https://github.com/parallaxsecond/parsec-interface-rs/pull/71) ([joechrisellis](https://github.com/joechrisellis))
-- Add support for `psa\_generate\_random` [\#68](https://github.com/parallaxsecond/parsec-interface-rs/pull/68) ([joechrisellis](https://github.com/joechrisellis))
+- Add support for `psa_generate_random` [\#68](https://github.com/parallaxsecond/parsec-interface-rs/pull/68) ([joechrisellis](https://github.com/joechrisellis))
 
 ## [0.19.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.19.0) (2020-07-15)
 
@@ -221,10 +257,6 @@
 - Make wire protocol version a property of request and response headers [\#41](https://github.com/parallaxsecond/parsec-interface-rs/issues/41)
 - Make sure there is a clear separation between PSA and Core structures [\#30](https://github.com/parallaxsecond/parsec-interface-rs/issues/30)
 
-**Merged pull requests:**
-
-- Add missing\_doc as an error [\#31](https://github.com/parallaxsecond/parsec-interface-rs/pull/31) ([hug-dev](https://github.com/hug-dev))
-
 ## [0.13.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.13.0) (2020-04-15)
 
 [Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.12.0...0.13.0)
@@ -232,6 +264,7 @@
 **Implemented enhancements:**
 
 - Add body type getter in Convert trait [\#40](https://github.com/parallaxsecond/parsec-interface-rs/issues/40)
+- Add provider ID to list\_opcodes [\#44](https://github.com/parallaxsecond/parsec-interface-rs/pull/44) ([ionut-arm](https://github.com/ionut-arm))
 - Add body\_type fn to Convert [\#42](https://github.com/parallaxsecond/parsec-interface-rs/pull/42) ([ionut-arm](https://github.com/ionut-arm))
 
 **Merged pull requests:**
@@ -244,7 +277,6 @@
 
 **Implemented enhancements:**
 
-- Add provider ID to list\_opcodes [\#44](https://github.com/parallaxsecond/parsec-interface-rs/pull/44) ([ionut-arm](https://github.com/ionut-arm))
 - Add faillible methods [\#39](https://github.com/parallaxsecond/parsec-interface-rs/pull/39) ([hug-dev](https://github.com/hug-dev))
 - Add a new method for permisison and compatibility [\#38](https://github.com/parallaxsecond/parsec-interface-rs/pull/38) ([hug-dev](https://github.com/hug-dev))
 
@@ -268,6 +300,10 @@
 **Closed issues:**
 
 - Update documentation after upgrading to PSA Crypto 1.0.0 [\#29](https://github.com/parallaxsecond/parsec-interface-rs/issues/29)
+
+**Merged pull requests:**
+
+- Add missing\_doc as an error [\#31](https://github.com/parallaxsecond/parsec-interface-rs/pull/31) ([hug-dev](https://github.com/hug-dev))
 
 ## [0.8.3](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.8.3) (2020-02-28)
 
@@ -397,7 +433,7 @@
 
 ## [0.1.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.1.0) (2019-10-09)
 
-[Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/d4c8ae7995129794d02bb82dddf565e8a7e39ef0...0.1.0)
+[Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/c89c06232024d57d96826b41ea4d409a021fd530...0.1.0)
 
 **Merged pull requests:**
 
