@@ -7,8 +7,6 @@ use super::common::wire_header_1_0::WireHeader as Raw;
 use super::response::ResponseHeader;
 use crate::requests::{ResponseStatus, Result};
 use crate::secrecy::ExposeSecret;
-#[cfg(feature = "fuzz")]
-use arbitrary::Arbitrary;
 use derivative::Derivative;
 use log::error;
 use std::convert::{TryFrom, TryInto};
@@ -26,7 +24,6 @@ pub use request_header::RequestHeader;
 pub use super::common::wire_header_1_0::WireHeader as RawHeader;
 
 /// Representation of the request wire format.
-#[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[derive(Derivative)]
 #[derivative(Debug)]
 pub struct Request {
