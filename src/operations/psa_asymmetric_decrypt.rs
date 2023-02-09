@@ -7,8 +7,6 @@
 use super::psa_key_attributes::Attributes;
 use crate::operations::psa_algorithm::AsymmetricEncryption;
 use crate::requests::ResponseStatus;
-#[cfg(feature = "fuzz")]
-use arbitrary::Arbitrary;
 use derivative::Derivative;
 
 /// Native object for asymmetric decryption operations.

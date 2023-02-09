@@ -2,14 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 use crate::requests::Result;
 use crate::secrecy::{ExposeSecret, Secret};
-#[cfg(feature = "fuzz")]
-use arbitrary::Arbitrary;
 use std::io::{Read, Write};
 
 /// Wrapper around the authentication value of a request.
 ///
 /// Hides the contents and keeps them immutable.
-#[cfg_attr(feature = "fuzz", derive(Arbitrary))]
 #[allow(missing_debug_implementations)]
 pub struct RequestAuth {
     /// Buffer holding the authentication token as a byte vector
