@@ -464,14 +464,14 @@ mod tests {
     #[test]
     fn deprecated_algorithms() {
         for algo in get_deprecated_algorithms() {
-            assert!(is_algorithm_deprecated(algo), "algorithm: {:?}", algo);
+            assert!(is_algorithm_deprecated(algo), "algorithm: {algo:?}");
         }
     }
 
     #[test]
     fn non_deprecated_algorithms() {
         for algo in get_selection_non_deprecated_algorithms() {
-            assert!(!is_algorithm_deprecated(algo), "algorithm: {:?}", algo);
+            assert!(!is_algorithm_deprecated(algo), "algorithm: {algo:?}");
         }
     }
 
@@ -517,9 +517,7 @@ mod tests {
         for (ktype, ksize) in test_keys {
             assert!(
                 is_key_deprecated(ktype, ksize),
-                "key: ({:?} : {:?})",
-                ktype,
-                ksize
+                "key: ({ktype:?} : {ksize:?})"
             );
         }
     }
@@ -571,9 +569,7 @@ mod tests {
         for (ktype, ksize) in test_keys {
             assert!(
                 !is_key_deprecated(ktype, ksize),
-                "key: ({:?} : {:?})",
-                ktype,
-                ksize
+                "key: ({ktype:?} : {ksize:?})"
             );
         }
     }

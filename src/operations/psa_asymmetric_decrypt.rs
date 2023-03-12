@@ -40,7 +40,7 @@ impl Operation {
         key_attributes.can_decrypt_message()?;
         key_attributes.permits_alg(self.alg.into())?;
         key_attributes.compatible_with_alg(self.alg.into())?;
-        if (self.alg == AsymmetricEncryption::RsaPkcs1v15Crypt && self.salt != None)
+        if (self.alg == AsymmetricEncryption::RsaPkcs1v15Crypt && self.salt.is_some())
             || self.ciphertext.is_empty()
         {
             return Err(ResponseStatus::PsaErrorInvalidArgument);
