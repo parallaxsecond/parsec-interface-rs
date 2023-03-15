@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.28.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.28.0) (2023-03-13)
+
+[Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.27.0...0.28.0)
+
+**Merged pull requests:**
+
+- Fix CI issues [\#136](https://github.com/parallaxsecond/parsec-interface-rs/pull/136) ([gowthamsk-arm](https://github.com/gowthamsk-arm))
+- Do not derive Arbitrary for types not implementing it [\#135](https://github.com/parallaxsecond/parsec-interface-rs/pull/135) ([ema](https://github.com/ema))
+- Update to remove const\_err [\#134](https://github.com/parallaxsecond/parsec-interface-rs/pull/134) ([marcsvll](https://github.com/marcsvll))
+
 ## [0.27.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.27.0) (2022-09-09)
 
 [Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.26.0...0.27.0)
