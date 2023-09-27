@@ -10,7 +10,7 @@ on:
         description: "Revision hash to run against"
         required: false
         default: ""
-        
+
 jobs:
   dependencies:
     name: Check for unused dependencies
@@ -29,6 +29,18 @@ jobs:
         run: cargo install cargo-udeps --locked
       - name: Execute cargo udeps
         run: cargo +nightly udeps
+
+  build:
+    name: Build and check formatting with updated dependencies
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: "${{ github.event.inputs.rev }}"
+    - name: Execute all tests
+      run: |
+        rm Cargo.lock
+        ./tests/ci.sh
 
   audit:
     name: Check for crates with security vulnerabilities
