@@ -9,6 +9,7 @@ readme = "README.md"
 keywords = ["parsec", "interface", "serialization"]
 categories = ["encoding"]
 edition = "2018"
+rust-version = "1.66.0"
 
 [build-dependencies]
 prost-build = { version = "0.8.0", optional = true }
