@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.29.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.29.0) (2023-10-06)
+
+[Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.28.0...0.29.0)
+
+**Merged pull requests:**
+
+- Bump psa-crypto to 0.11.0 [\#144](https://github.com/parallaxsecond/parsec-interface-rs/pull/144) ([tgonzalezorlandoarm](https://github.com/tgonzalezorlandoarm))
+- Bump num-derive to 0.4.0 [\#143](https://github.com/parallaxsecond/parsec-interface-rs/pull/143) ([tgonzalezorlandoarm](https://github.com/tgonzalezorlandoarm))
+- Cargo.toml: Bump prost and prost-build to 0.9.0 [\#142](https://github.com/parallaxsecond/parsec-interface-rs/pull/142) ([tgonzalezorlandoarm](https://github.com/tgonzalezorlandoarm))
+- Tg/msrv 1.66.0 [\#141](https://github.com/parallaxsecond/parsec-interface-rs/pull/141) ([tgonzalezorlandoarm](https://github.com/tgonzalezorlandoarm))
+- Fix nightly issues [\#140](https://github.com/parallaxsecond/parsec-interface-rs/pull/140) ([gowthamsk-arm](https://github.com/gowthamsk-arm))
+- Bump secrecy crate [\#139](https://github.com/parallaxsecond/parsec-interface-rs/pull/139) ([gowthamsk-arm](https://github.com/gowthamsk-arm))
+
 ## [0.28.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.28.0) (2023-03-13)
 
 [Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.27.0...0.28.0)
