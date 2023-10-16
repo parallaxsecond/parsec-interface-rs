@@ -1,6 +1,6 @@
 [package]
 name = "parsec-interface"
-version = "0.29.0"
+version = "0.29.1"
 authors = ["Parsec Project Contributors"]
 description = "Parsec interface library to communicate using the wire protocol"
 license = "Apache-2.0"

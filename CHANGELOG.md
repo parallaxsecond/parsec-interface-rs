@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.29.1](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.29.1) (2023-10-16)
+
+[Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.29.0...0.29.1)
+
+**Merged pull requests:**
+
+- Bump psa-crypto to 0.12.0 [\#146](https://github.com/parallaxsecond/parsec-interface-rs/pull/146) ([tgonzalezorlandoarm](https://github.com/tgonzalezorlandoarm))
+
 ## [0.29.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.29.0) (2023-10-06)
 
 [Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.28.0...0.29.0)
