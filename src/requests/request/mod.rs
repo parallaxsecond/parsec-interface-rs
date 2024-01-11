@@ -94,7 +94,7 @@ impl Request {
             return Err(ResponseStatus::BodySizeExceedsLimit);
         }
         let body = RequestBody::read_from_stream(stream, body_len)?;
-        let auth = RequestAuth::read_from_stream(stream, usize::try_from(raw_header.auth_len)?)?;
+        let auth = RequestAuth::read_from_stream(stream, usize::from(raw_header.auth_len))?;
 
         Ok(Request {
             header: raw_header.try_into()?,

@@ -10,7 +10,6 @@ use arbitrary::Arbitrary;
 use bincode::Options;
 use log::error;
 use serde::{Deserialize, Serialize};
-use std::convert::TryFrom;
 use std::io::{Read, Write};
 
 const WIRE_PROTOCOL_VERSION_MAJ: u8 = 1;
@@ -120,7 +119,7 @@ impl WireHeader {
         }
 
         let hdr_size = get_from_stream!(stream, u16);
-        let mut bytes = vec![0_u8; usize::try_from(hdr_size)?];
+        let mut bytes = vec![0_u8; usize::from(hdr_size)];
         stream.read_exact(&mut bytes)?;
         if hdr_size != REQUEST_HDR_SIZE {
             error!(
