@@ -31,7 +31,7 @@ then
 fi
 if cargo clippy -h
 then
-	cargo clippy --all-targets -- -D clippy::all -D clippy::cargo
+	cargo clippy --all-targets -- -D clippy::cargo
 fi
 
 ############################

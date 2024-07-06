@@ -29,7 +29,7 @@ pub struct Result {
     /// `data` holds the bytes defining the key, formatted as specified
     /// by the provider for which the request was made.
     #[derivative(Debug = "ignore")]
-    pub shared_secret: crate::secrecy::Secret<Vec<u8>>,
+    pub shared_secret: secrecy::Secret<Vec<u8>>,
 }
 
 impl Operation {

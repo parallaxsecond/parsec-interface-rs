@@ -22,7 +22,7 @@ pub struct Operation {
     // Debug is not derived for this because it could expose secrets if printed or logged
     // somewhere
     #[derivative(Debug = "ignore")]
-    pub data: crate::secrecy::Secret<Vec<u8>>,
+    pub data: secrecy::Secret<Vec<u8>>,
 }
 
 /// Native object for the result of a cryptographic key import operation.
