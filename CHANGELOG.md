@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.30.0](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.29.1) (2026-01-05)
+
+### What's Changed
+* ci.yml: Add a MSRV job by @tgonzalezorlandoarm in https://github.com/parallaxsecond/parsec-interface-rs/pull/148
+* Fix ci errors/warnings by @gowthamsk-arm in https://github.com/parallaxsecond/parsec-interface-rs/pull/150
+* Bump psa-crypto version which depends on new version of bindgen crate by @anta5010 in https://github.com/parallaxsecond/parsec-interface-rs/pull/155
+
+**Full Changelog**: https://github.com/parallaxsecond/parsec-interface-rs/compare/0.29.1...0.30.0
+
 ## [0.29.1](https://github.com/parallaxsecond/parsec-interface-rs/tree/0.29.1) (2023-10-16)
 
 [Full Changelog](https://github.com/parallaxsecond/parsec-interface-rs/compare/0.29.0...0.29.1)
