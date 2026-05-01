@@ -65,9 +65,9 @@ impl Response {
     ///
     /// # Errors
     /// - if writing any of the subfields (header or body) fails, then
-    /// `ResponseStatus::ConnectionError` is returned.
+    ///   `ResponseStatus::ConnectionError` is returned.
     /// - if encoding any of the fields in the header fails, then
-    /// `ResponseStatus::InvalidEncoding` is returned.
+    ///   `ResponseStatus::InvalidEncoding` is returned.
     pub fn write_to_stream(self, stream: &mut impl Write) -> Result<()> {
         let mut raw_header: Raw = self.header.into();
         raw_header.body_len = u32::try_from(self.body.len())?;
@@ -85,9 +85,9 @@ impl Response {
     ///
     /// # Errors
     /// - if reading any of the subfields (header or body) fails, the
-    /// corresponding `ResponseStatus` will be returned.
+    ///   corresponding `ResponseStatus` will be returned.
     /// - if the request body size specified in the header is larger than the limit passed as
-    /// a parameter, `BodySizeExceedsLimit` will be returned.
+    ///   a parameter, `BodySizeExceedsLimit` will be returned.
     pub fn read_from_stream(stream: &mut impl Read, body_len_limit: usize) -> Result<Response> {
         let raw_header = Raw::read_from_stream(stream)?;
         let body_len = usize::try_from(raw_header.body_len)?;

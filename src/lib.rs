@@ -41,7 +41,7 @@
 //! This library is used by the Parsec service to:
 //! * read from a stream a `Request` sent to the service with the `read_from_stream` method
 //! * use the `body_to_operation` method of the `Convert` trait on a converter to parse the request
-//! body into a `NativeOperation`
+//!   body into a `NativeOperation`
 //!
 //!```
 //!# use std::io::Read;
@@ -82,7 +82,7 @@
 //! The service can now execute the operation to yield a `NativeResult` and:
 //! * use the `result_to_body` method to serialize the `NativeResult`
 //! * create a `Response` containing the result as its body and write it back to the stream  with
-//! the `write_to_stream` method.
+//!   the `write_to_stream` method.
 //!
 //!```
 //!# use std::io::Write;
@@ -130,7 +130,7 @@
 //!
 //! This library is used by the Parsec Rust clients to:
 //! * use the `operation_to_body` method to serialize the `NativeOperation` to be sent as body of a
-//! `Request`
+//!   `Request`
 //! * write it to the stream with the `write_to_stream` method.
 //!
 //!```

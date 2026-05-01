@@ -147,7 +147,7 @@ mod tests {
                 key_name: String::from("some key"),
                 alg: AsymmetricEncryption::RsaPkcs1v15Crypt,
                 ciphertext: Zeroizing::new(vec![0xff, 32]),
-                salt: Some(zeroize::Zeroizing::new(vec![0xff, 32])),
+                salt: Some(Zeroizing::new(vec![0xff, 32])),
             })
             .validate(get_attrs())
             .unwrap_err(),

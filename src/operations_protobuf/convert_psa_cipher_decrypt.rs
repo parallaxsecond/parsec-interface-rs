@@ -72,7 +72,7 @@ mod test {
         let mut proto: OperationProto = Default::default();
         let message = vec![0x11, 0x22, 0x33];
         let key_name = "test name".to_string();
-        let proto_alg = psa_crypto::types::algorithm::Cipher::StreamCipher;
+        let proto_alg = Cipher::StreamCipher;
         proto.ciphertext = message.clone();
         proto.alg = convert_psa_algorithm::cipher_to_i32(proto_alg);
         proto.key_name = key_name.clone();

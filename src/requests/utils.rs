@@ -1,6 +1,7 @@
 // Copyright 2019 Contributors to the Parsec project.
 // SPDX-License-Identifier: Apache-2.0
 //! Module containing helper macros and functions used in tests.
+
 #![macro_use]
 macro_rules! get_from_stream {
     ($stream:expr, $type:ty) => {
@@ -23,12 +24,15 @@ macro_rules! get_from_stream {
     };
 }
 
+/// Module containing helper macros and functions used in tests.
 #[cfg(test)]
 pub mod tests {
     use std::io::{Error, ErrorKind, Read, Result, Write};
 
+    /// A structure used for mock read-write tests
     #[derive(Debug)]
     pub struct MockReadWrite {
+        /// Buffer for mock read-write
         pub buffer: Vec<u8>,
     }
 
@@ -55,6 +59,7 @@ pub mod tests {
         }
     }
 
+    /// A structure used for mock read-write tests
     #[derive(Copy, Clone, Debug)]
     pub struct MockFailReadWrite;
 

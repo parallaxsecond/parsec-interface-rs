@@ -25,12 +25,10 @@ RUST_BACKTRACE=1 cargo build --features regenerate-protobuf
 # Static checks #
 #################
 # On native target clippy or fmt might not be available.
-if cargo fmt -h
-then
+if cargo fmt -h >/dev/null; then
 	cargo fmt --all -- --check
 fi
-if cargo clippy -h
-then
+if cargo clippy -h >/dev/null; then
 	cargo clippy --all-targets -- -D clippy::all -D clippy::cargo
 fi
 

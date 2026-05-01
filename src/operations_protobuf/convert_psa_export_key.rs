@@ -124,7 +124,7 @@ mod test {
     #[test]
     fn resp_export_pk_e2e() {
         let result = Result {
-            data: secrecy::Secret::new(vec![0x11, 0x22, 0x33]),
+            data: Secret::new(vec![0x11, 0x22, 0x33]),
         };
         let body = CONVERTER
             .result_to_body(NativeResult::PsaExportKey(result))

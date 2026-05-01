@@ -100,13 +100,13 @@ impl WireHeader {
     ///
     /// # Errors
     /// - if either the magic number, the header size or the reserved fields
-    /// are invalid values, `ResponseStatus::InvalidHeader` is returned.
+    ///   are invalid values, `ResponseStatus::InvalidHeader` is returned.
     /// - if reading the fields after magic number and header size fails,
-    /// `ResponseStatus::ConnectionError` is returned
+    ///   `ResponseStatus::ConnectionError` is returned
     ///     - the read may fail due to a timeout if not enough bytes are
-    ///     sent across
+    ///       sent across
     /// - if the parsed bytes cannot be unmarshalled into the contained fields,
-    /// `ResponseStatus::InvalidEncoding` is returned.
+    ///   `ResponseStatus::InvalidEncoding` is returned.
     /// - if the wire protocol version used is different than 1.0
     pub fn read_from_stream<R: Read>(mut stream: &mut R) -> Result<WireHeader> {
         let magic_number = get_from_stream!(stream, u32);
