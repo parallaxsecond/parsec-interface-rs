@@ -295,6 +295,16 @@ impl From<std::io::Error> for ResponseStatus {
     }
 }
 
+impl From<::prost::DecodeError> for ResponseStatus {
+    fn from(err: ::prost::DecodeError) -> Self {
+        warn!(
+            "Conversion from {} to ResponseStatus::InvalidEncoding.",
+            err
+        );
+        ResponseStatus::InvalidEncoding
+    }
+}
+
 impl From<bincode::Error> for ResponseStatus {
     fn from(err: bincode::Error) -> Self {
         warn!(
